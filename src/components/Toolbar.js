@@ -45,17 +45,33 @@ export default function Toolbar(props) {
                     display: 'inline-block',
                     padding: '5px 15px',
                     borderRadius: '5px',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    marginRight: '10px'
                 }}
                 onMouseDown={() => estop()}
             >
                 <b>E-STOP ALL</b>
             </div>
-        </div>
+            <div style={{ display: 'inline-block', backgroundColor: 'lightGrey' }}>
+                <table cellPadding="4">
+                    <tbody>
+                        <tr>
+                            <td>Serial Port: </td>
+                            <td>
+                                <select>
+                                    <option>COM3</option>
+                                </select>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div >
     )
 }
 
 const barStyle = {
     backgroundColor: 'darkGrey',
-    padding: '3px'
+    padding: '3px',
+    display: 'flex'
 }

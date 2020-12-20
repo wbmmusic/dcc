@@ -88,14 +88,15 @@ app.on('ready', () => {
     }
 
   })
-  
+
   createWindow()
   listPorts()
   port = new SerialPort('COM16', { baudRate: 9600 })
   port.on('error', function (err) {
     console.log('Error: ', err.message)
+    //NOTIFY DENNIS HERE
   })
-  console.log(port)
+  //console.log(port)
 
   const eStopAllQuickKey = globalShortcut.register('Ctrl+space', () => {
     console.log('SPACE PRESS')
@@ -158,10 +159,12 @@ app.on('activate', () => {
 })
 
 function listPorts() {
+  console.log('PORTLIST')
   SerialPort.list().then(
     ports => {
       ports.forEach(port => {
         console.log(`${port.path}\t${port.pnpId || ''}\t${port.manufacturer || ''}`)
+        console.log(port)
       })
     },
     err => {
