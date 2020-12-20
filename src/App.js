@@ -13,7 +13,7 @@ function App() {
 
     ipcRenderer.on('app_version', (event, arg) => {
       ipcRenderer.removeAllListeners('app_version');
-      document.title = 'Electron Test Yo --- v' + arg.version;
+      document.title = 'Big D\'s Railroad --- v' + arg.version;
     });
 
 
