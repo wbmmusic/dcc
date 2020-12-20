@@ -5,6 +5,8 @@ const SerialPort = require('serialport')
 
 var fs = require('fs');
 
+const { autoUpdater } = require('electron-updater');
+
 const isMac = process.platform === 'darwin'
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -62,6 +64,31 @@ function createWindow() {
 }
 
 app.on('ready', () => {
+  ipcMain.on('reactIsReady', () => {
+
+    console.log('React Is Ready')
+    win.webContents.send('message', 'React Is Ready')
+    win.webContents.send('app_version', { version: app.getVersion() });
+
+    if (app.isPackaged) {
+      win.webContents.send('message', 'App is packaged')
+
+      autoUpdater.on('checking-for-update', () => win.webContents.send('message', 'Checking for update'))
+      autoUpdater.on('update-available', () => win.webContents.send('message', 'Update Available'))
+      autoUpdater.on('update-not-available', () => win.webContents.send('message', 'Update NOT Available'))
+      autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName) => win.webContents.send('message', 'Update Downloaded'))
+      autoUpdater.on('error', message => win.webContents.send('message', message))
+
+      setInterval(() => {
+        win.webContents.send('message', 'Interval')
+        autoUpdater.checkForUpdatesAndNotify()
+      }, 600000);
+
+      autoUpdater.checkForUpdatesAndNotify()
+    }
+
+  })
+  
   createWindow()
   listPorts()
   port = new SerialPort('COM16', { baudRate: 9600 })

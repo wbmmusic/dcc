@@ -1,6 +1,6 @@
 {
   "name": "dcc",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "author": "Marece Williams",
   "description": "React and Electron Awesome App",
   "homepage": "./",
@@ -12,6 +12,7 @@
     "@testing-library/react": "^11.2.2",
     "@testing-library/user-event": "^12.5.0",
     "bootstrap": "^4.5.3",
+    "electron-updater": "^4.3.5",
     "rc-slider": "^9.6.5",
     "react": "^17.0.1",
     "react-bootstrap": "^1.4.0",
@@ -62,7 +63,10 @@
     "files": [
       "build/**/*",
       "electron/*"
-    ]
+    ],
+    "win": {
+      "icon": "public/icon.ico"
+    }
   },
   "repository": {
     "type": "git",
