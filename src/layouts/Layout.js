@@ -153,12 +153,12 @@ export default function Layout(props) {
     }
 
     const open = (switchNum) => {
-        console.log('Switch Open')
+        //console.log('Switch Open')
         ipcRenderer.send('send-serial', [0xAD, 0x00, switchNum, 3, 0])
     }
 
     const close = (switchNum) => {
-        console.log('Switch close')
+        //console.log('Switch close')
         ipcRenderer.send('send-serial', [0xAD, 0x00, switchNum, 4, 0])
     }
 

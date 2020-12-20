@@ -124,8 +124,8 @@ export default function AppTop() {
         tempState.locos = tempLocos
         setState(tempState)
 
-        console.log('HERE XXX')
-        console.log(tempLocos)
+        //console.log('HERE XXX')
+        //console.log(tempLocos)
 
         ipcRenderer.on('addLoco', (event) => {
             let tempState = { ...state }
@@ -144,9 +144,11 @@ export default function AppTop() {
         }
     }, [])
 
+/*
     useEffect(() => {
         console.log(state)
     }, [state])
+*/
 
     const setTrack = (track) => {
         let tempState = { ...state }

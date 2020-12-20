@@ -59,7 +59,7 @@ export default function Toolbar(props) {
                             <td>Serial Port: </td>
                             <td>
                                 <select>
-                                    <option>COM3</option>
+                                    <option>COM16</option>
                                 </select>
                             </td>
                         </tr>
