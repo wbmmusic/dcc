@@ -1,6 +1,7 @@
 {
   "name": "dcc",
   "version": "0.1.0",
+  "author": "Marece Williams",
   "description": "React and Electron Awesome App",
   "homepage": "./",
   "main": "public/main.js",
@@ -27,7 +28,9 @@
     "eject": "react-scripts eject",
     "electron": "electron .",
     "install": "electron-rebuild",
-    "rebuild": "electron-rebuild -f"
+    "package": "electron-builder build -c.extraMetadata.main=build/main.js --publish never",
+    "deploy": "electron-builder build -c.extraMetadata.main=build/main.js --publish always",
+    "upload": "yarn build && git add . && git commit -m %NPM_PACKAGE_VERSION% && git push origin master && yarn deploy "
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -49,5 +52,20 @@
     "electron-builder": "^22.9.1",
     "electron-rebuild": "^2.3.4",
     "foreman": "^3.0.1"
+  },
+  "build": {
+    "productName": "Big D's Railroad",
+    "appId": "com.wbm.dcc",
+    "electronVersion": "11.1.0",
+    "copyright": "WBM Tek",
+    "extends": null,
+    "files": [
+      "build/**/*",
+      "electron/*"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wbmmusic/dcc.git"
   }
 }
