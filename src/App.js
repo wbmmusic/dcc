@@ -20,7 +20,7 @@ function App() {
     ipcRenderer.send('reactIsReady')
 
     return () => {
-      ipcRenderer.removeListener('reactIsReady')
+      ipcRenderer.removeAllListeners('reactIsReady')
     }
   }, [])
 

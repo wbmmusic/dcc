@@ -1,6 +1,6 @@
 {
   "name": "dcc",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "author": "Marece Williams",
   "description": "React and Electron Awesome App",
   "homepage": "./",
@@ -31,7 +31,8 @@
     "install": "electron-rebuild",
     "package": "electron-builder build -c.extraMetadata.main=build/main.js --publish never",
     "deploy": "electron-builder build -c.extraMetadata.main=build/main.js --publish always",
-    "upload": "yarn build && git add . && git commit -m %NPM_PACKAGE_VERSION% && git push origin master && yarn deploy "
+    "upload": "yarn build && git add . && git commit -m %NPM_PACKAGE_VERSION% && git push origin master && yarn deploy ",
+    "try": "yarn build && yarn package "
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -63,6 +64,9 @@
     "files": [
       "build/**/*",
       "electron/*"
+    ],
+    "extraResources": [
+      "public/locos/*"
     ],
     "win": {
       "icon": "public/icon.ico"

@@ -1,11 +1,10 @@
-import { Button } from 'react-bootstrap';
 import React from 'react'
+import { Button } from 'react-bootstrap';
+const path = require('path')
 
 const { ipcRenderer } = window.require('electron');
 
-
 export default function LocoSettings(props) {
-
 
     const backToMain = () => {
         props.backToMain()
@@ -242,7 +241,7 @@ export default function LocoSettings(props) {
                 }}>
                     <img
                         width='100%'
-                        src={'locos/' + props.data.photo}
+                        src={path.join('locos', props.data.photo)}
                         alt='Locomotive'
                     />
                 </div>
