@@ -1,4 +1,5 @@
 import React from 'react'
+const path = require('path')
 
 const { ipcRenderer } = window.require('electron')
 
@@ -121,7 +122,7 @@ export default function LocoIcon(props) {
                         overflow: 'hidden'
                     }}
                 >
-                    <img alt="Locomotive" width='80%' src={'locos/' + props.loco.photo} />
+                    <img alt="Locomotive" width='80%' src={path.join('lococ', props.loco.photo)} />
                 </div>
 
                 <div style={{ height: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', }}>
