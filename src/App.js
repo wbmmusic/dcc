@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 
 import AppTop from "./components/AppTop";
+import Updates from './components/Updates';
 const { ipcRenderer } = window.require('electron')
 
 function App() {
@@ -33,6 +34,7 @@ function App() {
     }}>
       <BrowserRouter>
         <AppTop />
+        <Updates />
       </BrowserRouter>
     </div>
   );
