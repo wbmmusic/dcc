@@ -6,7 +6,6 @@ import LocoSettings from "./LocoSettings";
 import { dcdr1 } from "./Decoders";
 import Layout from '../layouts/Layout';
 import { Route, Switch, useHistory } from 'react-router-dom';
-import { Button } from 'react-bootstrap';
 
 const { ipcRenderer } = window.require('electron');
 
@@ -51,6 +50,9 @@ export default function AppTop() {
             console.log(theLocos)
             let tempState = { ...state }
             tempState.locos = theLocos
+            tempState.locos.forEach((loco) => {
+                loco.functionState = [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false]
+            })
             setState(tempState)
         })
 
@@ -62,7 +64,9 @@ export default function AppTop() {
 
         ipcRenderer.on('addLoco', (event) => {
             let tempState = { ...state }
-            tempState.locos.push(defaultLoco)
+            let tempDefault = { ...defaultLoco }
+            tempDefault.functionState = [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false]
+            tempState.locos.push(tempDefault)
             setState(tempState)
         })
 

@@ -51,7 +51,7 @@ export default function LocoControl(props) {
     const getAddressBytes = () => {
         var address = props.loco.address
 
-        console.log("Address = " + address)
+        //console.log("Address = " + address)
 
         var lowByte = address & 0xff
         var highByte = (address >> 8) & 0xff
@@ -113,44 +113,51 @@ export default function LocoControl(props) {
 
         let tempData = props.loco.functionState
 
+        console.log('tempData', tempData)
+
         if (button === 'functionOn') {
             tempData[funNum] = true
+            console.log('-->> FUN ON')
         } else if (button === 'functionOff') {
             tempData[funNum] = false
+            console.log('-->> FUN OFF')
         }
 
         if (funNum >= 0 && funNum <= 4) {
             funOp = 0x07
-            funDataX = 0
+
 
             if (button === 'functionOn') {
+                funDataX = 0
                 console.log('Function on 0-4')
                 for (let bit = 0; bit <= 4; bit++) {
-                    if (bit === 0 && tempData[bit]) {
+                    if (bit === 0 && tempData[bit] === true) {
                         funDataX = funDataX | 16
-                    } else if (bit === 1 && tempData[bit]) {
+                    } else if (bit === 1 && tempData[bit] === true) {
                         funDataX = funDataX | 1
-                    } else if (bit === 2 && tempData[bit]) {
+                    } else if (bit === 2 && tempData[bit] === true) {
                         funDataX = funDataX | 2
-                    } else if (bit === 3 && tempData[bit]) {
+                    } else if (bit === 3 && tempData[bit] === true) {
                         funDataX = funDataX | 4
-                    } else if (bit === 4 && tempData[bit]) {
+                    } else if (bit === 4 && tempData[bit] === true) {
                         funDataX = funDataX | 8
                     }
                 }
 
             } else if (button === 'functionOff') {
+                funDataX = 0xFF
                 console.log('Function off 0-4')
                 for (let bit = 0; bit <= 4; bit++) {
-                    if (bit === 0 && !tempData[bit]) {
+                    if (bit === 0 && tempData[bit] === false) {
+                        console.log('bit 1 off xxxx')
                         funDataX = funDataX & 0xEF
-                    } else if (bit === 1 && !tempData[bit]) {
+                    } else if (bit === 1 && tempData[bit] === false) {
                         funDataX = funDataX & 0xFE
-                    } else if (bit === 2 && !tempData[bit]) {
+                    } else if (bit === 2 && tempData[bit] === false) {
                         funDataX = funDataX & 0xFD
-                    } else if (bit === 3 && !tempData[bit]) {
+                    } else if (bit === 3 && tempData[bit] === false) {
                         funDataX = funDataX & 0xFB
-                    } else if (bit === 4 && !tempData[bit]) {
+                    } else if (bit === 4 && tempData[bit] === false) {
                         funDataX = funDataX & 0xF7
                     }
                 }
@@ -162,6 +169,7 @@ export default function LocoControl(props) {
 
             if (button === 'functionOn') {
                 console.log('Function on 5-8')
+                funDataX = 0
 
                 for (let bit1 = 5; bit1 <= 8; bit1++) {
                     if (bit1 === 5 && props.loco.functionState[bit1]) {
@@ -178,7 +186,7 @@ export default function LocoControl(props) {
 
             } else if (button === 'functionOff') {
                 console.log('Function off 5-8')
-
+                funDataX = 0xFF
                 for (let bit1 = 5; bit1 <= 8; bit1++) {
                     if (bit1 === 5 && !props.loco.functionState[bit1]) {
                         funDataX = funDataX & 0xFE
@@ -200,6 +208,7 @@ export default function LocoControl(props) {
             funDataX = 0
 
             if (button === 'functionOn') {
+                funDataX = 0
                 console.log('Function on 9-12')
                 for (let bit2 = 9; bit2 <= 12; bit2++) {
                     if (bit2 === 9 && props.loco.functionState[bit2]) {
@@ -214,6 +223,7 @@ export default function LocoControl(props) {
                 }
 
             } else if (button === 'functionOff') {
+                funDataX = 0xFF
                 console.log('Function off 9-12')
                 for (let bit2 = 9; bit2 <= 12; bit2++) {
                     if (bit2 === 9 && !props.loco.functionState[bit2]) {
@@ -233,6 +243,7 @@ export default function LocoControl(props) {
             funDataX = 0
 
             if (button === 'functionOn') {
+                funDataX = 0
                 console.log('Function on 13-20')
                 for (let bit3 = 13; bit3 <= 20; bit3++) {
                     if (bit3 === 13 && props.loco.functionState[bit3]) {
@@ -256,7 +267,7 @@ export default function LocoControl(props) {
 
             } else if (button === 'functionOff') {
                 console.log('Function off 13-20')
-
+                funDataX = 0xFF
                 for (let bit3 = 13; bit3 <= 20; bit3++) {
                     if (bit3 === 13 && !props.loco.functionState[bit3]) {
                         funDataX = funDataX & 0xFE
@@ -285,6 +296,7 @@ export default function LocoControl(props) {
             funDataX = 0
 
             if (button === 'functionOn') {
+                funDataX = 0
                 console.log('Function on 21-28')
                 for (let bit3 = 21; bit3 <= 28; bit3++) {
                     if (bit3 === 21 && props.loco.functionState[bit3]) {
@@ -307,6 +319,7 @@ export default function LocoControl(props) {
                 }
 
             } else if (button === 'functionOff') {
+                funDataX = 0xFF
                 console.log('Function off 21-28')
                 for (let bit3 = 21; bit3 <= 28; bit3++) {
                     if (bit3 === 21 && !props.loco.functionState[bit3]) {
@@ -327,10 +340,7 @@ export default function LocoControl(props) {
                         funDataX = funDataX & 0x7F
                     }
                 }
-
             }
-
-
         }
 
         var addy = getAddressBytes()
