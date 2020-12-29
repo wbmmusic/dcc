@@ -46,7 +46,7 @@ const makeLocos = () => {
   locos = locosFile().locos
 }
 
-
+console.log('Delete Me')
 
 makeLocos()
 //console.log(locos)
@@ -70,7 +70,7 @@ function party() {
     } else {
       sending = false
     }
-  }, 40);
+  }, 50);
 }
 
 function createWindow() {

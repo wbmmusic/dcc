@@ -17,7 +17,6 @@ function App() {
       document.title = 'Big D\'s Railroad --- v' + arg.version;
     });
 
-
     ipcRenderer.send('reactIsReady')
 
     return () => {
