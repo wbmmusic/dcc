@@ -179,7 +179,7 @@ export default function LocoControl(props) {
             } else if (button === 'functionOff') {
                 console.log('Function off 5-8')
 
-                for (var bit1 = 5; bit1 <= 8; bit1++) {
+                for (bit1 = 5; bit1 <= 8; bit1++) {
                     if (bit1 === 5 && !props.loco.functionState[bit1]) {
                         funDataX = funDataX & 0xFE
                     } else if (bit1 === 6 && !props.loco.functionState[bit1]) {
@@ -215,7 +215,7 @@ export default function LocoControl(props) {
 
             } else if (button === 'functionOff') {
                 console.log('Function off 9-12')
-                for (var bit2 = 9; bit2 <= 12; bit2++) {
+                for (bit2 = 9; bit2 <= 12; bit2++) {
                     if (bit2 === 9 && !props.loco.functionState[bit2]) {
                         funDataX = funDataX & 0xFE
                     } else if (bit2 === 10 && !props.loco.functionState[bit2]) {
@@ -257,7 +257,7 @@ export default function LocoControl(props) {
             } else if (button === 'functionOff') {
                 console.log('Function off 13-20')
 
-                for (var bit3 = 13; bit3 <= 20; bit3++) {
+                for (bit3 = 13; bit3 <= 20; bit3++) {
                     if (bit3 === 13 && !props.loco.functionState[bit3]) {
                         funDataX = funDataX & 0xFE
                     } else if (bit3 === 14 && !props.loco.functionState[bit3]) {
@@ -286,7 +286,7 @@ export default function LocoControl(props) {
 
             if (button === 'functionOn') {
                 console.log('Function on 21-28')
-                for (var bit3 = 21; bit3 <= 28; bit3++) {
+                for (bit3 = 21; bit3 <= 28; bit3++) {
                     if (bit3 === 21 && props.loco.functionState[bit3]) {
                         funDataX = funDataX | 1
                     } else if (bit3 === 22 && props.loco.functionState[bit3]) {
@@ -308,7 +308,7 @@ export default function LocoControl(props) {
 
             } else if (button === 'functionOff') {
                 console.log('Function off 21-28')
-                for (var bit3 = 21; bit3 <= 28; bit3++) {
+                for (bit3 = 21; bit3 <= 28; bit3++) {
                     if (bit3 === 21 && !props.loco.functionState[bit3]) {
                         funDataX = funDataX & 0xFE
                     } else if (bit3 === 22 && !props.loco.functionState[bit3]) {
@@ -387,15 +387,15 @@ export default function LocoControl(props) {
     }
 
     return (
-        <div>
+        <div style={{ height: '100%' }}>
             <table
-                style={{ border: '1px solid black', width: '100%', height: 'calc(100vh - 50px)' }}>
+                style={{ width: '100%', height: '100%' }}>
                 <tbody>
                     <tr>
-                        <td style={{ height: '100%', border: '1px solid black', padding: '12px 4px', backgroundColor: 'grey' }}>
+                        <td style={{ height: '100%', padding: '12px 4px', backgroundColor: 'grey' }}>
                             <Slider min={0} max={126} vertical={true} value={props.loco.speed} onChange={speedChange} />
                         </td>
-                        <td style={{ border: '1px solid black', textAlign: 'top' }}>
+                        <td style={{ textAlign: 'top' }}>
 
                             <div style={{ backgroundColor: 'lightgrey', height: '100%' }}>
                                 <div style={{ backgroundColor: 'white', cursor: 'context-menu', paddingLeft: '3px' }}>
@@ -459,15 +459,6 @@ export default function LocoControl(props) {
             </table>
         </div>
     )
-}
-
-const btn = {
-    border: '1px solid black',
-    padding: '5px',
-    borderRadius: '5px',
-    textAlign: 'center',
-    cursor: 'context-menu',
-    backgroundColor: 'white'
 }
 
 const transportButtons = {

@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, globalShortcut, Menu, dialog } = require('electron')
+const { app, BrowserWindow, ipcMain, globalShortcut, Menu, dialog, protocol } = require('electron')
 const path = require('path')
 const url = require('url')
 const SerialPort = require('serialport')
@@ -9,12 +9,47 @@ const { autoUpdater } = require('electron-updater');
 
 const isMac = process.platform === 'darwin'
 
+let pathToAssets = path.join('C:', 'ProgramData', 'WBM Tek', 'dcc')
+let pathToLocos = path.join('C:', 'ProgramData', 'WBM Tek', 'dcc', 'locos')
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win
 let port
 let outBuffer = []
 let sending = false
+let locos = []
+
+let defaultLocosData = {
+  locos: []
+}
+
+if (!fs.existsSync(path.join(pathToLocos, 'locos.json'))) {
+  console.log('File doesnt exist')
+  fs.mkdirSync(pathToLocos, { recursive: true })
+  fs.writeFileSync(path.join(pathToLocos, 'locos.json'), JSON.stringify(defaultLocosData))
+} else {
+  console.log('Found Locos File')
+}
+
+const locosFile = () => {
+  let tempFile = JSON.parse(fs.readFileSync(path.join(pathToLocos, 'locos.json')))
+  return tempFile
+}
+
+const saveLocosFile = (fileData) => {
+  console.log('Save Locos File')
+  fs.writeFileSync(path.join(pathToLocos, 'locos.json'), JSON.stringify(fileData))
+}
+
+const makeLocos = () => {
+  locos = locosFile().locos
+}
+
+
+
+makeLocos()
+//console.log(locos)
 
 function writeAndDrain() {
   if (!sending) {
@@ -27,7 +62,7 @@ function writeAndDrain() {
 
 function party() {
 
-  console.log('In Party')
+  //console.log('In Party')
   setTimeout(() => {
     if (outBuffer.length > 0) {
       sending = false
@@ -45,7 +80,8 @@ function createWindow() {
     height: 750,
     icon: __dirname + '/icon.ico',
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: true,
+      webSecurity: false
     }
   })
 
@@ -64,6 +100,12 @@ function createWindow() {
 }
 
 app.on('ready', () => {
+
+  protocol.registerFileProtocol('file', (request, callback) => {
+    const pathname = decodeURI(request.url.replace('file:///', ''));
+    callback(pathname);
+  });
+
   ipcMain.on('reactIsReady', () => {
 
     console.log('React Is Ready')
@@ -108,12 +150,21 @@ app.on('ready', () => {
     win.webContents.send('eStopSelected');
   })
 
+  ipcMain.on('getLocos', () => {
+    win.webContents.send('locos', locos)
+  })
 
   ipcMain.on('send-serial', (event, arg) => {
-    console.log('send-serial')
-    console.log(arg)
+    //console.log('send-serial')
+    //console.log(arg)
     outBuffer.push(arg)
     writeAndDrain()
+    //port.write(arg)
+  })
+
+  ipcMain.on('addLoco', (event, arg) => {
+    console.log('got an add loco')
+    console.log(arg)
     //port.write(arg)
   })
 

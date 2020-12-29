@@ -17,81 +17,7 @@ export default function AppTop() {
         selectedLoco: 0,
         activeTrack: 0,
         showAll: false,
-        locos: [
-            {
-                hidden: false,
-                name: 'Metra',
-                number: 163,
-                address: 163,
-                model: 'F40PH-2',
-                photo: 'metra.jpg',
-                decoder: dcdr1(),
-                speed: 0,
-                functionState: [],
-                direction: 'stopped'
-            },
-            {
-                hidden: false,
-                name: 'Union Pacific',
-                number: 735,
-                address: 735,
-                model: 'EMD GP38-2',
-                photo: 'up735.jpg',
-                decoder: dcdr1(),
-                speed: 0,
-                functionState: [],
-                direction: 'stopped'
-            },
-            {
-                hidden: false,
-                name: 'WISCSN & STHRN',
-                number: 3810,
-                address: 3810,
-                model: 'EMD GP38-2',
-                photo: 'ws3810.jpg',
-                decoder: dcdr1(),
-                speed: 0,
-                functionState: [],
-                direction: 'stopped'
-            },
-            {
-                hidden: false,
-                name: 'Union Pacific',
-                number: 2230,
-                address: 2230,
-                model: 'EMD SD60',
-                photo: 'up2230.jpg',
-                decoder: dcdr1(),
-                speed: 0,
-                functionState: [],
-                direction: 'stopped'
-            },
-            {
-                hidden: false,
-                name: 'Union Pacific',
-                number: 2692,
-                address: 2692,
-                model: 'GE ET44AH',
-                photo: 'up2692.jpg',
-                decoder: dcdr1(),
-                speed: 0,
-                functionState: [],
-                direction: 'stopped'
-            },
-            {
-                hidden: false,
-                name: 'Union Pacific',
-                number: 2490,
-                address: 2490,
-                model: 'USRA light mikado',
-                photo: 'up2490.jpg',
-                decoder: dcdr1(),
-                speed: 0,
-                functionState: [],
-                direction: 'stopped'
-            }
-
-        ]
+        locos: []
     })
 
     const defaultLoco = {
@@ -120,12 +46,19 @@ export default function AppTop() {
             tempLocos[locoNum].functionState = tempFunState
         }
 
+        ipcRenderer.on('locos', (e, theLocos) => {
+            console.log('Got Locos')
+            console.log(theLocos)
+            let tempState = { ...state }
+            tempState.locos = theLocos
+            setState(tempState)
+        })
+
+        ipcRenderer.send('getLocos')
+
         let tempState = { ...state }
         tempState.locos = tempLocos
         setState(tempState)
-
-        //console.log('HERE XXX')
-        //console.log(tempLocos)
 
         ipcRenderer.on('addLoco', (event) => {
             let tempState = { ...state }
@@ -144,11 +77,11 @@ export default function AppTop() {
         }
     }, [])
 
-/*
-    useEffect(() => {
-        console.log(state)
-    }, [state])
-*/
+    /*
+        useEffect(() => {
+            console.log(state)
+        }, [state])
+    */
 
     const setTrack = (track) => {
         let tempState = { ...state }
@@ -302,6 +235,40 @@ export default function AppTop() {
         console.log(state)
     }
 
+    const makeLocoSettings = () => {
+        if (state.locos.length === 0) {
+            return
+        }
+        return (
+            <LocoSettings
+                visibility={handleVisible}
+                changeModel={handleModelChange}
+                changeAddress={handleAddressChange}
+                changeNumber={handleNumberChange}
+                changeName={handleNameChange}
+                hidden={state.locos[state.selectedLoco].hidden}
+                decoder={state.locos[state.selectedLoco].decoder}
+                loco={state.selectedLoco}
+                data={state.locos[state.selectedLoco]}
+                backToMain={openMain}
+                deleteLoco={deleteLoco}
+            />
+        )
+    }
+
+    const makeLocoControl = () => {
+        if (state.locos.length === 0) {
+            return
+        }
+        return (
+            <LocoControl
+                setFunction={setFunction}
+                speedChange={speedChange}
+                changeDirection={handleDirectionChange}
+                loco={state.locos[state.selectedLoco]}
+            />
+        )
+    }
 
     const makeLocoIcons = () => {
         let locoIcons = []
@@ -325,7 +292,7 @@ export default function AppTop() {
 
             if (!state.locos[i].hidden || state.showAll) {
                 locoIcons.push(
-                    <td key={tempKey} name="LocoSlot">
+                    <div key={tempKey} name="LocoSlot" style={{ display: 'inline-block' }}>
                         <LocoIcon
                             openSettings={openSettings}
                             loco={state.locos[i]}
@@ -334,7 +301,7 @@ export default function AppTop() {
                             selected={selectLoco}
                             color={color}
                         />
-                    </td>
+                    </div>
                 )
             }
         }
@@ -357,7 +324,7 @@ export default function AppTop() {
 
         if (isOneHidden) {
             locoIcons.push(
-                <td key="Show/HideButton" name="showHideBtn">
+                <div key="Show/HideButton" name="showHideBtn" style={{ display: 'inline-block' }}>
                     <div style={{
                         backgroundColor: 'white',
                         height: '118px',
@@ -376,104 +343,51 @@ export default function AppTop() {
                             {btnLbl}
                         </div>
                     </div>
-                </td>
+                </div>
             )
         }
 
-        return (
-            <table>
-                <tbody>
-                    <tr>
-                        {locoIcons}
-                    </tr>
-                </tbody>
-            </table>
-        )
+        return locoIcons
     }
 
 
 
 
     return (
-        <div>
-            <table
-                style={{
-                    backgroundColor: 'white',
-                    width: '100%',
-                    height: '100vh',
-                }}
-            >
-                <tbody>
-                    <tr>
-                        <td colSpan='2' style={toolBar}>
-                            <Toolbar
-                                locos={state.locos}
-                                setAllStopped={handleSetAllStopped}
-                            />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style={{ ...locoControl, verticalAlign: 'top' }}>
-                            <LocoControl
-                                setFunction={setFunction}
-                                speedChange={speedChange}
-                                changeDirection={handleDirectionChange}
-                                loco={state.locos[state.selectedLoco]}
-                            />
-                        </td>
-
-                        <td>
-                            <div style={{ height: '100%' }}>
-                                <Switch>
-                                    <Route path="/locoSettingsWindow">
-                                        <LocoSettings
-                                            visibility={handleVisible}
-                                            changeModel={handleModelChange}
-                                            changeAddress={handleAddressChange}
-                                            changeNumber={handleNumberChange}
-                                            changeName={handleNameChange}
-                                            hidden={state.locos[state.selectedLoco].hidden}
-                                            decoder={state.locos[state.selectedLoco].decoder}
-                                            loco={state.selectedLoco}
-                                            data={state.locos[state.selectedLoco]}
-                                            backToMain={openMain}
-                                            deleteLoco={deleteLoco}
-                                        />
-                                    </Route>
-                                    <Route>
-                                        <table style={{ width: '100%', height: '100%' }}>
-                                            <tbody>
-                                                <tr>
-                                                    <td style={{ border: '1px solid black', height: '110px' }}>
-                                                        <div
-                                                            style={{
-                                                                height: '100%',
-                                                                backgroundColor: '#7B7D7D',
-                                                            }}
-                                                        >
-                                                            {makeLocoIcons()}
-                                                        </div>
-
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td
-                                                        style={{ border: '1px solid black', backgroundColor: 'lightgrey', verticalAlign: 'top' }}
-                                                    >
-                                                        <Layout activeTrack={state.activeTrack} setActiveTrack={setTrack} />
-                                                        <Button style={{ margin: '5px' }} size="sm" variant="secondary" onMouseDown={printState}>Print State</Button>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </Route>
-                                </Switch>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div >
+        <div style={{ height: '100vh', width: '100vw', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            <div><Toolbar locos={state.locos} setAllStopped={handleSetAllStopped} /></div>
+            <div style={{ height: '100%', maxHeight: '100%', overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: '100%', maxWidth: '100%', maxHeight: '100%', display: 'flex', overflow: 'hidden' }}>
+                    <div style={{ width: '250px', minWidth: '250px', maxWidth: '250px' }}>{makeLocoControl()}</div>
+                    <div style={{ width: '100%', maxWidth: '100%', overflow: 'hidden' }}>
+                        <Switch>
+                            <Route path="/locoSettingsWindow">{makeLocoSettings()}</Route>
+                            <Route>
+                                <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                                    <div
+                                        style={{
+                                            backgroundColor: '#7B7D7D',
+                                            maxWidth: '100%',
+                                            width: '100%',
+                                            height: '140px',
+                                            minHeight: '140px',
+                                            display: 'flex',
+                                            overflow: 'hidden',
+                                            overflowX: 'auto',
+                                        }}
+                                    >
+                                        {makeLocoIcons()}
+                                    </div>
+                                    <div style={{ height: '100%', width: '100%', maxWidth: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                                        <Layout activeTrack={state.activeTrack} setActiveTrack={setTrack} />
+                                    </div>
+                                </div>
+                            </Route>
+                        </Switch>
+                    </div>
+                </div>
+            </div>
+        </div>
     )
 }
 

@@ -124,12 +124,12 @@ export default function LocoSettings(props) {
     return (
         <div style={{
             overflow: 'auto',
-            height: 'calc(100vh - 50px)',
+            height: '100%',
             padding: '10px'
         }}>
             <div>
                 <b>Locomotive Settings</b>
-                <Button size="sm" variant="secondary" style={{ marginLeft: '10px' }} onMouseDown={backToMain}>Close Settings</Button>
+                <Button size="sm" variant="outline-secondary" style={{ marginLeft: '10px' }} onMouseDown={backToMain}>Close Settings</Button>
             </div>
 
             <hr />
@@ -228,7 +228,7 @@ export default function LocoSettings(props) {
                 <div style={{ fontSize: '12px', display: 'inline-block', marginLeft: '10px', marginRight: '10px' }}>
                     {props.data.photo}
                 </div>
-                <Button size="sm" variant="secondary" onMouseDown={chooseImage}>Choose Image</Button>
+                <Button size="sm" variant="outline-secondary" onMouseDown={chooseImage}>Choose Image</Button>
                 <hr />
 
 
@@ -241,7 +241,7 @@ export default function LocoSettings(props) {
                 }}>
                     <img
                         width='100%'
-                        src={path.join('locos', props.data.photo)}
+                        src={path.join('C:/', 'ProgramData', 'WBM Tek', 'dcc', 'locos', 'images', props.data.photo)}
                         alt='Locomotive'
                     />
                 </div>

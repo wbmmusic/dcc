@@ -189,7 +189,7 @@ export default function Layout(props) {
     }
 
     return (
-        <div style={{ backgroundColor: 'darkGrey', padding: '5px', maxWidth: '1000px' }}>
+        <div style={{ backgroundColor: 'darkGrey', padding: '5px', width:'100%',  maxWidth: '100%', maxHeight: '100%', display:'flex', flexDirection:'column' }}>
             <svg id="TRACK" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4869.06 2463.71">
                 <g id="Loop">
                     <line x1="1231.24" y1="2422.22" x2="1366.75" y2="2422.22" fill="none" stroke="#000" strokeLinecap="square" strokeLinejoin="bevel" strokeWidth="80" />

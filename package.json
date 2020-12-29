@@ -1,6 +1,6 @@
 {
   "name": "dcc",
-  "version": "0.0.7",
+  "version": "0.1.0",
   "author": "Marece Williams",
   "description": "React and Electron Awesome App",
   "homepage": "./",
@@ -50,7 +50,7 @@
     ]
   },
   "devDependencies": {
-    "electron": "^11.1.0",
+    "electron": "^10.2.0",
     "electron-builder": "^22.9.1",
     "electron-rebuild": "^2.3.4",
     "foreman": "^3.0.1"
@@ -58,7 +58,7 @@
   "build": {
     "productName": "Big D's Railroad",
     "appId": "com.wbm.dcc",
-    "electronVersion": "11.1.0",
+    "electronVersion": "10.2.0",
     "copyright": "WBM Tek",
     "extends": null,
     "files": [
