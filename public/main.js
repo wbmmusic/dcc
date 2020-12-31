@@ -25,11 +25,19 @@ let defaultLocosData = {
 }
 
 if (!fs.existsSync(path.join(pathToLocos, 'locos.json'))) {
-  console.log('File doesnt exist')
+  console.log('File doesn\'t exist')
   fs.mkdirSync(pathToLocos, { recursive: true })
   fs.writeFileSync(path.join(pathToLocos, 'locos.json'), JSON.stringify(defaultLocosData))
 } else {
   console.log('Found Locos File')
+}
+
+if (!fs.existsSync(path.join(pathToLocos, 'images', 'default.jpg'))) {
+  console.log('Default Loco image doesn\'t exist')
+  fs.mkdirSync(path.join(pathToLocos, 'images'), { recursive: true })
+  fs.copyFileSync(path.join(__dirname, 'default.jpg'), path.join(pathToLocos, 'images', 'default.jpg'))
+} else {
+  console.log('Found Default Loco image')
 }
 
 const locosFile = () => {
@@ -51,29 +59,9 @@ console.log('Delete Me')
 makeLocos()
 //console.log(locos)
 
-function writeAndDrain() {
-  if (!sending) {
-    sending = true
-    port.write(outBuffer[0])
-    outBuffer = outBuffer.slice(1)
-    port.drain(party())
-  }
-}
 
-function party() {
 
-  //console.log('In Party')
-  setTimeout(() => {
-    if (outBuffer.length > 0) {
-      sending = false
-      writeAndDrain()
-    } else {
-      sending = false
-    }
-  }, 50);
-}
-
-function createWindow() {
+const createWindow = () => {
   // Create the browser window.
   win = new BrowserWindow({
     width: 950,
@@ -139,10 +127,39 @@ app.on('ready', () => {
   createWindow()
   listPorts()
   port = new SerialPort('COM16', { baudRate: 9600 })
-  port.on('error', function (err) {
-    console.log('Error: ', err.message)
+  port.on('error', (err) => {
+    console.log('USB Error: ', err.message)
     //NOTIFY DENNIS HERE
   })
+
+  port.on('readable', (data) => {
+    console.log('USB received readable: ', data)
+  })
+
+  port.on('data', (data) => {
+    console.log('USB received data: ', data)
+  })
+
+  const writeAndDrain = () => {
+    if (!sending) {
+      sending = true
+      port.write(outBuffer[0])
+      outBuffer = outBuffer.slice(1)
+      port.drain(party())
+    }
+  }
+
+  const party = () => {
+    //console.log('In Party')
+    setTimeout(() => {
+      if (outBuffer.length > 0) {
+        sending = false
+        writeAndDrain()
+      } else {
+        sending = false
+      }
+    }, 50);
+  }
   //console.log(port)
 
   const eStopAllQuickKey = globalShortcut.register('Ctrl+space', () => {
@@ -214,7 +231,7 @@ app.on('activate', () => {
   }
 })
 
-function listPorts() {
+const listPorts = () => {
   console.log('PORTLIST')
   SerialPort.list().then(
     ports => {
@@ -228,8 +245,6 @@ function listPorts() {
     }
   )
 }
-
-
 
 // MENU
 const template = [

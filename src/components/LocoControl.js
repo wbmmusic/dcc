@@ -188,13 +188,13 @@ export default function LocoControl(props) {
                 console.log('Function off 5-8')
                 funDataX = 0xFF
                 for (let bit1 = 5; bit1 <= 8; bit1++) {
-                    if (bit1 === 5 && !props.loco.functionState[bit1]) {
+                    if (bit1 === 5 && props.loco.functionState[bit1] === false) {
                         funDataX = funDataX & 0xFE
-                    } else if (bit1 === 6 && !props.loco.functionState[bit1]) {
+                    } else if (bit1 === 6 && props.loco.functionState[bit1] === false) {
                         funDataX = funDataX & 0xFD
-                    } else if (bit1 === 7 && !props.loco.functionState[bit1]) {
+                    } else if (bit1 === 7 && props.loco.functionState[bit1] === false) {
                         funDataX = funDataX & 0xFB
-                    } else if (bit1 === 8 && !props.loco.functionState[bit1]) {
+                    } else if (bit1 === 8 && props.loco.functionState[bit1] === false) {
                         funDataX = funDataX & 0xF7
                     }
                 }
@@ -226,13 +226,13 @@ export default function LocoControl(props) {
                 funDataX = 0xFF
                 console.log('Function off 9-12')
                 for (let bit2 = 9; bit2 <= 12; bit2++) {
-                    if (bit2 === 9 && !props.loco.functionState[bit2]) {
+                    if (bit2 === 9 && props.loco.functionState[bit2] === false) {
                         funDataX = funDataX & 0xFE
-                    } else if (bit2 === 10 && !props.loco.functionState[bit2]) {
+                    } else if (bit2 === 10 && props.loco.functionState[bit2] === false) {
                         funDataX = funDataX & 0xFD
-                    } else if (bit2 === 11 && !props.loco.functionState[bit2]) {
+                    } else if (bit2 === 11 && props.loco.functionState[bit2] === false) {
                         funDataX = funDataX & 0xFB
-                    } else if (bit2 === 12 && !props.loco.functionState[bit2]) {
+                    } else if (bit2 === 12 && props.loco.functionState[bit2] === false) {
                         funDataX = funDataX & 0xF7
                     }
                 }
@@ -269,21 +269,21 @@ export default function LocoControl(props) {
                 console.log('Function off 13-20')
                 funDataX = 0xFF
                 for (let bit3 = 13; bit3 <= 20; bit3++) {
-                    if (bit3 === 13 && !props.loco.functionState[bit3]) {
+                    if (bit3 === 13 && props.loco.functionState[bit3] === false) {
                         funDataX = funDataX & 0xFE
-                    } else if (bit3 === 14 && !props.loco.functionState[bit3]) {
+                    } else if (bit3 === 14 && props.loco.functionState[bit3] === false) {
                         funDataX = funDataX & 0xFD
-                    } else if (bit3 === 15 && !props.loco.functionState[bit3]) {
+                    } else if (bit3 === 15 && props.loco.functionState[bit3] === false) {
                         funDataX = funDataX & 0xFB
-                    } else if (bit3 === 16 && !props.loco.functionState[bit3]) {
+                    } else if (bit3 === 16 && props.loco.functionState[bit3] === false) {
                         funDataX = funDataX & 0xF7
-                    } else if (bit3 === 17 && !props.loco.functionState[bit3]) {
+                    } else if (bit3 === 17 && props.loco.functionState[bit3] === false) {
                         funDataX = funDataX & 0xEF
-                    } else if (bit3 === 18 && !props.loco.functionState[bit3]) {
+                    } else if (bit3 === 18 && props.loco.functionState[bit3] === false) {
                         funDataX = funDataX & 0xDF
-                    } else if (bit3 === 19 && !props.loco.functionState[bit3]) {
+                    } else if (bit3 === 19 && props.loco.functionState[bit3] === false) {
                         funDataX = funDataX & 0xBF
-                    } else if (bit3 === 20 && !props.loco.functionState[bit3]) {
+                    } else if (bit3 === 20 && props.loco.functionState[bit3] === false) {
                         funDataX = funDataX & 0x7F
                     }
                 }
@@ -322,21 +322,21 @@ export default function LocoControl(props) {
                 funDataX = 0xFF
                 console.log('Function off 21-28')
                 for (let bit3 = 21; bit3 <= 28; bit3++) {
-                    if (bit3 === 21 && !props.loco.functionState[bit3]) {
+                    if (bit3 === 21 && props.loco.functionState[bit3] === false) {
                         funDataX = funDataX & 0xFE
-                    } else if (bit3 === 22 && !props.loco.functionState[bit3]) {
+                    } else if (bit3 === 22 && props.loco.functionState[bit3] === false) {
                         funDataX = funDataX & 0xFD
-                    } else if (bit3 === 23 && !props.loco.functionState[bit3]) {
+                    } else if (bit3 === 23 && props.loco.functionState[bit3] === false) {
                         funDataX = funDataX & 0xFB
-                    } else if (bit3 === 24 && !props.loco.functionState[bit3]) {
+                    } else if (bit3 === 24 && props.loco.functionState[bit3] === false) {
                         funDataX = funDataX & 0xF7
-                    } else if (bit3 === 25 && !props.loco.functionState[bit3]) {
+                    } else if (bit3 === 25 && props.loco.functionState[bit3] === false) {
                         funDataX = funDataX & 0xEF
-                    } else if (bit3 === 26 && !props.loco.functionState[bit3]) {
+                    } else if (bit3 === 26 && props.loco.functionState[bit3] === false) {
                         funDataX = funDataX & 0xDF
-                    } else if (bit3 === 27 && !props.loco.functionState[bit3]) {
+                    } else if (bit3 === 27 && props.loco.functionState[bit3] === false) {
                         funDataX = funDataX & 0xBF
-                    } else if (bit3 === 28 && !props.loco.functionState[bit3]) {
+                    } else if (bit3 === 28 && props.loco.functionState[bit3] === false) {
                         funDataX = funDataX & 0x7F
                     }
                 }

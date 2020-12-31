@@ -1,4 +1,5 @@
 import React from 'react'
+import { Arrow, ArrowLeft, ArrowRight, Gear, Stop } from './icons'
 const path = require('path')
 
 const { ipcRenderer } = window.require('electron')
@@ -44,22 +45,18 @@ export default function LocoIcon(props) {
     }
 
     let leftButton = (
-        <div style={{ display: 'inline-block', cursor: 'pointer' }}
+        <div style={{ cursor: 'pointer', verticalAlign: 'middle' }}
             onMouseDown={moveLeft}
         >
-            <span role='img' aria-label="arrow_right">
-                ⬅️
-            </span>
+            <ArrowLeft />
         </div>
     )
 
     let rightButton = (
-        <div style={{ display: 'inline-block', cursor: 'pointer' }}
+        <div style={{ cursor: 'pointer', verticalAlign: 'middle' }}
             onMouseDown={moveRight}
         >
-            <span role='img' aria-label="arrow_right">
-                ➡️
-            </span>
+            <ArrowRight />
         </div>
     )
 
@@ -89,15 +86,15 @@ export default function LocoIcon(props) {
                     <tbody>
                         <tr>
                             <td style={topBarCell}>
-                                <div style={{ display: 'inline-block', cursor: 'pointer' }} onMouseDown={estop}>
-                                    <span role='img' aria-label="stop_sign">🛑</span>
+                                <div style={{ cursor: 'pointer', verticalAlign: 'middle' }} onMouseDown={estop}>
+                                    <Stop />
                                 </div>
                             </td>
                             <td style={topBarCell}>{leftButton}</td>
                             <td style={topBarCell}>{rightButton}</td>
                             <td style={topBarCell}>
-                                <div style={{ display: 'inline-block', cursor: 'pointer' }} onMouseDown={settings}>
-                                    <span role='img' aria-label="gear">⚙️</span>
+                                <div style={{ cursor: 'pointer' }} onMouseDown={settings}>
+                                    <Gear />
                                 </div>
                             </td>
                         </tr>
