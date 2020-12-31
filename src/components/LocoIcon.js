@@ -1,4 +1,6 @@
 import React from 'react'
+import { OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { overlayDelay } from '../settings'
 import { Arrow, ArrowLeft, ArrowRight, Gear, Stop } from './icons'
 const path = require('path')
 
@@ -45,19 +47,23 @@ export default function LocoIcon(props) {
     }
 
     let leftButton = (
-        <div style={{ cursor: 'pointer', verticalAlign: 'middle' }}
-            onMouseDown={moveLeft}
-        >
-            <ArrowLeft />
-        </div>
+        <OverlayTrigger delay={overlayDelay} overlay={<Tooltip id="tooltip-disabled">Move left</Tooltip>}>
+            <div style={{ cursor: 'pointer', verticalAlign: 'middle' }}
+                onMouseDown={moveLeft}
+            >
+                <ArrowLeft />
+            </div>
+        </OverlayTrigger>
     )
 
     let rightButton = (
-        <div style={{ cursor: 'pointer', verticalAlign: 'middle' }}
-            onMouseDown={moveRight}
-        >
-            <ArrowRight />
-        </div>
+        <OverlayTrigger delay={overlayDelay} overlay={<Tooltip id="tooltip-disabled">Move right</Tooltip>}>
+            <div style={{ cursor: 'pointer', verticalAlign: 'middle' }}
+                onMouseDown={moveRight}
+            >
+                <ArrowRight />
+            </div>
+        </OverlayTrigger>
     )
 
     if (props.index <= 0) {
@@ -86,16 +92,20 @@ export default function LocoIcon(props) {
                     <tbody>
                         <tr>
                             <td style={topBarCell}>
-                                <div style={{ cursor: 'pointer', verticalAlign: 'middle' }} onMouseDown={estop}>
-                                    <Stop />
-                                </div>
+                                <OverlayTrigger delay={overlayDelay} overlay={<Tooltip id="tooltip-disabled">Loco E Stop</Tooltip>}>
+                                    <div style={{ cursor: 'pointer', verticalAlign: 'middle' }} onMouseDown={estop}>
+                                        <Stop />
+                                    </div>
+                                </OverlayTrigger>
                             </td>
                             <td style={topBarCell}>{leftButton}</td>
                             <td style={topBarCell}>{rightButton}</td>
                             <td style={topBarCell}>
-                                <div style={{ cursor: 'pointer' }} onMouseDown={settings}>
-                                    <Gear />
-                                </div>
+                                <OverlayTrigger delay={overlayDelay} overlay={<Tooltip id="tooltip-disabled">Loco Settings</Tooltip>}>
+                                    <div style={{ cursor: 'pointer' }} onMouseDown={settings}>
+                                        <Gear />
+                                    </div>
+                                </OverlayTrigger>
                             </td>
                         </tr>
                     </tbody>
