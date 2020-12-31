@@ -92,7 +92,7 @@ export default function LocoIcon(props) {
                     <tbody>
                         <tr>
                             <td style={topBarCell}>
-                                <OverlayTrigger delay={overlayDelay} overlay={<Tooltip id="tooltip-disabled">Loco E Stop</Tooltip>}>
+                                <OverlayTrigger delay={overlayDelay} overlay={<Tooltip id="tooltip-disabled">E Stop</Tooltip>}>
                                     <div style={{ cursor: 'pointer', verticalAlign: 'middle' }} onMouseDown={estop}>
                                         <Stop />
                                     </div>
@@ -101,7 +101,7 @@ export default function LocoIcon(props) {
                             <td style={topBarCell}>{leftButton}</td>
                             <td style={topBarCell}>{rightButton}</td>
                             <td style={topBarCell}>
-                                <OverlayTrigger delay={overlayDelay} overlay={<Tooltip id="tooltip-disabled">Loco Settings</Tooltip>}>
+                                <OverlayTrigger delay={overlayDelay} overlay={<Tooltip id="tooltip-disabled">Settings</Tooltip>}>
                                     <div style={{ cursor: 'pointer' }} onMouseDown={settings}>
                                         <Gear />
                                     </div>
