@@ -66,14 +66,14 @@ const arrow = (props, direction) => {
     )
 }
 
-export function ArrowRight() {
+export function ArrowRight(props) {
     return (
-        arrow('right')
+        arrow(props, 'right')
     )
 }
 
-export function ArrowLeft() {
+export function ArrowLeft(props) {
     return (
-        arrow('left')
+        arrow(props, 'left')
     )
 }

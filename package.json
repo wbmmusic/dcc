@@ -1,6 +1,6 @@
 {
   "name": "dcc",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "author": "Marece Williams",
   "description": "React and Electron Awesome App",
   "homepage": "./",
@@ -29,6 +29,7 @@
     "eject": "react-scripts eject",
     "electron": "electron .",
     "install": "electron-rebuild",
+    "rebuild": "electron-rebuild -f",
     "package": "electron-builder build -c.extraMetadata.main=build/main.js --publish never",
     "deploy": "electron-builder build -c.extraMetadata.main=build/main.js --publish always",
     "upload": "yarn build && git add . && git commit -m %NPM_PACKAGE_VERSION% && git push origin master && yarn deploy ",
