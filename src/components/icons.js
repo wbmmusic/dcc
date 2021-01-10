@@ -1,9 +1,9 @@
 import React from 'react'
 
-export function Gear() {
+export function Gear(props) {
     return (
         <svg
-            style={{ width: '16px', margin: 'auto', display: 'block' }}
+            style={{ width: '16px', margin: 'auto', display: 'block', ...props.style }}
             id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"
         >
             <path d="M29.56,2a3,3,0,0,0-2.91,2.27l-1.73,6.89a21.29,21.29,0,0,0-2.64,1.12l-6.1-3.67a3,3,0,0,0-3.67.45L9.06,12.51a3,3,0,0,0-.45,3.67l3.66,6.1a21.51,21.51,0,0,0-1.1,2.65l-6.9,1.72A3,3,0,0,0,2,29.56v4.88a3,3,0,0,0,2.27,2.91l6.89,1.73a20.67,20.67,0,0,0,1.12,2.64l-3.67,6.1a3,3,0,0,0,.45,3.67l3.45,3.45a3,3,0,0,0,3.67.45l6.1-3.66a21.24,21.24,0,0,0,2.65,1.1l1.72,6.9A3,3,0,0,0,29.56,62h4.88a3,3,0,0,0,2.91-2.27l1.73-6.89a21.29,21.29,0,0,0,2.64-1.12l6.1,3.67a3,3,0,0,0,3.67-.45l3.45-3.45a3,3,0,0,0,.45-3.67l-3.66-6.1a21.51,21.51,0,0,0,1.1-2.65l6.9-1.72A3,3,0,0,0,62,34.44V29.56a3,3,0,0,0-2.27-2.91l-6.89-1.73a20.67,20.67,0,0,0-1.12-2.64l3.67-6.1a3,3,0,0,0-.45-3.67L51.49,9.06a3,3,0,0,0-3.67-.45l-6.1,3.66a21.24,21.24,0,0,0-2.65-1.1l-1.72-6.9A3,3,0,0,0,34.44,2Z" transform="translate(-2 -2)" />
@@ -24,10 +24,10 @@ export function Gear() {
     )
 }
 
-export function Stop() {
+export function Stop(props) {
     return (
         <svg
-            style={{ width: '16px', margin: 'auto', display: 'block' }}
+            style={{ width: '16px', margin: 'auto', display: 'block', ...props.style }}
             id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 980">
             <g>
                 <polygon points="143.07 143.28 0 286.35 0 490 0 693.65 143.28 836.93 286.35 980 490 980 693.65 980 836.93 836.72 980 693.65 980 490 980 286.35 836.72 143.07 693.65 0 490 0 286.35 0 143.07 143.28" />
@@ -38,7 +38,7 @@ export function Stop() {
     )
 }
 
-const arrow = (direction) => {
+const arrow = (props, direction) => {
     let dir = {}
 
     switch (direction) {
@@ -52,7 +52,7 @@ const arrow = (direction) => {
 
     return (
         <svg
-            style={{ width: '12px', margin: 'auto', display: 'block', ...dir }}
+            style={{ width: '12px', margin: 'auto', display: 'block', ...dir, ...props.style }}
             id="Layer_1" dataName="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 806.1 846.4" >
             <g>
                 <path d="M324.3,828.9" transform="translate(-97.2 -76.8)" />

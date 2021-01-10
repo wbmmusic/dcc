@@ -1,6 +1,6 @@
 {
   "name": "dcc",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "author": "Marece Williams",
   "description": "React and Electron Awesome App",
   "homepage": "./",
@@ -8,14 +8,14 @@
   "private": true,
   "icon": "icon.ico",
   "dependencies": {
-    "@testing-library/jest-dom": "^5.11.6",
-    "@testing-library/react": "^11.2.2",
+    "@testing-library/jest-dom": "^5.11.8",
+    "@testing-library/react": "^11.2.3",
     "@testing-library/user-event": "^12.6.0",
     "bootstrap": "^4.5.3",
     "electron-updater": "^4.3.5",
     "rc-slider": "^9.7.1",
     "react": "^17.0.1",
-    "react-bootstrap": "^1.4.0",
+    "react-bootstrap": "^1.4.3",
     "react-dom": "^17.0.1",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.1",
@@ -50,7 +50,7 @@
     ]
   },
   "devDependencies": {
-    "electron": "^10.2.0",
+    "electron": "^11.1.1",
     "electron-builder": "^22.9.1",
     "electron-rebuild": "^2.3.4",
     "foreman": "^3.0.1"
