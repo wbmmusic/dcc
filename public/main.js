@@ -69,7 +69,8 @@ const createWindow = () => {
     icon: __dirname + '/icon.ico',
     webPreferences: {
       nodeIntegration: true,
-      webSecurity: false
+      webSecurity: false,
+      contextIsolation: false
     }
   })
 
@@ -133,7 +134,8 @@ app.on('ready', () => {
   })
 
   port.on('readable', (data) => {
-    console.log('USB received readable: ', data)
+    console.log('USB received readable:')
+    console.log(data)
   })
 
   port.on('data', (data) => {
@@ -293,10 +295,10 @@ const template = [
           ]
         }
       ] : [
-          { role: 'delete' },
-          { type: 'separator' },
-          { role: 'selectAll' }
-        ])
+        { role: 'delete' },
+        { type: 'separator' },
+        { role: 'selectAll' }
+      ])
     ]
   },
   // { role: 'viewMenu' }
@@ -326,8 +328,8 @@ const template = [
         { type: 'separator' },
         { role: 'window' }
       ] : [
-          { role: 'close' }
-        ])
+        { role: 'close' }
+      ])
     ]
   },
   {

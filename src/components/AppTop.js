@@ -6,6 +6,7 @@ import LocoSettings from "./LocoSettings";
 import { dcdr1 } from "./Decoders";
 import Layout from '../layouts/Layout';
 import { Route, Switch, useHistory } from 'react-router-dom';
+import { Button } from 'react-bootstrap';
 
 const { ipcRenderer } = window.require('electron');
 
@@ -17,6 +18,11 @@ export default function AppTop() {
         activeTrack: 0,
         showAll: false,
         locos: []
+    })
+
+    const [lights, setLights] = useState({
+        tower: false,
+        street: false
     })
 
     const defaultLoco = {
@@ -31,6 +37,16 @@ export default function AppTop() {
         functionState: [],
         direction: 'stopped'
     }
+
+    useEffect(() => {
+        console.log(lights)
+        let out = 0
+
+        if (lights.tower) out = out | 16
+        if (lights.street) out = out | 1
+
+        ipcRenderer.send('send-serial', [0xa2, 192, 5, 0x07, out])
+    }, [lights])
 
     useEffect(() => {
 
@@ -355,8 +371,6 @@ export default function AppTop() {
     }
 
 
-
-
     return (
         <div style={{ height: '100vh', width: '100vw', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div><Toolbar locos={state.locos} setAllStopped={handleSetAllStopped} /></div>
@@ -382,10 +396,27 @@ export default function AppTop() {
                                     >
                                         {makeLocoIcons()}
                                     </div>
-                                    <div style={{ height: '100%', width: '100%', maxWidth: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                                    <div style={{
+                                        height: '100%', width: '100%', maxWidth: '100%', display: 'flex',
+                                        flexDirection: 'column', overflow: 'hidden', backgroundColor: 'rgb(123,125,125)'
+                                    }}>
                                         <Layout activeTrack={state.activeTrack} setActiveTrack={setTrack} />
                                     </div>
+                                    <div style={{ padding: '10px' }}>
+                                        <Button
+                                            size="sm"
+                                            variant={lights.tower ? 'success' : 'outline-secondary'}
+                                            onClick={() => setLights(old => ({ ...old, tower: !old.tower }))}
+                                        >Water Tower</Button>
+                                        <div style={{ width: '10px', display: 'inline-block' }}></div>
+                                        <Button
+                                            size="sm"
+                                            variant={lights.street ? 'success' : 'outline-secondary'}
+                                            onClick={() => setLights(old => ({ ...old, street: !old.street }))}
+                                        >Street Lights</Button>
+                                    </div>
                                 </div>
+
                             </Route>
                         </Switch>
                     </div>
