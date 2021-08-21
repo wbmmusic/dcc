@@ -53,7 +53,7 @@ const arrow = (props, direction) => {
     return (
         <svg
             style={{ width: '12px', margin: 'auto', display: 'block', ...dir, ...props.style }}
-            id="Layer_1" dataName="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 806.1 846.4" >
+            id="Layer_1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 806.1 846.4" >
             <g>
                 <path d="M324.3,828.9" transform="translate(-97.2 -76.8)" />
                 <path d="M848.6,828.9" transform="translate(-97.2 -76.8)" />
