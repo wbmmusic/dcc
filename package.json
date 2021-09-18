@@ -1,6 +1,6 @@
 {
   "name": "dcc",
-  "version": "0.1.18",
+  "version": "0.1.19",
   "author": "Marece Williams",
   "description": "React and Electron Awesome App",
   "homepage": "./",
@@ -62,6 +62,7 @@
     "electronVersion": "12.0.0",
     "copyright": "WBM Tek",
     "extends": null,
+    "buildDependenciesFromSource": true,
     "npmRebuild": false,
     "files": [
       "build/**/*",
