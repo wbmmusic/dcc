@@ -1,6 +1,6 @@
 {
   "name": "dcc",
-  "version": "0.1.24",
+  "version": "0.1.25",
   "author": "Marece Williams",
   "description": "React and Electron Awesome App",
   "homepage": "./",
@@ -63,6 +63,7 @@
     "electronVersion": "15.1.2",
     "copyright": "WBM Tek",
     "extends": null,
+    "npmRebuild": false,
     "files": [
       "build/**/*",
       "electron/*"
