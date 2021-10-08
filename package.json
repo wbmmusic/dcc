@@ -60,7 +60,7 @@
   "build": {
     "productName": "Big D's Railroad",
     "appId": "com.wbm.dcc",
-    "electronVersion": "15.1.1",
+    "electronVersion": "15.1.2",
     "copyright": "WBM Tek",
     "extends": null,
     "files": [
