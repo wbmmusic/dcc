@@ -5,14 +5,14 @@ import LocoIcon from "./LocoIcon";
 import LocoSettings from "./LocoSettings";
 import { dcdr1 } from "./Decoders";
 import Layout from '../layouts/Layout';
-import { Route, Switch, useHistory } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
+import { Route, Routes, useNavigate } from 'react-router';
 
 const { ipcRenderer } = window.require('electron');
 
 
 export default function AppTop() {
-    let history = useHistory()
+    const navigate = useNavigate()
     const [state, setState] = useState({
         selectedLoco: 0,
         activeTrack: 0,
@@ -20,10 +20,7 @@ export default function AppTop() {
         locos: []
     })
 
-    const [lights, setLights] = useState({
-        tower: false,
-        street: false
-    })
+    const [lights, setLights] = useState({ tower: false, street: false })
 
     const defaultLoco = {
         hidden: false,
@@ -121,9 +118,9 @@ export default function AppTop() {
             tempState.locos.push(defaultLoco)
             tempState.selectedLoco = 0
             setState(tempState)
-            history.replace("/")
+            navigate("/", { replace: true })
         } else {
-            history.replace("/")
+            navigate("/", { replace: true })
         }
     }
 
@@ -234,7 +231,7 @@ export default function AppTop() {
         let tempState = { ...state }
         tempState.selectedLoco = idx
         setState(tempState)
-        history.replace("/locoSettingsWindow")
+        navigate("/locoSettingsWindow", { replace: true })
     }
 
     const openMain = () => {
@@ -248,11 +245,7 @@ export default function AppTop() {
             }
         }
         setState(tempState)
-        history.replace("/")
-    }
-
-    const printState = () => {
-        console.log(state)
+        navigate("/", { replace: true })
     }
 
     const makeLocoSettings = () => {
@@ -378,60 +371,51 @@ export default function AppTop() {
                 <div style={{ height: '100%', width: '100%', maxWidth: '100%', maxHeight: '100%', display: 'flex', overflow: 'hidden' }}>
                     <div style={{ width: '250px', minWidth: '250px', maxWidth: '250px' }}>{makeLocoControl()}</div>
                     <div style={{ width: '100%', maxWidth: '100%', overflow: 'hidden' }}>
-                        <Switch>
-                            <Route path="/locoSettingsWindow">{makeLocoSettings()}</Route>
-                            <Route>
-                                <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-                                    <div
-                                        style={{
-                                            backgroundColor: '#7B7D7D',
-                                            maxWidth: '100%',
-                                            width: '100%',
-                                            height: '140px',
-                                            minHeight: '140px',
-                                            display: 'flex',
-                                            overflow: 'hidden',
-                                            overflowX: 'auto',
-                                        }}
-                                    >
-                                        {makeLocoIcons()}
+                        <Routes>
+                            <Route path="/locoSettingsWindow" element={makeLocoSettings()} />
+                            <Route path=""
+                                element={
+                                    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                                        <div
+                                            style={{
+                                                backgroundColor: '#7B7D7D',
+                                                maxWidth: '100%',
+                                                width: '100%',
+                                                height: '140px',
+                                                minHeight: '140px',
+                                                display: 'flex',
+                                                overflow: 'hidden',
+                                                overflowX: 'auto',
+                                            }}
+                                        >
+                                            {makeLocoIcons()}
+                                        </div>
+                                        <div style={{
+                                            height: '100%', width: '100%', maxWidth: '100%', display: 'flex',
+                                            flexDirection: 'column', overflow: 'hidden', backgroundColor: 'rgb(123,125,125)'
+                                        }}>
+                                            <Layout activeTrack={state.activeTrack} setActiveTrack={setTrack} />
+                                        </div>
+                                        <div style={{ padding: '10px' }}>
+                                            <Button
+                                                size="sm"
+                                                variant={lights.tower ? 'success' : 'outline-secondary'}
+                                                onClick={() => setLights(old => ({ ...old, tower: !old.tower }))}
+                                            >Water Tower</Button>
+                                            <div style={{ width: '10px', display: 'inline-block' }}></div>
+                                            <Button
+                                                size="sm"
+                                                variant={lights.street ? 'success' : 'outline-secondary'}
+                                                onClick={() => setLights(old => ({ ...old, street: !old.street }))}
+                                            >Street Lights</Button>
+                                        </div>
                                     </div>
-                                    <div style={{
-                                        height: '100%', width: '100%', maxWidth: '100%', display: 'flex',
-                                        flexDirection: 'column', overflow: 'hidden', backgroundColor: 'rgb(123,125,125)'
-                                    }}>
-                                        <Layout activeTrack={state.activeTrack} setActiveTrack={setTrack} />
-                                    </div>
-                                    <div style={{ padding: '10px' }}>
-                                        <Button
-                                            size="sm"
-                                            variant={lights.tower ? 'success' : 'outline-secondary'}
-                                            onClick={() => setLights(old => ({ ...old, tower: !old.tower }))}
-                                        >Water Tower</Button>
-                                        <div style={{ width: '10px', display: 'inline-block' }}></div>
-                                        <Button
-                                            size="sm"
-                                            variant={lights.street ? 'success' : 'outline-secondary'}
-                                            onClick={() => setLights(old => ({ ...old, street: !old.street }))}
-                                        >Street Lights</Button>
-                                    </div>
-                                </div>
-
-                            </Route>
-                        </Switch>
+                                }
+                            />
+                        </Routes>
                     </div>
                 </div>
             </div>
         </div>
     )
-}
-
-
-const locoControl = {
-    backgroundColor: 'grey',
-    width: '250px',
-}
-
-const toolBar = {
-    backgroundColor: 'orange',
 }
