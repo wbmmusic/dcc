@@ -373,7 +373,7 @@ export default function AppTop() {
                     <div style={{ width: '100%', maxWidth: '100%', overflow: 'hidden' }}>
                         <Routes>
                             <Route path="/locoSettingsWindow" element={makeLocoSettings()} />
-                            <Route path=""
+                            <Route path="*"
                                 element={
                                     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                                         <div
