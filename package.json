@@ -3,7 +3,7 @@
   "version": "0.1.28",
   "author": "Marece Williams",
   "description": "React and Electron Awesome App",
-  "homepage": ".",
+  "homepage": "./",
   "main": "public/main.js",
   "private": true,
   "icon": "icon.ico",

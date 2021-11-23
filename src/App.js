@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter } from 'react-router-dom';
+import { HashRouter } from 'react-router-dom';
 
 import AppTop from "./components/AppTop";
 import Updates from './components/Updates';
@@ -31,10 +31,10 @@ function App() {
       userSelect: 'none',
       overflow: 'hidden'
     }}>
-      <BrowserRouter>
+      <HashRouter>
         <AppTop />
         <Updates />
-      </BrowserRouter>
+      </HashRouter>
     </div>
   );
 }
