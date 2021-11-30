@@ -1,16 +1,19 @@
 const { app, BrowserWindow, ipcMain, globalShortcut, Menu, dialog, protocol } = require('electron')
-const path = require('path')
+const { join, basename } = require('path')
 const url = require('url')
 const SerialPort = require('serialport')
-
+const { autoUpdater } = require('electron-updater');
 var fs = require('fs');
 
-const { autoUpdater } = require('electron-updater');
+console.log(app.getPath('userData'))
+require('./utilities')
+
+
 
 const isMac = process.platform === 'darwin'
 
-let pathToAssets = path.join('C:', 'ProgramData', 'WBM Tek', 'dcc')
-let pathToLocos = path.join('C:', 'ProgramData', 'WBM Tek', 'dcc', 'locos')
+let pathToAssets = join('C:', 'ProgramData', 'WBM Tek', 'dcc')
+let pathToLocos = join('C:', 'ProgramData', 'WBM Tek', 'dcc', 'locos')
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -24,30 +27,30 @@ let defaultLocosData = {
   locos: []
 }
 
-if (!fs.existsSync(path.join(pathToLocos, 'locos.json'))) {
+if (!fs.existsSync(join(pathToLocos, 'locos.json'))) {
   console.log('File doesn\'t exist')
   fs.mkdirSync(pathToLocos, { recursive: true })
-  fs.writeFileSync(path.join(pathToLocos, 'locos.json'), JSON.stringify(defaultLocosData))
+  fs.writeFileSync(join(pathToLocos, 'locos.json'), JSON.stringify(defaultLocosData))
 } else {
   console.log('Found Locos File')
 }
 
-if (!fs.existsSync(path.join(pathToLocos, 'images', 'default.jpg'))) {
+if (!fs.existsSync(join(pathToLocos, 'images', 'default.jpg'))) {
   console.log('Default Loco image doesn\'t exist')
-  fs.mkdirSync(path.join(pathToLocos, 'images'), { recursive: true })
-  fs.copyFileSync(path.join(__dirname, 'default.jpg'), path.join(pathToLocos, 'images', 'default.jpg'))
+  fs.mkdirSync(join(pathToLocos, 'images'), { recursive: true })
+  fs.copyFileSync(join(__dirname, 'default.jpg'), join(pathToLocos, 'images', 'default.jpg'))
 } else {
   console.log('Found Default Loco image')
 }
 
 const locosFile = () => {
-  let tempFile = JSON.parse(fs.readFileSync(path.join(pathToLocos, 'locos.json')))
+  let tempFile = JSON.parse(fs.readFileSync(join(pathToLocos, 'locos.json')))
   return tempFile
 }
 
 const saveLocosFile = (fileData) => {
   console.log('Save Locos File')
-  fs.writeFileSync(path.join(pathToLocos, 'locos.json'), JSON.stringify(fileData))
+  fs.writeFileSync(join(pathToLocos, 'locos.json'), JSON.stringify(fileData))
 }
 
 const makeLocos = () => {
@@ -75,7 +78,7 @@ const createWindow = () => {
   })
 
   const startUrl = process.env.ELECTRON_START_URL || url.format({
-    pathname: path.join(__dirname, '/../build/index.html'),
+    pathname: join(__dirname, '/../build/index.html'),
     protocol: 'file:',
     slashes: true
   });
@@ -203,9 +206,9 @@ app.on('ready', () => {
         console.log('CANCLED')
       } else {
         console.log(result.filePaths[0])
-        var theName = path.basename(result.filePaths[0])
+        var theName = basename(result.filePaths[0])
 
-        fs.copyFile(result.filePaths[0], 'src/locos/' + path.basename(result.filePaths[0]), (err) => {
+        fs.copyFile(result.filePaths[0], 'src/locos/' + basename(result.filePaths[0]), (err) => {
           if (err) throw err;
           console.log('source.txt was copied to destination.txt');
         });

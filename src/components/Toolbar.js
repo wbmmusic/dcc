@@ -3,28 +3,18 @@ import React, { useEffect } from 'react'
 const { ipcRenderer } = window.require('electron')
 
 export default function Toolbar(props) {
-    useEffect(() => {
-        ipcRenderer.on('eStopAll', (event) => {
-            estop()
-        })
-
-        return () => {
-            ipcRenderer.removeAllListeners('eStopAll')
-        }
-    }, [])
-
     const estop = () => {
         console.log('E Stop All')
         for (var i = 0; i < props.locos.length; i++) {
-            var addy = getAddressBytes(props.locos[i].address)
-            ipcRenderer.send('send-serial', [0xA2, addy[0], addy[1], 5, 0])
+            var addressBytes = getAddressBytes(props.locos[i].address)
+            ipcRenderer.send('send-serial', [0xA2, addressBytes[0], addressBytes[1], 5, 0])
         }
 
         props.setAllStopped()
     }
 
-    const getAddressBytes = (addy) => {
-        var address = addy
+    const getAddressBytes = (tempAddress) => {
+        var address = tempAddress
 
         console.log("Address = " + address)
 
@@ -36,6 +26,14 @@ export default function Toolbar(props) {
 
         return output
     }
+
+    useEffect(() => {
+        ipcRenderer.on('eStopAll', (event) => estop())
+
+        return () => {
+            ipcRenderer.removeAllListeners('eStopAll')
+        }
+    }, [])
 
     return (
         <div style={barStyle}>

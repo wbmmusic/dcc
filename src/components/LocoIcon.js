@@ -1,7 +1,7 @@
 import React from 'react'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { overlayDelay } from '../settings'
-import { Arrow, ArrowLeft, ArrowRight, Gear, Stop } from './icons'
+import { ArrowLeft, ArrowRight, Gear, Stop } from './icons'
 const path = require('path')
 
 const { ipcRenderer } = window.require('electron')

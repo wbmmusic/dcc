@@ -62,19 +62,6 @@ export default function LocoControl(props) {
         return output
     }
 
-    const getAddressBytesX = (address) => {
-
-        //console.log("Address = " + address)
-
-        var lowByte = address & 0xff
-        var highByte = (address >> 8) & 0xff
-        var highBytex = highByte | 0xC0
-
-        let output = [highBytex, lowByte]
-
-        return output
-    }
-
     const stop = () => {
         console.log('STOP COMMAND - speed = ' + props.loco.speed)
 
