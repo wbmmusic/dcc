@@ -2,16 +2,14 @@ import React, { useEffect } from 'react'
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
 
-const { ipcRenderer } = window.require('electron')
-
 
 export default function LocoControl(props) {
     useEffect(() => {
-        ipcRenderer.on('eStopSelected', (event) => {
+        window.electron.receive('eStopSelected', () => {
             estop()
         })
         return () => {
-            ipcRenderer.removeAllListeners('eStopSelected')
+            window.electron.removeListener('eStopSelected')
         }
     }, [])
 
@@ -35,13 +33,13 @@ export default function LocoControl(props) {
 
 
         var addy = getAddressBytes()
-        //ipcRenderer.send('send-serial', [0xa2, addy[0], addy[1], funOp, funDataX])
+        //window.electron.send('send-serial', [0xa2, addy[0], addy[1], funOp, funDataX])
 
         if (props.loco.direction !== 'stopped') {
             if (props.loco.direction === 'forward') {
-                ipcRenderer.send('send-serial', [0xa2, addy[0], addy[1], 4, theValue])
+                window.electron.send('send-serial', [0xa2, addy[0], addy[1], 4, theValue])
             } else if (props.loco.direction === 'reverse') {
-                ipcRenderer.send('send-serial', [0xa2, addy[0], addy[1], 3, theValue])
+                window.electron.send('send-serial', [0xa2, addy[0], addy[1], 3, theValue])
             }
         }
 
@@ -68,9 +66,9 @@ export default function LocoControl(props) {
         var addy = getAddressBytes()
 
         if (props.loco.direction === 'forward') {
-            ipcRenderer.send('send-serial', [0xa2, addy[0], addy[1], 4, 0])
+            window.electron.send('send-serial', [0xa2, addy[0], addy[1], 4, 0])
         } else if (props.loco.direction === 'reverse') {
-            ipcRenderer.send('send-serial', [0xa2, addy[0], addy[1], 3, 0])
+            window.electron.send('send-serial', [0xa2, addy[0], addy[1], 3, 0])
         }
 
         if (props.loco.direction !== 'stopped') {
@@ -85,7 +83,7 @@ export default function LocoControl(props) {
         }
 
         var addy = getAddressBytes()
-        ipcRenderer.send('send-serial', [0xa2, addy[0], addy[1], 4, props.loco.speed])
+        window.electron.send('send-serial', [0xa2, addy[0], addy[1], 4, props.loco.speed])
     }
 
     const reverse = () => {
@@ -95,13 +93,13 @@ export default function LocoControl(props) {
         }
 
         var addy = getAddressBytes()
-        ipcRenderer.send('send-serial', [0xa2, addy[0], addy[1], 3, props.loco.speed])
+        window.electron.send('send-serial', [0xa2, addy[0], addy[1], 3, props.loco.speed])
     }
 
     const estop = () => {
         console.log('E-STOP')
         var addy = getAddressBytes()
-        ipcRenderer.send('send-serial', [0xA2, addy[0], addy[1], 5, 0])
+        window.electron.send('send-serial', [0xA2, addy[0], addy[1], 5, 0])
         props.changeDirection('stopped')
     }
 
@@ -344,7 +342,7 @@ export default function LocoControl(props) {
         }
 
         var addy = getAddressBytes()
-        ipcRenderer.send('send-serial', [0xa2, addy[0], addy[1], funOp, funDataX])
+        window.electron.send('send-serial', [0xa2, addy[0], addy[1], funOp, funDataX])
         props.setFunction(funNum, tempData[funNum])
     }
 

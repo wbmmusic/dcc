@@ -3,24 +3,23 @@ import { HashRouter } from 'react-router-dom';
 
 import AppTop from "./components/AppTop";
 import Updates from './components/Updates';
-const { ipcRenderer } = window.require('electron')
 
 function App() {
 
   useEffect(() => {
-    ipcRenderer.on('message', (e, theMessage) => {
+    window.electron.receive('message', (theMessage) => {
       console.log(theMessage)
     })
 
-    ipcRenderer.on('app_version', (event, arg) => {
-      ipcRenderer.removeAllListeners('app_version');
+    window.electron.receive('app_version', ( arg) => {
+      window.electron.removeListener('app_version');
       document.title = 'Big D\'s Railroad --- v' + arg.version;
     });
 
-    ipcRenderer.send('reactIsReady')
+    window.electron.send('reactIsReady')
 
     return () => {
-      ipcRenderer.removeAllListeners('reactIsReady')
+      window.electron.removeListener('reactIsReady')
     }
   }, [])
 

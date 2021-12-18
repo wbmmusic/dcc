@@ -2,9 +2,8 @@ import React from 'react'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { overlayDelay } from '../settings'
 import { ArrowLeft, ArrowRight, Gear, Stop } from './icons'
-const path = require('path')
+const join = window.electron.join
 
-const { ipcRenderer } = window.require('electron')
 
 export default function LocoIcon(props) {
 
@@ -43,7 +42,7 @@ export default function LocoIcon(props) {
     const estop = () => {
         console.log('E-STOP')
         var addy = getAddressBytes()
-        ipcRenderer.send('send-serial', [0xA2, addy[0], addy[1], 5, 0])
+        window.electron.send('send-serial', [0xA2, addy[0], addy[1], 5, 0])
     }
 
     let leftButton = (
@@ -129,7 +128,7 @@ export default function LocoIcon(props) {
                         overflow: 'hidden'
                     }}
                 >
-                    <img alt="Locomotive" width='80%' src={path.join('C:', 'ProgramData', 'WBM Tek', 'dcc', 'locos', 'images', props.loco.photo)} />
+                    <img alt="Locomotive" width='80%' src={join('atom://', props.loco.photo)} />
                 </div>
 
                 <div style={{ height: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', }}>

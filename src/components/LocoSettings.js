@@ -1,8 +1,7 @@
 import React from 'react'
 import { Button } from 'react-bootstrap';
-const path = require('path')
+const join = window.electron.join
 
-const { ipcRenderer } = window.require('electron');
 
 export default function LocoSettings(props) {
 
@@ -28,9 +27,7 @@ export default function LocoSettings(props) {
         props.changeAddress(e.target.value)
     }
 
-    const chooseImage = () => {
-        ipcRenderer.send('chooseImage')
-    }
+    const chooseImage = () => window.electron.send('chooseImage')
 
     const handleAddressChange = (e) => {
         console.log('Address Change')
@@ -178,7 +175,7 @@ export default function LocoSettings(props) {
                                 🔗
                                 <br />
                                 -|
-                        </td>
+                            </td>
                         </tr>
                         <tr>
                             <td style={{ textAlign: 'right' }}>Address:</td>
@@ -239,11 +236,7 @@ export default function LocoSettings(props) {
                     alignItems: 'center',
                     justifyContent: 'center'
                 }}>
-                    <img
-                        width='100%'
-                        src={path.join('C:/', 'ProgramData', 'WBM Tek', 'dcc', 'locos', 'images', props.data.photo)}
-                        alt='Locomotive'
-                    />
+                    <img width='100%' src={join('atom://', props.data.photo)} alt='Locomotive' />
                 </div>
             </div>
 

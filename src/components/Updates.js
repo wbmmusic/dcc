@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-const { ipcRenderer } = window.require('electron')
 
 export default function Updates() {
     const [show, setShow] = useState(false)
@@ -9,11 +8,11 @@ export default function Updates() {
 
     useEffect(() => {
         console.log('Top Of Updates')
-        ipcRenderer.on('checkingForUpdates', () => {
+        window.electron.receive('checkingForUpdates', () => {
             console.log('Checking for updates')
         })
 
-        ipcRenderer.on('updateAvailable', () => {
+        window.electron.receive('updateAvailable', () => {
             console.log('Downloading update')
             let tempPopupContents = { ...popupContents }
             tempPopupContents.contents = (
@@ -40,11 +39,11 @@ export default function Updates() {
             setShow(true)
         })
 
-        ipcRenderer.on('noUpdate', () => {
+        window.electron.receive('noUpdate', () => {
             console.log('Up to date')
         })
 
-        ipcRenderer.on('updateDownloaded', (e, releaseInfo) => {
+        window.electron.receive('updateDownloaded', (releaseInfo) => {
             console.log('Update Downloaded')
             //console.log(releaseInfo)
             let tempPopupContents = { ...popupContents }
@@ -59,7 +58,7 @@ export default function Updates() {
                                 </td>
                                 <td>
                                     <button onClick={() => {
-                                        ipcRenderer.send('installUpdate')
+                                        window.electron.send('installUpdate')
                                         setShow(false)
                                     }}>Update and restart app now</button>
                                 </td>
@@ -73,11 +72,11 @@ export default function Updates() {
             setShow(true)
         })
 
-        ipcRenderer.on('updateError', (error) => {
+        window.electron.receive('updateError', (error) => {
             console.log('Update Error', error,)
         })
 
-        ipcRenderer.on('updateDownloadProgress', (e, progressPercent) => {
+        window.electron.receive('updateDownloadProgress', (progressPercent) => {
             let tempPopupContents = { ...popupContents }
             tempPopupContents.contents = (
                 <div>
@@ -102,12 +101,12 @@ export default function Updates() {
         })
 
         return () => {
-            ipcRenderer.removeAllListeners('checkingForUpdates')
-            ipcRenderer.removeAllListeners('updateAvailable')
-            ipcRenderer.removeAllListeners('noUpdate')
-            ipcRenderer.removeAllListeners('updateError')
-            ipcRenderer.removeAllListeners('updateDownloaded')
-            ipcRenderer.removeAllListeners('updateDownloadProgress')
+            window.electron.removeListener('checkingForUpdates')
+            window.electron.removeListener('updateAvailable')
+            window.electron.removeListener('noUpdate')
+            window.electron.removeListener('updateError')
+            window.electron.removeListener('updateDownloaded')
+            window.electron.removeListener('updateDownloadProgress')
         }
     }, [])
 

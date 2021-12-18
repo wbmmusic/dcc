@@ -1,13 +1,11 @@
 import React, { useEffect } from 'react'
 
-const { ipcRenderer } = window.require('electron')
-
 export default function Toolbar(props) {
     const estop = () => {
         console.log('E Stop All')
         for (var i = 0; i < props.locos.length; i++) {
             var addressBytes = getAddressBytes(props.locos[i].address)
-            ipcRenderer.send('send-serial', [0xA2, addressBytes[0], addressBytes[1], 5, 0])
+            window.electron.send('send-serial', [0xA2, addressBytes[0], addressBytes[1], 5, 0])
         }
 
         props.setAllStopped()
@@ -28,10 +26,10 @@ export default function Toolbar(props) {
     }
 
     useEffect(() => {
-        ipcRenderer.on('eStopAll', (event) => estop())
+        window.electron.receive('eStopAll', () => estop())
 
         return () => {
-            ipcRenderer.removeAllListeners('eStopAll')
+            window.electron.removeListener('eStopAll')
         }
     }, [])
 

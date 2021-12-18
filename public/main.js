@@ -1,5 +1,5 @@
 const { app, BrowserWindow, ipcMain, globalShortcut, Menu, dialog, protocol } = require('electron')
-const { join, basename } = require('path')
+const { join, basename, normalize } = require('path')
 const url = require('url')
 const SerialPort = require('serialport')
 const { autoUpdater } = require('electron-updater');
@@ -71,9 +71,7 @@ const createWindow = () => {
     height: 750,
     icon: __dirname + '/icon.ico',
     webPreferences: {
-      nodeIntegration: true,
-      webSecurity: false,
-      contextIsolation: false
+      preload: join(__dirname, 'preload.js')
     }
   })
 
@@ -114,9 +112,9 @@ app.on('ready', () => {
       autoUpdater.on('checking-for-update', () => win.webContents.send('checkingForUpdates'))
       autoUpdater.on('update-available', () => win.webContents.send('updateAvailable'))
       autoUpdater.on('update-not-available', () => win.webContents.send('noUpdate'))
-      autoUpdater.on('update-downloaded', (e, updateInfo, f, g) => { win.webContents.send('updateDownloaded', e) })
+      autoUpdater.on('update-downloaded', (updateInfo, f, g) => { win.webContents.send('updateDownloaded', e) })
       autoUpdater.on('download-progress', (e) => { win.webContents.send('updateDownloadProgress', e.percent) })
-      autoUpdater.on('error', (e, message) => win.webContents.send('updateError', message))
+      autoUpdater.on('error', (message) => win.webContents.send('updateError', message))
 
       setInterval(() => {
         win.webContents.send('message', 'Interval')
@@ -219,6 +217,14 @@ app.on('ready', () => {
     }).catch(err => {
       console.log(err)
     })
+  })
+})
+
+app.whenReady().then(() => {
+  protocol.registerFileProtocol('atom', (request, callback) => {
+    const url = request.url.substr(6)
+    console.log(url)
+    callback({ path: normalize(`${pathToLocos}/images/${url}`) })
   })
 })
 

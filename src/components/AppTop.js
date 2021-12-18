@@ -8,8 +8,6 @@ import Layout from '../layouts/Layout';
 import { Button } from 'react-bootstrap';
 import { Route, Routes, useNavigate } from 'react-router';
 
-const { ipcRenderer } = window.require('electron');
-
 
 export default function AppTop() {
     const navigate = useNavigate()
@@ -42,7 +40,7 @@ export default function AppTop() {
         if (lights.tower) out = out | 16
         if (lights.street) out = out | 1
 
-        ipcRenderer.send('send-serial', [0xa2, 192, 5, 0x07, out])
+        window.electron.send('send-serial', [0xa2, 192, 5, 0x07, out])
     }, [lights])
 
     useEffect(() => {
@@ -58,7 +56,7 @@ export default function AppTop() {
             tempLocos[locoNum].functionState = tempFunState
         }
 
-        ipcRenderer.on('locos', (e, theLocos) => {
+        window.electron.receive('locos', (theLocos) => {
             console.log('Got Locos')
             console.log(theLocos)
             let tempState = { ...state }
@@ -69,13 +67,13 @@ export default function AppTop() {
             setState(tempState)
         })
 
-        ipcRenderer.send('getLocos')
+        window.electron.send('getLocos')
 
         let tempState = { ...state }
         tempState.locos = tempLocos
         setState(tempState)
 
-        ipcRenderer.on('addLoco', (event) => {
+        window.electron.receive('addLoco', () => {
             let tempState = { ...state }
             let tempDefault = { ...defaultLoco }
             tempDefault.functionState = [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false]
@@ -83,22 +81,17 @@ export default function AppTop() {
             setState(tempState)
         })
 
-        ipcRenderer.on('hereIsYourImage', (event, name) => {
+        window.electron.receive('hereIsYourImage', ( name) => {
             var tempState = { ...state }
             tempState.locos[state.selectedLoco].photo = name
             setState(tempState)
         })
         return () => {
-            ipcRenderer.removeAllListeners('hereIsYourImage')
-            ipcRenderer.removeAllListeners('addLoco')
+            window.electron.removeListener('hereIsYourImage')
+            window.electron.removeListener('addLoco')
         }
     }, [])
 
-    /*
-        useEffect(() => {
-            console.log(state)
-        }, [state])
-    */
 
     const setTrack = (track) => {
         let tempState = { ...state }

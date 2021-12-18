@@ -1,8 +1,6 @@
 import { Button } from 'react-bootstrap'
 import React, { Fragment } from 'react'
 
-const { ipcRenderer } = window.require('electron')
-
 
 export default function Layout(props) {
     const activeColor = 'red'
@@ -154,12 +152,12 @@ export default function Layout(props) {
 
     const open = (switchNum) => {
         //console.log('Switch Open')
-        ipcRenderer.send('send-serial', [0xAD, 0x00, switchNum, 3, 0])
+        window.electron.send('send-serial', [0xAD, 0x00, switchNum, 3, 0])
     }
 
     const close = (switchNum) => {
         //console.log('Switch close')
-        ipcRenderer.send('send-serial', [0xAD, 0x00, switchNum, 4, 0])
+        window.electron.send('send-serial', [0xAD, 0x00, switchNum, 4, 0])
     }
 
     switch (props.activeTrack) {
