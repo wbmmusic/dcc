@@ -5,7 +5,8 @@ const SerialPort = require('serialport')
 const { autoUpdater } = require('electron-updater');
 var fs = require('fs');
 
-const { config, newDecoder, deleteDecoder, getDecoderByID, updateDecoder, pathToImages, newLoco, deleteLoco, getLocoByID } = require('./utilities')
+const { config, newDecoder, deleteDecoder, getDecoderByID, updateDecoder, pathToImages, newLoco, deleteLoco, getLocoByID } = require('./utilities');
+const { throttles } = require('./throttles');
 
 const isMac = process.platform === 'darwin'
 
@@ -14,7 +15,6 @@ let pathToLocos = join('C:', 'ProgramData', 'WBM Tek', 'dcc', 'locos')
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win
-let throttles = []
 let port
 let outBuffer = []
 let sending = false
@@ -301,6 +301,8 @@ app.whenReady().then(() => {
     console.log(url)
     callback({ path: normalize(`${pathToLocos}/images/${url}`) })
   })
+
+  console.log("THROTTLES", throttles)
 })
 
 // Quit when all windows are closed.

@@ -47,6 +47,9 @@ const saveFile = () => {
 config = readFile()
 exports.config = config
 
+
+
+
 exports.newDecoder = (decoder) => {
     config.decoders.push(decoder)
     saveFile()
