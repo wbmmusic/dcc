@@ -5,19 +5,16 @@ const SerialPort = require('serialport')
 const { autoUpdater } = require('electron-updater');
 var fs = require('fs');
 
-console.log(app.getPath('userData'))
-require('./utilities')
-
-
+const { config, newDecoder, deleteDecoder, getDecoderByID, updateDecoder, pathToImages, newLoco, deleteLoco, getLocoByID } = require('./utilities')
 
 const isMac = process.platform === 'darwin'
 
-let pathToAssets = join('C:', 'ProgramData', 'WBM Tek', 'dcc')
 let pathToLocos = join('C:', 'ProgramData', 'WBM Tek', 'dcc', 'locos')
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win
+let throttles = []
 let port
 let outBuffer = []
 let sending = false
@@ -70,6 +67,8 @@ const createWindow = () => {
     width: 950,
     height: 750,
     icon: __dirname + '/icon.ico',
+    autoHideMenuBar: true,
+    show: false,
     webPreferences: {
       preload: join(__dirname, 'preload.js')
     }
@@ -86,6 +85,41 @@ const createWindow = () => {
   // Emitted when the window is closed.
   win.on('closed', () => {
     win = null
+  })
+
+  win.on('ready-to-show', () => win.show())
+}
+
+const createThrottleWindow = () => {
+  // Create the browser window.
+  throttles[0] = new BrowserWindow({
+    width: 250,
+    height: 500,
+    icon: __dirname + '/icon.ico',
+    autoHideMenuBar: true,
+    show: false,
+    resizable: false,
+    webPreferences: {
+      preload: join(__dirname, 'preload.js')
+    }
+  })
+
+  const startUrl = process.env.ELECTRON_START_URL + "#/modal/throttle" || url.format({
+    pathname: join(__dirname, '/../build/index.html'),
+    protocol: 'file:',
+    slashes: true
+  }) + '#/modal/throttle';
+  throttles[0].loadURL(startUrl);
+
+
+  // Emitted when the window is closed.
+  throttles[0].on('closed', () => {
+    throttles[0] = null
+  })
+
+  throttles[0].on("ready-to-show", () => {
+    console.log("READY TO SHOW POPUP")
+    throttles[0].show()
   })
 }
 
@@ -112,7 +146,7 @@ app.on('ready', () => {
       autoUpdater.on('checking-for-update', () => win.webContents.send('checkingForUpdates'))
       autoUpdater.on('update-available', () => win.webContents.send('updateAvailable'))
       autoUpdater.on('update-not-available', () => win.webContents.send('noUpdate'))
-      autoUpdater.on('update-downloaded', (updateInfo, f, g) => { win.webContents.send('updateDownloaded', e) })
+      autoUpdater.on('update-downloaded', (updateInfo, f, g) => { win.webContents.send('updateDownloaded', updateInfo) })
       autoUpdater.on('download-progress', (e) => { win.webContents.send('updateDownloadProgress', e.percent) })
       autoUpdater.on('error', (message) => win.webContents.send('updateError', message))
 
@@ -218,9 +252,50 @@ app.on('ready', () => {
       console.log(err)
     })
   })
+
+
+  ipcMain.handle('getConsists', () => config.consists)
+
+  // DECODERS
+  ipcMain.handle('getDecoders', () => config.decoders)
+  ipcMain.handle('createDecoder', (e, decoder) => {
+    newDecoder(decoder)
+    return "Created"
+  })
+  ipcMain.handle('deleteDecoder', (e, decoderID) => deleteDecoder(decoderID))
+  ipcMain.handle('getDecoderById', (e, id) => getDecoderByID(id))
+  ipcMain.handle('updateDecoder', (e, updatedDecoder) => updateDecoder(updatedDecoder)
+  )
+
+  // LOCOS
+  ipcMain.handle('getLocomotives', () => config.locos)
+  ipcMain.handle('selectLocoImage', async () => {
+    let file = await dialog.showOpenDialog(win, {
+      filters: [
+        {
+          name: 'Images',
+          extensions: ['jpg', 'jpeg', 'bmp', 'png', 'tiff']
+        }
+      ],
+    })
+    return file
+  })
+  ipcMain.handle('createLoco', (e, loco) => {
+    return newLoco(loco)
+  })
+  ipcMain.handle('deleteLocomotive', (e, id) => deleteLoco(id))
+  ipcMain.handle('getLocomotiveById', (e, id) => getLocoByID(id))
+  ipcMain.on('newThrottle', () => createThrottleWindow())
+
 })
 
 app.whenReady().then(() => {
+  protocol.registerFileProtocol('loco', (request, callback) => {
+    const url = request.url.substr(6)
+    console.log(url)
+    callback({ path: normalize(`${pathToImages}/${url}`) })
+  })
+
   protocol.registerFileProtocol('atom', (request, callback) => {
     const url = request.url.substr(6)
     console.log(url)

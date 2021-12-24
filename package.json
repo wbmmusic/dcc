@@ -8,6 +8,10 @@
   "private": true,
   "icon": "icon.ico",
   "dependencies": {
+    "@emotion/react": "^11.7.1",
+    "@emotion/styled": "^11.6.0",
+    "@mui/icons-material": "^5.2.5",
+    "@mui/material": "^5.2.5",
     "@testing-library/jest-dom": "^5.16.1",
     "@testing-library/react": "^12.1.2",
     "@testing-library/user-event": "^13.5.0",
@@ -19,7 +23,9 @@
     "react-dom": "^17.0.2",
     "react-router-dom": "^6.2.1",
     "react-scripts": "5.0.0",
-    "serialport": "^9.2.8"
+    "react-select": "^5.2.1",
+    "serialport": "^9.2.8",
+    "uuid": "^8.3.2"
   },
   "scripts": {
     "dev": "nf start",
@@ -32,7 +38,7 @@
     "rebuild": "electron-rebuild -f -w serialport",
     "package": "electron-builder build -c.extraMetadata.main=build/main.js --publish never",
     "deploy": "electron-builder build -c.extraMetadata.main=build/main.js --publish always",
-    "backup": "git add . && git commit -m %NPM_PACKAGE_VERSION% && git push origin master",
+    "backup": "git add . && git commit -m %NPM_PACKAGE_VERSION% && git push origin edit",
     "upload": "yarn build && git add . && git commit -m %NPM_PACKAGE_VERSION% && git push origin master && yarn deploy ",
     "try": "yarn build && yarn package ",
     "refresh": "yarn upgrade --latest && yarn rebuild"

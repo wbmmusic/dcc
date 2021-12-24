@@ -1,7 +1,10 @@
 import React from 'react'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { overlayDelay } from '../settings'
-import { ArrowLeft, ArrowRight, Gear, Stop } from './icons'
+import StopCircleTwoToneIcon from '@mui/icons-material/StopCircleTwoTone';
+import SettingsTwoToneIcon from '@mui/icons-material/SettingsTwoTone';
+import ArrowForwardIosTwoToneIcon from '@mui/icons-material/ArrowForwardIosTwoTone';
+import ArrowBackIosNewTwoToneIcon from '@mui/icons-material/ArrowBackIosNewTwoTone';
 const join = window.electron.join
 
 
@@ -47,20 +50,22 @@ export default function LocoIcon(props) {
 
     let leftButton = (
         <OverlayTrigger delay={overlayDelay} overlay={<Tooltip id="tooltip-disabled">Move left</Tooltip>}>
-            <div style={{ cursor: 'pointer', verticalAlign: 'middle' }}
+            <div
+                style={iconDivStyle}
                 onMouseDown={moveLeft}
             >
-                <ArrowLeft />
+                <ArrowBackIosNewTwoToneIcon style={iconStyle} />
             </div>
         </OverlayTrigger>
     )
 
     let rightButton = (
         <OverlayTrigger delay={overlayDelay} overlay={<Tooltip id="tooltip-disabled">Move right</Tooltip>}>
-            <div style={{ cursor: 'pointer', verticalAlign: 'middle' }}
+            <div
+                style={iconDivStyle}
                 onMouseDown={moveRight}
             >
-                <ArrowRight />
+                <ArrowForwardIosTwoToneIcon style={iconStyle} />
             </div>
         </OverlayTrigger>
     )
@@ -86,14 +91,14 @@ export default function LocoIcon(props) {
             }}
             onMouseDown={selectThisLoco}
         >
-            <div style={{ fontSize: '14px', backgroundColor: props.color }}>
-                <table style={{ width: '100%' }}>
+            <div style={{ backgroundColor: props.color }}>
+                <table style={{ width: '100%' }} cellSpacing={0}>
                     <tbody>
                         <tr>
                             <td style={topBarCell}>
                                 <OverlayTrigger delay={overlayDelay} overlay={<Tooltip id="tooltip-disabled">E Stop</Tooltip>}>
-                                    <div style={{ cursor: 'pointer', verticalAlign: 'middle' }} onMouseDown={estop}>
-                                        <Stop />
+                                    <div style={{ ...iconDivStyle, color: 'red' }} onMouseDown={estop}>
+                                        <StopCircleTwoToneIcon style={iconStyle} />
                                     </div>
                                 </OverlayTrigger>
                             </td>
@@ -101,8 +106,8 @@ export default function LocoIcon(props) {
                             <td style={topBarCell}>{rightButton}</td>
                             <td style={topBarCell}>
                                 <OverlayTrigger delay={overlayDelay} overlay={<Tooltip id="tooltip-disabled">Settings</Tooltip>}>
-                                    <div style={{ cursor: 'pointer' }} onMouseDown={settings}>
-                                        <Gear />
+                                    <div style={iconDivStyle} onMouseDown={settings}>
+                                        <SettingsTwoToneIcon style={iconStyle} />
                                     </div>
                                 </OverlayTrigger>
                             </td>
@@ -145,3 +150,6 @@ const topBarCell = {
     width: '25%',
     //border: '1px solid black'
 }
+
+const iconStyle = { fontSize: '22px' }
+const iconDivStyle = { cursor: 'pointer', display: 'flex', justifyContent: 'center' }

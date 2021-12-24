@@ -7,6 +7,12 @@ import { dcdr1 } from "./Decoders";
 import Layout from '../layouts/Layout';
 import { Button } from 'react-bootstrap';
 import { Route, Routes, useNavigate } from 'react-router';
+import Decoders from './decoders/Decoders';
+import Consists from './consists/Consists';
+import Locomotives from './locomotives/Locomotives';
+import Switches from './switches/Switches';
+import Accessories from './accessories/Accessories';
+import Macros from './macros/Macros';
 
 
 export default function AppTop() {
@@ -81,7 +87,7 @@ export default function AppTop() {
             setState(tempState)
         })
 
-        window.electron.receive('hereIsYourImage', ( name) => {
+        window.electron.receive('hereIsYourImage', (name) => {
             var tempState = { ...state }
             tempState.locos[state.selectedLoco].photo = name
             setState(tempState)
@@ -91,7 +97,6 @@ export default function AppTop() {
             window.electron.removeListener('addLoco')
         }
     }, [])
-
 
     const setTrack = (track) => {
         let tempState = { ...state }
@@ -363,9 +368,15 @@ export default function AppTop() {
             <div style={{ height: '100%', maxHeight: '100%', overflow: 'hidden' }}>
                 <div style={{ height: '100%', width: '100%', maxWidth: '100%', maxHeight: '100%', display: 'flex', overflow: 'hidden' }}>
                     <div style={{ width: '250px', minWidth: '250px', maxWidth: '250px' }}>{makeLocoControl()}</div>
-                    <div style={{ width: '100%', maxWidth: '100%', overflow: 'hidden' }}>
+                    <div style={{ width: '100%', maxWidth: '100%', overflow: 'hidden', height: '100%' }}>
                         <Routes>
                             <Route path="/locoSettingsWindow" element={makeLocoSettings()} />
+                            <Route path="/locomotives/*" element={<Locomotives />} />
+                            <Route path="/decoders/*" element={<Decoders />} />
+                            <Route path="/consists/*" element={<Consists />} />
+                            <Route path="/switches/*" element={<Switches />} />
+                            <Route path="/accessories/*" element={<Accessories />} />
+                            <Route path="/macros/*" element={<Macros />} />
                             <Route path="*"
                                 element={
                                     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>

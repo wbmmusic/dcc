@@ -3,7 +3,7 @@ import React, { Fragment } from 'react'
 
 
 export default function Layout(props) {
-    const activeColor = 'red'
+    const activeColor = '#00FF00'
     const inactiveColor = 'black'
 
     const setActiveTrack = (track) => {
@@ -186,8 +186,13 @@ export default function Layout(props) {
             break;
     }
 
+    const makeVariant = (num) => {
+        if (props.activeTrack === num) return 'primary'
+        else return 'secondary'
+    }
+
     return (
-        <div style={{ backgroundColor: 'darkGrey', padding: '5px', width:'100%',  maxWidth: '100%', maxHeight: '100%', display:'flex', flexDirection:'column' }}>
+        <div style={{ backgroundColor: 'lightGrey', padding: '5px', width: '100%', maxWidth: '100%', maxHeight: '100%', display: 'flex', flexDirection: 'column' }}>
             <svg id="TRACK" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4869.06 2463.71">
                 <g id="Loop">
                     <line x1="1231.24" y1="2422.22" x2="1366.75" y2="2422.22" fill="none" stroke="#000" strokeLinecap="square" strokeLinejoin="bevel" strokeWidth="80" />
@@ -199,10 +204,10 @@ export default function Layout(props) {
             </svg>
             <div style={{ textAlign: 'center', marginTop: '10px' }}>
                 <div style={{ display: 'inline-block' }}>
-                    <Button size="sm" variant="secondary" style={{ marginRight: '5px' }} onClick={() => setActiveTrack(1)}>Track 1</Button>
-                    <Button size="sm" variant="secondary" style={{ marginRight: '5px' }} onClick={() => setActiveTrack(2)}>Track 2</Button>
-                    <Button size="sm" variant="secondary" style={{ marginRight: '5px' }} onClick={() => setActiveTrack(3)}>Track 3</Button>
-                    <Button size="sm" variant="secondary" onClick={() => setActiveTrack(0)}>Loop</Button>
+                    <Button size="sm" variant={makeVariant(1)} style={{ marginRight: '5px' }} onClick={() => setActiveTrack(1)}>Track 1</Button>
+                    <Button size="sm" variant={makeVariant(2)} style={{ marginRight: '5px' }} onClick={() => setActiveTrack(2)}>Track 2</Button>
+                    <Button size="sm" variant={makeVariant(3)} style={{ marginRight: '5px' }} onClick={() => setActiveTrack(3)}>Track 3</Button>
+                    <Button size="sm" variant={makeVariant(0)} onClick={() => setActiveTrack(0)}>Loop</Button>
                 </div>
             </div>
         </div>
