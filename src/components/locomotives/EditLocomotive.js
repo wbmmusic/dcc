@@ -48,7 +48,7 @@ export default function EditLocomotive() {
     }, [])
 
     useEffect(() => {
-        console.log(loco)
+        //console.log(loco)
     }, [loco])
 
     const handelCreateLoco = () => {
@@ -105,10 +105,31 @@ export default function EditLocomotive() {
 
     }
 
+    const makeFunctions = () => {
+        let out = []
+        if (decoders.length <= 0 || loco.decoder === '') return out
+
+        const decoderIDX = decoders.findIndex(dcdr => dcdr._id === loco.decoder)
+        if (decoderIDX < 0) return 'ERROR'
+
+        decoders[decoderIDX].functions.forEach((func, i) => {
+            if (func.name !== '') out.push(
+                <tr key={func + i}>
+                    <td>{i}</td>
+                    <td>{func.name}</td>
+                    <td>{func.action}</td>
+                </tr>
+            )
+        })
+
+        return out
+    }
+
 
     return (
         <div style={{ padding: '10px' }}>
             {makeTitle()}
+            <hr />
             <div>
                 <div style={{ display: 'inline-block' }}>
                     <Table size='sm' >
@@ -172,6 +193,26 @@ export default function EditLocomotive() {
                     </Table>
                 </div>
             </div>
+            <div>
+                FUNCTIONS
+                <div>
+                    <div style={{ display: 'inline-block' }}>
+                        <Table striped size='sm'>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th>#</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {makeFunctions()}
+                            </tbody>
+                        </Table>
+                    </div>
+                </div>
+            </div>
+            <hr />
             <div id='photoInput' style={{ backgroundColor: 'lightGrey', padding: '10px' }}>
                 <b>Photo</b>
                 <div>

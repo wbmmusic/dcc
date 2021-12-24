@@ -13,6 +13,7 @@ import Locomotives from './locomotives/Locomotives';
 import Switches from './switches/Switches';
 import Accessories from './accessories/Accessories';
 import Macros from './macros/Macros';
+import CVedit from '../CVedit';
 
 
 export default function AppTop() {
@@ -377,6 +378,7 @@ export default function AppTop() {
                             <Route path="/switches/*" element={<Switches />} />
                             <Route path="/accessories/*" element={<Accessories />} />
                             <Route path="/macros/*" element={<Macros />} />
+                            <Route path="/cv/*" element={<CVedit />} />
                             <Route path="*"
                                 element={
                                     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>

@@ -14,17 +14,17 @@ const defaultConfig = { locos: [], decoders: [], switches: [], consists: [], acc
 if (!existsSync(pathToDataFolder)) {
     mkdirSync(pathToDataFolder)
     console.log("Created Data Folder")
-} else console.log("Found Data Folder")
+}
 
 if (!existsSync(pathToImages)) {
     mkdirSync(pathToImages)
     console.log("Created Images Folder")
-} else console.log("Found Images Folder")
+}
 
 if (!existsSync(pathToConfigFile)) {
     writeFileSync(pathToConfigFile, JSON.stringify(defaultConfig, null, '\t'))
     console.log("Created config.json")
-} else console.log("Found config.json")
+}
 
 if (!existsSync(pathToDefaultLocoImage)) {
     try {
@@ -34,7 +34,7 @@ if (!existsSync(pathToDefaultLocoImage)) {
     }
 
     console.log("Created Default Loco Image")
-} else console.log("Found Default Loco Image")
+}
 
 let config = {}
 

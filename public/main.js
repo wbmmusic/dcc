@@ -1,14 +1,12 @@
-const { app, BrowserWindow, ipcMain, globalShortcut, Menu, dialog, protocol } = require('electron')
+const { app, BrowserWindow, ipcMain, globalShortcut, dialog, protocol } = require('electron')
 const { join, basename, normalize } = require('path')
-const url = require('url')
+const { format } = require('url')
 const SerialPort = require('serialport')
 const { autoUpdater } = require('electron-updater');
 var fs = require('fs');
 
 const { config, newDecoder, deleteDecoder, getDecoderByID, updateDecoder, pathToImages, newLoco, deleteLoco, getLocoByID } = require('./utilities');
 const { throttles } = require('./throttles');
-
-const isMac = process.platform === 'darwin'
 
 let pathToLocos = join('C:', 'ProgramData', 'WBM Tek', 'dcc', 'locos')
 
@@ -26,16 +24,12 @@ if (!fs.existsSync(join(pathToLocos, 'locos.json'))) {
   console.log('File doesn\'t exist')
   fs.mkdirSync(pathToLocos, { recursive: true })
   fs.writeFileSync(join(pathToLocos, 'locos.json'), JSON.stringify(defaultLocosData))
-} else {
-  console.log('Found Locos File')
 }
 
 if (!fs.existsSync(join(pathToLocos, 'images', 'default.jpg'))) {
   console.log('Default Loco image doesn\'t exist')
   fs.mkdirSync(join(pathToLocos, 'images'), { recursive: true })
   fs.copyFileSync(join(__dirname, 'default.jpg'), join(pathToLocos, 'images', 'default.jpg'))
-} else {
-  console.log('Found Default Loco image')
 }
 
 const locosFile = () => {
@@ -51,8 +45,6 @@ const saveLocosFile = (fileData) => {
 const makeLocos = () => {
   locos = locosFile().locos
 }
-
-console.log('Delete Me')
 
 makeLocos()
 //console.log(locos)
@@ -70,7 +62,7 @@ const createWindow = () => {
     }
   })
 
-  const startUrl = process.env.ELECTRON_START_URL || url.format({
+  const startUrl = process.env.ELECTRON_START_URL || format({
     pathname: join(__dirname, '/../build/index.html'),
     protocol: 'file:',
     slashes: true
@@ -100,7 +92,7 @@ const createThrottleWindow = () => {
     }
   })
 
-  const startUrl = process.env.ELECTRON_START_URL + "#/modal/throttle" || url.format({
+  const startUrl = process.env.ELECTRON_START_URL + "#/modal/throttle" || format({
     pathname: join(__dirname, '/../build/index.html'),
     protocol: 'file:',
     slashes: true
@@ -128,7 +120,7 @@ app.on('ready', () => {
 
   ipcMain.on('reactIsReady', () => {
 
-    console.log('React Is Ready')
+    //console.log('React Is Ready')
     win.webContents.send('message', 'React Is Ready')
     win.webContents.send('app_version', { version: app.getVersion() });
 
@@ -288,17 +280,17 @@ app.on('ready', () => {
 app.whenReady().then(() => {
   protocol.registerFileProtocol('loco', (request, callback) => {
     const url = request.url.substr(6)
-    console.log(url)
+    //console.log(url)
     callback({ path: normalize(`${pathToImages}/${url}`) })
   })
 
   protocol.registerFileProtocol('atom', (request, callback) => {
     const url = request.url.substr(6)
-    console.log(url)
+    //console.log(url)
     callback({ path: normalize(`${pathToLocos}/images/${url}`) })
   })
 
-  console.log("THROTTLES", throttles)
+  //console.log("THROTTLES", throttles)
 })
 
 // Quit when all windows are closed.
@@ -309,16 +301,12 @@ app.on('window-all-closed', () => {
   }
 })
 
-app.on('activate', () => {
-  if (win === null) {
-    createWindow()
-  }
-})
+app.on('activate', () => { if (win === null) { createWindow() } })
 
 const listPorts = () => {
-  console.log('PORTLIST')
   SerialPort.list().then(
     ports => {
+      if (ports.length > 0) console.log('PORTLIST')
       ports.forEach(port => {
         console.log(`${port.path}\t${port.pnpId || ''}\t${port.manufacturer || ''}`)
         console.log(port)
@@ -329,117 +317,3 @@ const listPorts = () => {
     }
   )
 }
-
-// MENU
-const template = [
-  // { role: 'appMenu' }
-  ...(isMac ? [{
-    label: app.name,
-    submenu: [
-      { role: 'about' },
-      { type: 'separator' },
-      { role: 'services' },
-      { type: 'separator' },
-      { role: 'hide' },
-      { role: 'hideothers' },
-      { role: 'unhide' },
-      { type: 'separator' },
-      { role: 'quit' }
-    ]
-  }] : []),
-  // { role: 'fileMenu' }
-  {
-    label: 'File',
-    submenu: [
-      isMac ? { role: 'close' } : { role: 'quit' }
-    ]
-  },
-  // { role: 'editMenu' }
-  {
-    label: 'Edit',
-    submenu: [
-      { role: 'undo' },
-      { role: 'redo' },
-      { type: 'separator' },
-      { role: 'cut' },
-      { role: 'copy' },
-      { role: 'paste' },
-      ...(isMac ? [
-        { role: 'pasteAndMatchStyle' },
-        { role: 'delete' },
-        { role: 'selectAll' },
-        { type: 'separator' },
-        {
-          label: 'Speech',
-          submenu: [
-            { role: 'startspeaking' },
-            { role: 'stopspeaking' }
-          ]
-        }
-      ] : [
-        { role: 'delete' },
-        { type: 'separator' },
-        { role: 'selectAll' }
-      ])
-    ]
-  },
-  // { role: 'viewMenu' }
-  {
-    label: 'View',
-    submenu: [
-      { role: 'reload' },
-      { role: 'forcereload' },
-      { role: 'toggledevtools' },
-      { type: 'separator' },
-      { role: 'resetzoom' },
-      { role: 'zoomin' },
-      { role: 'zoomout' },
-      { type: 'separator' },
-      { role: 'togglefullscreen' }
-    ]
-  },
-  // { role: 'windowMenu' }
-  {
-    label: 'Window',
-    submenu: [
-      { role: 'minimize' },
-      { role: 'zoom' },
-      ...(isMac ? [
-        { type: 'separator' },
-        { role: 'front' },
-        { type: 'separator' },
-        { role: 'window' }
-      ] : [
-        { role: 'close' }
-      ])
-    ]
-  },
-  {
-    label: 'Locomotives',
-    submenu: [
-      { label: 'Something Here' },
-      { type: 'separator' },
-      {
-        label: 'Add Loco',
-        click: async () => {
-          win.webContents.send('addLoco')
-        }
-      }
-    ]
-  },
-  {
-    role: 'help',
-    submenu: [
-      {
-        label: 'Learn More',
-        click: async () => {
-          const { shell } = require('electron')
-          await shell.openExternal('https://electronjs.org')
-        }
-      }
-    ]
-  }
-]
-
-const menu = Menu.buildFromTemplate(template)
-Menu.setApplicationMenu(menu)

@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { HashRouter } from 'react-router-dom';
 
 import AppTop from "./components/AppTop";
 import Updates from './components/Updates';

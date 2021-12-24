@@ -82,6 +82,7 @@ export default function Toolbar(props) {
                             <Dropdown.Item onClick={() => navigate('/switches')} >Switches</Dropdown.Item>
                             <Dropdown.Item onClick={() => navigate('/accessories')} >Accessories</Dropdown.Item>
                             <Dropdown.Item onClick={() => navigate('/macros')} >Macros</Dropdown.Item>
+                            <Dropdown.Item onClick={() => navigate('/cv')} >CVs</Dropdown.Item>
                         </Dropdown.Menu>
                     </Dropdown>
                 </div>
