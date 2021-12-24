@@ -24,7 +24,7 @@ export default function Smail() {
                             style={cellStyle}
                             onMouseDown={() => open()}
                         >
-                            OPEN
+                            OPEN 
                         </td>
                         <td
                             style={cellStyle}
