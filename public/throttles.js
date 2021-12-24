@@ -8,8 +8,15 @@ config.locos.forEach(loco => {
         const makeFunctions = () => {
             let out = []
             let functions = getDecoderByID(loco.decoder).functions
-            functions.forEach(func => {
-
+            functions.forEach((func, i) => {
+                if (func.name !== '') {
+                    out.push({
+                        number: i,
+                        name: func.name,
+                        action: func.action,
+                        state: false
+                    })
+                }
             })
             return out
         }

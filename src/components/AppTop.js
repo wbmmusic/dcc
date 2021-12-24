@@ -123,7 +123,7 @@ export default function AppTop() {
     }
 
     const selectLoco = (locoIndex) => {
-        console.log('IN SELECT LOCO ' + locoIndex)
+        //console.log('IN SELECT LOCO ' + locoIndex)
         let tempState = { ...state }
         tempState.selectedLoco = locoIndex
         setState(tempState)

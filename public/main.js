@@ -20,9 +20,7 @@ let outBuffer = []
 let sending = false
 let locos = []
 
-let defaultLocosData = {
-  locos: []
-}
+let defaultLocosData = { locos: [] }
 
 if (!fs.existsSync(join(pathToLocos, 'locos.json'))) {
   console.log('File doesn\'t exist')
@@ -58,8 +56,6 @@ console.log('Delete Me')
 
 makeLocos()
 //console.log(locos)
-
-
 
 const createWindow = () => {
   // Create the browser window.

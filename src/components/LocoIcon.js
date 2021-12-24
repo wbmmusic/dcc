@@ -30,7 +30,7 @@ export default function LocoIcon(props) {
     }
 
     const selectThisLoco = () => {
-        console.log('SELECT idx:' + props.index + ' ' + props.loco.name + ' ' + props.loco.number)
+        //console.log('SELECT idx:' + props.index + ' ' + props.loco.name + ' ' + props.loco.number)
         props.selected(props.index)
     }
 
@@ -70,26 +70,14 @@ export default function LocoIcon(props) {
         </OverlayTrigger>
     )
 
-    if (props.index <= 0) {
-        leftButton = ''
-    }
-
-    if (props.index >= props.numberOfLocos) {
-        rightButton = ''
-    }
+    if (props.index <= 0) leftButton = ''
+    if (props.index >= props.numberOfLocos) rightButton = ''
 
     return (
         <div
-            style={{
-                backgroundColor: 'white',
-                display: 'inline-block',
-                height: '118px',
-                margin: '0px 3px',
-                textAlign: 'center',
-                width: '104px',
-                overflow: 'hidden',
-            }}
+            style={iconContainerStyle}
             onMouseDown={selectThisLoco}
+            onDoubleClick={() => console.log('Open Throttle', props.loco)}
         >
             <div style={{ backgroundColor: props.color }}>
                 <table style={{ width: '100%' }} cellSpacing={0}>
@@ -116,13 +104,8 @@ export default function LocoIcon(props) {
                 </table>
             </div>
             <div style={{ cursor: 'pointer', fontSize: '10px', textAlign: 'left' }}>
-                <div style={{ padding: '0px 3px', overflow: 'hidden', }}>
-                    {props.loco.name}
-                </div>
-                <div style={{ padding: '0px 3px', marginBottom: '3px', }}>
-                    <b>{props.loco.number}</b>
-                </div>
-
+                <div style={{ padding: '0px 3px', overflow: 'hidden', }}>{props.loco.name}</div>
+                <div style={{ padding: '0px 3px', marginBottom: '3px', }}><b>{props.loco.number}</b></div>
                 <div
                     style={{
                         //border: '1px solid black',
@@ -139,17 +122,28 @@ export default function LocoIcon(props) {
                 <div style={{ height: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', }}>
                     {props.loco.model}
                 </div>
-
             </div>
-
         </div>
     )
 }
 
 const topBarCell = {
-    width: '25%',
-    //border: '1px solid black'
+    width: '25%'
 }
-
-const iconStyle = { fontSize: '22px' }
-const iconDivStyle = { cursor: 'pointer', display: 'flex', justifyContent: 'center' }
+const iconStyle = {
+    fontSize: '22px'
+}
+const iconDivStyle = {
+    cursor: 'pointer',
+    display: 'flex',
+    justifyContent: 'center'
+}
+const iconContainerStyle = {
+    backgroundColor: 'white',
+    display: 'inline-block',
+    height: '118px',
+    margin: '0px 3px',
+    textAlign: 'center',
+    width: '104px',
+    overflow: 'hidden',
+}
