@@ -6,6 +6,7 @@ import SwapHorizTwoToneIcon from '@mui/icons-material/SwapHorizTwoTone';
 import ClearTwoToneIcon from '@mui/icons-material/ClearTwoTone';
 import ArrowBackIosNewTwoToneIcon from '@mui/icons-material/ArrowBackIosNewTwoTone';
 import ArrowForwardIosTwoToneIcon from '@mui/icons-material/ArrowForwardIosTwoTone';
+import Select from 'react-select';
 
 export default function EditConsist() {
     const location = useLocation()
@@ -19,11 +20,9 @@ export default function EditConsist() {
     const makeButtons = () => {
 
         const makeBtn = () => {
-            if (location.pathname.includes('new')) {
-                return <Button size="sm">Create Consist</Button>
-            } else if (location.pathname.includes('edit')) {
-                return <Button size="sm">Update Consist</Button>
-            } else return 'ERROR'
+            if (location.pathname.includes('new')) return <Button size="sm">Create Consist</Button>
+            else if (location.pathname.includes('edit')) return <Button size="sm">Update Consist</Button>
+            else return 'ERROR'
         }
 
         return (
@@ -195,18 +194,29 @@ export default function EditConsist() {
                                     <input type="text" />
                                 </td>
                             </tr>
+                            <tr>
+                                <td style={labelStyle}>Locos:</td>
+                                <td>
+                                    <Select styles={selectStyle} isMulti />
+                                </td>
+                            </tr>
                         </tbody>
                     </Table>
                 </div>
             </div>
             <hr />
             <div>
-                <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', backgroundColor: 'silver' }}>
+                <div
+                    style={{
+                        display: 'flex',
+                        justifyContent: 'space-around',
+                        alignItems: 'center',
+                        backgroundColor: 'silver'
+                    }}
+                >
                     {makeDirection()}
                 </div>
-                <div style={{ display: 'flex', width: '100%' }}>
-                    {makeTrain()}
-                </div>
+                <div style={{ display: 'flex', width: '100%' }}>{makeTrain()}</div>
             </div>
             <hr />
             {makeButtons()}
@@ -216,3 +226,22 @@ export default function EditConsist() {
 
 const labelStyle = { textAlign: 'right' }
 const moveDivStyle = { borderTop: '1px solid black', padding: '10px' }
+const selectStyle = {
+    control: base => ({
+        ...base,
+        fontSize: '12px',
+        minHeight: '15px'
+    }),
+    menu: base => ({
+        ...base,
+        fontSize: '12px'
+    }),
+    dropdownIndicator: base => ({
+        ...base,
+        padding: '0px 8px'
+    }),
+    valueContainer: base => ({
+        ...base,
+        padding: '0px 8px'
+    })
+}
