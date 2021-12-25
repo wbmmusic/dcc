@@ -5,9 +5,7 @@ const join = window.electron.join
 
 export default function LocoSettings(props) {
 
-    const backToMain = () => {
-        props.backToMain()
-    }
+    const backToMain = () => props.backToMain()
 
     const handleNameChange = (e) => {
         console.log('Settings name change to ' + e.target.value)
@@ -29,9 +27,7 @@ export default function LocoSettings(props) {
 
     const chooseImage = () => window.electron.send('chooseImage')
 
-    const handleAddressChange = (e) => {
-        console.log('Address Change')
-    }
+    const handleAddressChange = (e) => console.log('Address Change')
 
     const handleVisible = (e) => {
         console.log('visibility change to ')
@@ -41,13 +37,7 @@ export default function LocoSettings(props) {
         props.visibility()
     }
 
-    const handleAddLinkChange = (e) => {
-        console.log('Add Link change ' + e.target.value)
-        //props.changeNumber(e.target.value)
-
-        // If link checked
-        //props.changeAddress(e.target.value)
-    }
+    const handleAddLinkChange = (e) => console.log('Add Link change ' + e.target.value)
 
     const handleDeleteLoco = () => {
         console.log('in Delete loco' + props.loco)
@@ -269,16 +259,6 @@ export default function LocoSettings(props) {
 }
 
 
-const nameCell = {
-    border: '1px black solid',
-}
-
-const numberCell = {
-    border: '1px black solid',
-    textAlign: 'center'
-}
-
-const showCell = {
-    border: '1px black solid',
-    textAlign: 'center'
-}
+const nameCell = { border: '1px black solid', }
+const numberCell = { border: '1px black solid', textAlign: 'center' }
+const showCell = { border: '1px black solid', textAlign: 'center' }

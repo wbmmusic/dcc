@@ -88,11 +88,7 @@ export default function AppTop() {
             setState(tempState)
         })
 
-        window.electron.receive('hereIsYourImage', (name) => {
-            var tempState = { ...state }
-            tempState.locos[state.selectedLoco].photo = name
-            setState(tempState)
-        })
+        window.electron.receive('hereIsYourImage', (name) => setState(old => ({ ...old, photo: name })))
         return () => {
             window.electron.removeListener('hereIsYourImage')
             window.electron.removeListener('addLoco')

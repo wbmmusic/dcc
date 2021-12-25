@@ -6,15 +6,10 @@ import Updates from './components/Updates';
 function App() {
 
   useEffect(() => {
-    window.electron.receive('message', (theMessage) => {
-      console.log(theMessage)
-    })
-
+    window.electron.receive('message', (theMessage) => console.log(theMessage))
     window.electron.send('reactIsReady')
 
-    return () => {
-      window.electron.removeListener('reactIsReady')
-    }
+    return () => window.electron.removeListener('reactIsReady')
   }, [])
 
   return (

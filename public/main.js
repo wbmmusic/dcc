@@ -6,7 +6,6 @@ const { autoUpdater } = require('electron-updater');
 var fs = require('fs');
 
 const { config, newDecoder, deleteDecoder, getDecoderByID, updateDecoder, pathToImages, newLoco, deleteLoco, getLocoByID, updateLoco } = require('./utilities');
-const { throttles } = require('./throttles');
 const { Locomotive } = require('./locomotive');
 
 let pathToLocos = join('C:', 'ProgramData', 'WBM Tek', 'dcc', 'locos')
@@ -34,19 +33,8 @@ if (!fs.existsSync(join(pathToLocos, 'images', 'default.jpg'))) {
   fs.copyFileSync(join(__dirname, 'default.jpg'), join(pathToLocos, 'images', 'default.jpg'))
 }
 
-const locosFile = () => {
-  let tempFile = JSON.parse(fs.readFileSync(join(pathToLocos, 'locos.json')))
-  return tempFile
-}
-
-const saveLocosFile = (fileData) => {
-  console.log('Save Locos File')
-  fs.writeFileSync(join(pathToLocos, 'locos.json'), JSON.stringify(fileData))
-}
-
-const makeLocos = () => {
-  locos = locosFile().locos
-}
+const locosFile = () => JSON.parse(fs.readFileSync(join(pathToLocos, 'locos.json')))
+const makeLocos = () => locos = locosFile().locos
 
 makeLocos()
 //console.log(locos)
@@ -86,7 +74,6 @@ app.on('ready', () => {
   });
 
   ipcMain.on('reactIsReady', () => {
-
     //console.log('React Is Ready')
     win.webContents.send('message', 'React Is Ready')
 
@@ -117,19 +104,9 @@ app.on('ready', () => {
   createWindow()
   listPorts()
   port = new SerialPort('COM16', { baudRate: 9600 })
-  port.on('error', (err) => {
-    console.log('USB Error: ', err.message)
-    //NOTIFY DENNIS HERE
-  })
-
-  port.on('readable', (data) => {
-    console.log('USB received readable:')
-    console.log(data)
-  })
-
-  port.on('data', (data) => {
-    console.log('USB received data: ', data)
-  })
+  port.on('error', (err) => console.log('USB Error: ', err.message))
+  port.on('readable', (data) => console.log(data))
+  port.on('data', (data) => console.log('USB received data: ', data))
 
   const writeAndDrain = () => {
     if (!sending) {
@@ -141,14 +118,11 @@ app.on('ready', () => {
   }
 
   const party = () => {
-    //console.log('In Party')
     setTimeout(() => {
       if (outBuffer.length > 0) {
         sending = false
         writeAndDrain()
-      } else {
-        sending = false
-      }
+      } else sending = false
     }, 50);
   }
   //console.log(port)
@@ -163,9 +137,7 @@ app.on('ready', () => {
     win.webContents.send('eStopSelected');
   })
 
-  ipcMain.on('getLocos', () => {
-    win.webContents.send('locos', locos)
-  })
+  ipcMain.on('getLocos', () => win.webContents.send('locos', locos))
 
   ipcMain.on('send-serial', (event, arg) => {
     //console.log('send-serial')
@@ -207,7 +179,6 @@ app.on('ready', () => {
     })
   })
 
-
   ipcMain.handle('getConsists', () => config.consists)
 
   // DECODERS
@@ -238,9 +209,7 @@ app.on('ready', () => {
     } else return "canceled"
 
   })
-  ipcMain.handle('createLoco', (e, loco) => {
-    return newLoco(loco)
-  })
+  ipcMain.handle('createLoco', (e, loco) => newLoco(loco))
   ipcMain.handle('updateLocomotive', (e, editedLoco) => updateLoco(editedLoco))
   ipcMain.handle('deleteLocomotive', (e, id) => deleteLoco(id))
   ipcMain.handle('getLocomotiveById', (e, id) => getLocoByID(id))
@@ -270,9 +239,7 @@ app.whenReady().then(() => {
     })
   })
 
-  locoObjects.forEach(loco => {
-    console.log(loco.loco.info())
-  })
+  locoObjects.forEach(loco => console.log(loco.loco.info()))
 })
 
 // Quit when all windows are closed.
