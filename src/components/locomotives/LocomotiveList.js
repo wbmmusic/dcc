@@ -59,7 +59,7 @@ export default function LocomotiveList() {
     }
 
     return (
-        <div style={{ padding: '10px' }}>
+        <div>
             <div style={{ display: 'flex', alignItems: 'center' }}>
                 <b>Locomotives</b>
                 <div

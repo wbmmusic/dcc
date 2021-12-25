@@ -136,7 +136,7 @@ export default function EditLocomotive() {
 
 
     return (
-        <div style={{ padding: '10px' }}>
+        <div>
             {makeTitle()}
             <hr />
             <div>

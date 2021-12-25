@@ -3,8 +3,7 @@ const { join, basename, normalize, parse } = require('path')
 const { format } = require('url')
 const SerialPort = require('serialport')
 const { autoUpdater } = require('electron-updater');
-var fs = require('fs');
-
+const { existsSync, readFileSync, copyFileSync, mkdirSync, writeFileSync } = require('fs');
 const { config, newDecoder, deleteDecoder, getDecoderByID, updateDecoder, pathToImages, newLoco, deleteLoco, getLocoByID, updateLoco } = require('./utilities');
 const { Locomotive } = require('./locomotive');
 
@@ -21,23 +20,22 @@ let locoObjects = []
 
 let defaultLocosData = { locos: [] }
 
-if (!fs.existsSync(join(pathToLocos, 'locos.json'))) {
+if (!existsSync(join(pathToLocos, 'locos.json'))) {
   console.log('File doesn\'t exist')
-  fs.mkdirSync(pathToLocos, { recursive: true })
-  fs.writeFileSync(join(pathToLocos, 'locos.json'), JSON.stringify(defaultLocosData))
+  mkdirSync(pathToLocos, { recursive: true })
+  writeFileSync(join(pathToLocos, 'locos.json'), JSON.stringify(defaultLocosData))
 }
 
-if (!fs.existsSync(join(pathToLocos, 'images', 'default.jpg'))) {
+if (!existsSync(join(pathToLocos, 'images', 'default.jpg'))) {
   console.log('Default Loco image doesn\'t exist')
-  fs.mkdirSync(join(pathToLocos, 'images'), { recursive: true })
-  fs.copyFileSync(join(__dirname, 'default.jpg'), join(pathToLocos, 'images', 'default.jpg'))
+  mkdirSync(join(pathToLocos, 'images'), { recursive: true })
+  copyFileSync(join(__dirname, 'default.jpg'), join(pathToLocos, 'images', 'default.jpg'))
 }
 
-const locosFile = () => JSON.parse(fs.readFileSync(join(pathToLocos, 'locos.json')))
+const locosFile = () => JSON.parse(readFileSync(join(pathToLocos, 'locos.json')))
 const makeLocos = () => locos = locosFile().locos
 
 makeLocos()
-//console.log(locos)
 
 const createWindow = () => {
   // Create the browser window.
@@ -166,7 +164,7 @@ app.on('ready', () => {
         console.log(result.filePaths[0])
         var theName = basename(result.filePaths[0])
 
-        fs.copyFile(result.filePaths[0], 'src/locos/' + basename(result.filePaths[0]), (err) => {
+        copyFileSync(result.filePaths[0], 'src/locos/' + basename(result.filePaths[0]), (err) => {
           if (err) throw err;
           console.log('source.txt was copied to destination.txt');
         });
@@ -204,7 +202,7 @@ app.on('ready', () => {
       ],
     })
     if (!file.canceled) {
-      fs.copyFileSync(file.filePaths[0], join(pathToImages, parse(file.filePaths[0]).base))
+      copyFileSync(file.filePaths[0], join(pathToImages, parse(file.filePaths[0]).base))
       return parse(file.filePaths[0]).base
     } else return "canceled"
 
@@ -231,13 +229,7 @@ app.whenReady().then(() => {
     callback({ path: normalize(`${pathToLocos}/images/${url}`) })
   })
 
-  //console.log("THROTTLES", throttles)
-
-  config.locos.forEach(loco => {
-    locoObjects.push({
-      id: loco._id, loco: new Locomotive({ loco: loco })
-    })
-  })
+  config.locos.forEach(loco => locoObjects.push({ id: loco._id, loco: new Locomotive({ loco: loco }) }))
 
   locoObjects.forEach(loco => console.log(loco.loco.info()))
 })
@@ -261,8 +253,6 @@ const listPorts = () => {
         console.log(port)
       })
     },
-    err => {
-      console.error('Error listing ports', err)
-    }
+    err => console.error('Error listing ports', err)
   )
 }
