@@ -36,6 +36,16 @@ if (!existsSync(pathToDefaultLocoImage)) {
     console.log("Created Default Loco Image")
 }
 
+if (!existsSync(join(pathToImages, 'locoSideProfile.png'))) {
+    try {
+        cpSync(join(__dirname, 'locoSideProfile.png'), join(pathToImages, 'locoSideProfile.png'))
+    } catch (error) {
+        console.log(error)
+    }
+
+    console.log("Created Side Profile Loco Image")
+}
+
 let config = {}
 
 const readFile = () => JSON.parse(readFileSync(pathToConfigFile))
