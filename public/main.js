@@ -1,11 +1,11 @@
 const { app, BrowserWindow, ipcMain, globalShortcut, dialog, protocol } = require('electron')
-const { join, basename, normalize } = require('path')
+const { join, basename, normalize, parse } = require('path')
 const { format } = require('url')
 const SerialPort = require('serialport')
 const { autoUpdater } = require('electron-updater');
 var fs = require('fs');
 
-const { config, newDecoder, deleteDecoder, getDecoderByID, updateDecoder, pathToImages, newLoco, deleteLoco, getLocoByID } = require('./utilities');
+const { config, newDecoder, deleteDecoder, getDecoderByID, updateDecoder, pathToImages, newLoco, deleteLoco, getLocoByID, updateLoco } = require('./utilities');
 const { throttles } = require('./throttles');
 const { Locomotive } = require('./locomotive');
 
@@ -232,11 +232,16 @@ app.on('ready', () => {
         }
       ],
     })
-    return file
+    if (!file.canceled) {
+      fs.copyFileSync(file.filePaths[0], join(pathToImages, parse(file.filePaths[0]).base))
+      return parse(file.filePaths[0]).base
+    } else return "canceled"
+
   })
   ipcMain.handle('createLoco', (e, loco) => {
     return newLoco(loco)
   })
+  ipcMain.handle('updateLocomotive', (e, editedLoco) => updateLoco(editedLoco))
   ipcMain.handle('deleteLocomotive', (e, id) => deleteLoco(id))
   ipcMain.handle('getLocomotiveById', (e, id) => getLocoByID(id))
   ipcMain.on('newThrottle', () => locoObjects[0].loco.showThrottle())

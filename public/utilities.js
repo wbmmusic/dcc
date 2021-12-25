@@ -93,3 +93,12 @@ exports.deleteLoco = (locoID) => {
 }
 
 exports.getLocoByID = (id) => config.locos.find(loco => loco._id === id)
+
+exports.updateLoco = (editedLoco) => {
+    let locoIdx = config.locos.findIndex(loco => loco._id === editedLoco._id)
+    if (locoIdx >= 0) {
+        config.locos[locoIdx] = editedLoco
+        saveFile()
+        return config.locos[locoIdx]
+    }
+}

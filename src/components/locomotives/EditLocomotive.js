@@ -48,7 +48,7 @@ export default function EditLocomotive() {
     }, [])
 
     useEffect(() => {
-        //console.log(loco)
+        console.log(loco)
     }, [loco])
 
     const handelCreateLoco = () => {
@@ -85,13 +85,22 @@ export default function EditLocomotive() {
         return true
     }
 
+    const handleUpdateLoco = () => {
+        window.electron.ipcRenderer.invoke('updateLocomotive', loco)
+            .then(theLoco => {
+                setLoco(theLoco)
+                setOgLoco(theLoco)
+            })
+            .catch(err => console.log(err))
+    }
+
     const makeButtons = () => {
 
         const makeSaveUpdate = () => {
             if (location.pathname.includes('new')) {
                 return <Button size='sm' disabled={!readyToCreate()} onClick={handelCreateLoco} >Create Locomotive</Button>
             } else if (location.pathname.includes('edit')) {
-                return <Button disabled={!readyToUpdate()} size='sm'>Update Locomotive</Button>
+                return <Button disabled={!readyToUpdate()} onClick={handleUpdateLoco} size='sm'>Update Locomotive</Button>
             } else return "ERROR"
         }
 
@@ -223,10 +232,10 @@ export default function EditLocomotive() {
                         size='sm'
                         onClick={() => {
                             window.electron.ipcRenderer.invoke('selectLocoImage')
-                                .then(res => { if (!res.canceled) console.log(res.filePaths[0]) })
+                                .then(res => { if (res !== 'canceled') setLoco(old => ({ ...old, photo: res })) })
                                 .catch(err => console.log(err))
                         }}
-                    >Upload Image</Button>
+                    >Choose Image</Button>
                 </div>
             </div>
             {makeButtons()}
