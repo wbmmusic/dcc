@@ -3,10 +3,11 @@ import { Button } from 'react-bootstrap'
 
 export default function LocoControl() {
     const [state, setState] = useState({})
+
     useEffect(() => {
-        document.title = "Throttle"
         window.electron.ipcRenderer.invoke(window.electron.getWindowID(), "getThrottle")
             .then(res => {
+                document.title = `${res.name} ${res.number}`
                 console.log(res)
                 setState(res)
             })
@@ -48,8 +49,14 @@ export default function LocoControl() {
                         <tbody>
                             <tr>
                                 <td rowSpan={3} style={{ width: '150px' }}>
-                                    <div style={{ position: 'absolute', top: '30px', display: 'inline-block' }} >Speed</div>
-                                    <div style={{ textAlign: 'center', fontSize: '60px' }}><b>{state.speed}</b></div>
+                                    <div>
+                                        <div style={{ position: 'absolute', top: '30px', display: 'inline-block', fontSize: '14px' }} >Speed</div>
+                                        <div style={{ textAlign: 'center', fontSize: '30px' }}><b>{state.speed}</b>
+                                        </div>
+                                        <div style={{ textAlign: 'center' }}>
+                                            <img style={{ maxHeight: '60px' }} src={`loco://${state.photo}`} alt="loco" />
+                                        </div>
+                                    </div>
                                 </td>
                                 <td>
                                     <Button

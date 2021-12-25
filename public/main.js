@@ -145,8 +145,6 @@ app.on('ready', () => {
       autoUpdater.checkForUpdatesAndNotify()
     }
 
-    locoObjects[0].loco.showThrottle()
-
   })
 
   createWindow()
@@ -274,7 +272,7 @@ app.on('ready', () => {
   })
   ipcMain.handle('deleteLocomotive', (e, id) => deleteLoco(id))
   ipcMain.handle('getLocomotiveById', (e, id) => getLocoByID(id))
-  ipcMain.on('newThrottle', () => createThrottleWindow())
+  ipcMain.on('newThrottle', () => locoObjects[0].loco.showThrottle())
 
 })
 

@@ -12,14 +12,16 @@ class Locomotive {
     info = () => { return { ...this } }
     setName = (newName) => this.loco.name = newName
     showThrottle = () => {
-
+        if (this.window !== null) {
+            this.window.focus()
+            return
+        }
         const windowArg = `--windowID:${this.loco._id}`
-        console.log(windowArg)
         // Create the browser window.
         this.window = new BrowserWindow({
             width: 250,
             height: 500,
-            icon: __dirname + '/icon.ico',
+            icon: __dirname + '/throttle.ico',
             autoHideMenuBar: true,
             show: false,
             //resizable: false,
