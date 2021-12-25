@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
+import { Button } from 'react-bootstrap';
 
 
 export default function LocoControl(props) {
@@ -346,29 +347,18 @@ export default function LocoControl(props) {
         props.setFunction(funNum, tempData[funNum])
     }
 
-
-    let functionButtons = []
-
-    let forwardColor = 'white'
-    let reverseColor = 'white'
-    let stopColor = 'white'
-
-    if (props.loco.direction === 'forward') {
-        forwardColor = 'lightGreen'
-    } else if (props.loco.direction === 'reverse') {
-        reverseColor = 'lightGreen'
-    } else if (props.loco.direction === 'stopped') {
-        stopColor = '#D98880'
+    const isDisabled = (xyz) => {
+        if (props.loco.direction === xyz) return true
+        else return false
     }
 
+    let functionButtons = []
 
     for (var i = 0; i < 32; i++) {
         if (props.loco.decoder.functions[i].info[2]) {
 
             let color = 'white'
-            if (props.loco.functionState[i]) {
-                color = 'lightGreen'
-            }
+            if (props.loco.functionState[i]) color = 'lightGreen'
 
             var tempKey = 'funBtn' + i
 
@@ -396,15 +386,13 @@ export default function LocoControl(props) {
 
     return (
         <div style={{ height: '100%' }}>
-            <table
-                style={{ width: '100%', height: '100%' }}>
+            <table style={{ width: '100%', height: '100%' }}>
                 <tbody>
                     <tr>
                         <td style={{ height: '100%', padding: '12px 4px', backgroundColor: 'grey' }}>
                             <Slider min={0} max={126} vertical={true} value={props.loco.speed} onChange={speedChange} />
                         </td>
                         <td style={{ textAlign: 'top' }}>
-
                             <div style={{ backgroundColor: 'lightgrey', height: '100%' }}>
                                 <div style={{ backgroundColor: 'white', cursor: 'context-menu', paddingLeft: '3px' }}>
                                     <b style={{ fontSize: '20px' }} > {props.loco.name}</b>
@@ -416,62 +404,52 @@ export default function LocoControl(props) {
                                     <b style={{ fontSize: '50px' }}>{props.loco.speed}</b>
                                 </div>
                                 <hr />
-                                <div
-                                    style={{ textAlign: 'center', padding: '5px', margin: '0px 5px', backgroundColor: 'red', borderRadius: '5px', cursor: 'pointer' }}
-                                    onMouseDown={estop}
-                                ><b>E-STOP</b></div>
+                                <div style={{ textAlign: 'center', margin: '0px 5px', }}                                >
+                                    <Button style={{ width: '100%' }} variant='danger' onMouseDown={estop}>E-STOP</Button>
+                                </div>
                                 <hr />
-                                <div style={{ margin: '0px 5px' }}>
+                                <div style={{ margin: '0px 5px', backgroundColor: 'white', padding: '2px', borderRadius: '4px' }}>
                                     <table style={{ width: '100%' }}>
                                         <tbody>
                                             <tr>
                                                 <td>
-                                                    <div
-                                                        style={{ ...transportButtons, backgroundColor: forwardColor }}
+                                                    <Button
+                                                        disabled={isDisabled('forward')}
+                                                        style={{ width: '100%' }}
+                                                        variant='success'
                                                         onMouseDown={forward}
-                                                    >Forward</div>
+                                                    >Forward</Button>
                                                 </td>
                                                 <td>
-                                                    <div
-                                                        style={{ ...transportButtons, backgroundColor: reverseColor }}
+                                                    <Button
+                                                        disabled={isDisabled('reverse')}
+                                                        style={{ width: '100%' }}
+                                                        variant='warning'
                                                         onMouseDown={reverse}
-                                                    >Reverse</div>
+                                                    >Reverse</Button>
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td colSpan='2'>
-                                                    <div
-                                                        style={{ ...transportButtons, backgroundColor: stopColor }}
+                                                    <Button
+                                                        disabled={isDisabled('stopped')}
+                                                        style={{ width: '100%' }}
+                                                        variant='danger'
                                                         onMouseDown={stop}
-                                                    >STOP</div>
+                                                    >Stop</Button>
                                                 </td>
                                             </tr>
                                         </tbody>
                                     </table>
                                 </div>
-
                                 <hr />
-                                <div style={{ paddingLeft: '5px', textAlign: 'left' }}>
-                                    <b>Functions</b>
-                                </div>
-
-                                <div style={{ overflow: 'auto' }}>
-                                    {functionButtons}
-                                </div>
+                                <div style={{ paddingLeft: '5px', textAlign: 'left' }}><b>Functions</b></div>
+                                <div style={{ overflow: 'auto' }}>{functionButtons}</div>
                             </div>
-
                         </td>
                     </tr>
                 </tbody>
             </table>
         </div>
     )
-}
-
-const transportButtons = {
-    border: '1px solid black',
-    padding: '5px',
-    borderRadius: '5px',
-    textAlign: 'center',
-    cursor: 'pointer',
 }

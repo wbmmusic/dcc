@@ -1,9 +1,9 @@
 import React, { Fragment, useState } from 'react'
 import { Button, Table } from 'react-bootstrap'
 import { useLocation, useNavigate } from 'react-router-dom'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowForwardTwoToneIcon from '@mui/icons-material/ArrowForwardTwoTone';
 import SwapHorizTwoToneIcon from '@mui/icons-material/SwapHorizTwoTone';
-import DeleteForeverTwoToneIcon from '@mui/icons-material/DeleteForeverTwoTone';
+import ClearTwoToneIcon from '@mui/icons-material/ClearTwoTone';
 import ArrowBackIosNewTwoToneIcon from '@mui/icons-material/ArrowBackIosNewTwoTone';
 import ArrowForwardIosTwoToneIcon from '@mui/icons-material/ArrowForwardIosTwoTone';
 
@@ -38,20 +38,21 @@ export default function EditConsist() {
     const moveForward = (idx) => {
         let tempConsists = JSON.parse(JSON.stringify(consists))
         const moveMe = tempConsists.splice(idx, 1)[0]
-        tempConsists.splice(idx + 1, 0, moveMe)
+        tempConsists.splice(idx - 1, 0, moveMe)
         setConsists(tempConsists)
     }
 
     const moveBackward = (idx) => {
         let tempConsists = JSON.parse(JSON.stringify(consists))
         const moveMe = tempConsists.splice(idx, 1)[0]
-        tempConsists.splice(idx - 1, 0, moveMe)
+        tempConsists.splice(idx + 1, 0, moveMe)
         setConsists(tempConsists)
     }
 
     const makeMove = (idx) => {
         let out = []
-        if (idx === 0 && consists.length > 1) {
+
+        if (idx === consists.length - 1 && consists.length > 1) {
             out = (
                 <Fragment>
                     <div style={moveDivStyle}>
@@ -65,7 +66,7 @@ export default function EditConsist() {
                     </div>
                 </Fragment>
             )
-        } else if (idx === consists.length - 1 && consists.length > 1) {
+        } else if (idx === 0 && consists.length > 1) {
             out = (
                 <Fragment>
                     <div style={moveDivStyle}>
@@ -108,14 +109,13 @@ export default function EditConsist() {
     const makeTrain = () => {
         let out = []
         const flip = (loco) => {
-            if (!loco.forward) return { transform: 'scale(-1, 1)' }
+            if (loco.forward) return { transform: 'scale(-1, 1)' }
             else return {}
         }
 
         consists.forEach((loco, i) => {
-            out.push(
+            out.unshift(
                 <div key={`loco${loco + i}`} style={{ display: 'inline-block', backgroundColor: loco.forward ? 'lightGrey' : 'khaki', margin: '2px' }}>
-                    <div style={{ textAlign: 'center' }}><ArrowBackIcon /><ArrowBackIcon /><ArrowBackIcon /></div>
                     <img style={{ width: '100%', ...flip(loco) }} src="loco://locoSideProfile.png" alt="side profile" />
                     <div style={{ display: 'flex' }}>
                         <div style={{ whiteSpace: 'nowrap' }}><b>{loco.name}</b></div>
@@ -131,14 +131,14 @@ export default function EditConsist() {
                                 <SwapHorizTwoToneIcon />
                             </div>
                             <div
-                                style={{ display: 'inline-block', cursor: 'pointer', color: 'red' }}
+                                style={{ display: 'inline-block', cursor: 'pointer', color: 'red', margin: '0px 8px' }}
                                 onClick={() => setConsists(old => {
                                     let tempOld = [...old]
                                     old[i] = !old[i]
                                     return tempOld
                                 })}
                             >
-                                <DeleteForeverTwoToneIcon />
+                                <ClearTwoToneIcon />
                             </div>
                         </div>
                     </div>
@@ -161,6 +161,18 @@ export default function EditConsist() {
                 {out}
             </Fragment>
         )
+    }
+
+    const makeDirection = () => {
+        let out = []
+        for (let i = 0; i < 4; i++) {
+            out.push(
+                <div style={{ display: 'inline-block', whiteSpace: 'nowrap', overflow: 'hidden' }}>
+                    Forward <ArrowForwardTwoToneIcon />
+                </div>
+            )
+        }
+        return out
     }
 
     return (
@@ -189,6 +201,9 @@ export default function EditConsist() {
             </div>
             <hr />
             <div>
+                <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', backgroundColor: 'silver' }}>
+                    {makeDirection()}
+                </div>
                 <div style={{ display: 'flex', width: '100%' }}>
                     {makeTrain()}
                 </div>

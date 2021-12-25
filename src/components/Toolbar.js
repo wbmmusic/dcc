@@ -40,22 +40,17 @@ export default function Toolbar(props) {
         <div style={barStyle}>
             <div
                 style={{
-                    backgroundColor: 'red',
                     display: 'inline-block',
-                    padding: '5px 15px',
-                    borderRadius: '5px',
-                    cursor: 'pointer',
-                    marginRight: '10px',
                     whiteSpace: 'nowrap'
                 }}
                 onMouseDown={() => estop()}
             >
-                <b>E-STOP ALL</b>
+                <Button style={{ width: '150px' }} variant='danger' size="sm">E-STOP ALL</Button>
             </div>
 
             <div style={{ textAlign: 'right', width: '100%', display: 'flex', justifyContent: 'right', alignItems: 'center' }}>
-                <div style={{ display: 'inline-block', backgroundColor: 'lightGrey', whiteSpace: 'nowrap' }}>
-                    <table cellPadding="4">
+                <div style={{ display: 'inline-block', backgroundColor: 'lightGrey', whiteSpace: 'nowrap', marginRight: '8px', borderRadius: '3px' }}>
+                    <table cellPadding="3">
                         <tbody>
                             <tr>
                                 <td>Serial Port: </td>
