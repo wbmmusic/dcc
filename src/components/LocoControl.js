@@ -408,7 +408,7 @@ export default function LocoControl(props) {
                                     <Button style={{ width: '100%' }} variant='danger' onMouseDown={estop}>E-STOP</Button>
                                 </div>
                                 <hr />
-                                <div style={{ margin: '0px 5px', backgroundColor: 'white', padding: '2px', borderRadius: '4px' }}>
+                                <div style={{ margin: '0px 5px', backgroundColor: 'whiteSmoke', padding: '2px', borderRadius: '4px' }}>
                                     <table style={{ width: '100%' }}>
                                         <tbody>
                                             <tr>
