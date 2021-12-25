@@ -77,6 +77,10 @@ class Locomotive {
             this.window.show()
         })
     }
+    closeThrottle = () => {
+        if (this.window === null) return
+        this.window.close()
+    }
 }
 
 exports.Locomotive = Locomotive

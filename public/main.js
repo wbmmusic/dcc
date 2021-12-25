@@ -273,6 +273,7 @@ app.on('ready', () => {
   ipcMain.handle('deleteLocomotive', (e, id) => deleteLoco(id))
   ipcMain.handle('getLocomotiveById', (e, id) => getLocoByID(id))
   ipcMain.on('newThrottle', () => locoObjects[0].loco.showThrottle())
+  ipcMain.on('closeThrottle', () => locoObjects[0].loco.closeThrottle())
 
 })
 
