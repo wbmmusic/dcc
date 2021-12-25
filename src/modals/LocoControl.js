@@ -1,21 +1,39 @@
-import { isDisabled } from '@testing-library/user-event/dist/utils'
 import React, { useEffect, useState } from 'react'
 import { Button } from 'react-bootstrap'
 
 export default function LocoControl() {
-    const [state, setState] = useState({
-        name: 'Metra',
-        number: '163',
-        direction: 'stop',
-        speed: 0
-    })
+    const [state, setState] = useState({})
     useEffect(() => {
         document.title = "Throttle"
+        window.electron.ipcRenderer.invoke(window.electron.getWindowID(), "getThrottle")
+            .then(res => {
+                console.log(res)
+                setState(res)
+            })
+            .catch(err => console.log(err))
     }, [])
 
     const isDisabled = (dir) => {
         if (state.direction === dir) return true
         else return false
+    }
+
+    const setDirection = (dir) => {
+        window.electron.ipcRenderer.invoke(window.electron.getWindowID(), 'setDirection', dir)
+            .then(newDir => setState(old => ({ ...old, direction: newDir })))
+            .catch(err => console.log(err))
+    }
+
+    const sendEStop = () => {
+        window.electron.ipcRenderer.invoke(window.electron.getWindowID(), 'eStop')
+            .then(res => console.log(res))
+            .catch(err => console.log(err))
+    }
+
+    const sendEStopAll = () => {
+        window.electron.ipcRenderer.invoke(window.electron.getWindowID(), 'eStopAll')
+            .then(res => console.log(res))
+            .catch(err => console.log(err))
     }
 
     return (
@@ -37,7 +55,7 @@ export default function LocoControl() {
                                     <Button
                                         style={{ width: '100%' }}
                                         disabled={isDisabled('forward')}
-                                        onClick={() => setState(old => ({ ...old, direction: 'forward' }))}
+                                        onClick={() => setDirection('forward')}
                                         variant='success'
                                         size="sm"
                                     >Forward</Button>
@@ -48,7 +66,7 @@ export default function LocoControl() {
                                     <Button
                                         style={{ width: '100%' }}
                                         disabled={isDisabled('stop')}
-                                        onClick={() => setState(old => ({ ...old, direction: 'stop' }))}
+                                        onClick={() => setDirection('stop')}
                                         variant='danger'
                                         size="sm"
                                     >Stop</Button>
@@ -59,7 +77,7 @@ export default function LocoControl() {
                                     <Button
                                         style={{ width: '100%' }}
                                         disabled={isDisabled('reverse')}
-                                        onClick={() => setState(old => ({ ...old, direction: 'reverse' }))}
+                                        onClick={() => setDirection('reverse')}
                                         variant='warning'
                                         size="sm"
                                     >Reverse</Button>
@@ -76,7 +94,11 @@ export default function LocoControl() {
                             type={'range'}
                             value={state.speed}
                             max={255}
-                            onChange={(e) => setState(old => ({ ...old, speed: parseInt(e.target.value) }))}
+                            onChange={(e) => {
+                                window.electron.ipcRenderer.invoke(window.electron.getWindowID(), 'setSpeed', parseInt(e.target.value))
+                                    .then(newSpeed => setState(old => ({ ...old, speed: newSpeed })))
+                                    .catch(err => console.log(err))
+                            }}
                         />
                     </div>
                     <div style={{ paddingLeft: '5px' }}>255</div>
@@ -88,8 +110,8 @@ export default function LocoControl() {
                 <Button
                     variant='danger'
                     style={{ width: '100%' }}
-                    onClick={() => console.log("Click")}
-                    onDoubleClick={() => console.log('Double Click')}
+                    onClick={() => sendEStop()}
+                    onDoubleClick={() => sendEStopAll()}
                 >E-Stop</Button>
             </div>
         </div>

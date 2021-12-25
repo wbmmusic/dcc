@@ -7,6 +7,7 @@ var fs = require('fs');
 
 const { config, newDecoder, deleteDecoder, getDecoderByID, updateDecoder, pathToImages, newLoco, deleteLoco, getLocoByID } = require('./utilities');
 const { throttles } = require('./throttles');
+const { Locomotive } = require('./locomotive');
 
 let pathToLocos = join('C:', 'ProgramData', 'WBM Tek', 'dcc', 'locos')
 
@@ -17,6 +18,7 @@ let port
 let outBuffer = []
 let sending = false
 let locos = []
+let locoObjects = []
 
 let defaultLocosData = { locos: [] }
 
@@ -71,10 +73,7 @@ const createWindow = () => {
 
 
   // Emitted when the window is closed.
-  win.on('closed', () => {
-    win = null
-  })
-
+  win.on('closed', () => app.quit())
   win.on('ready-to-show', () => win.show())
 }
 
@@ -145,6 +144,8 @@ app.on('ready', () => {
 
       autoUpdater.checkForUpdatesAndNotify()
     }
+
+    locoObjects[0].loco.showThrottle()
 
   })
 
@@ -291,6 +292,16 @@ app.whenReady().then(() => {
   })
 
   //console.log("THROTTLES", throttles)
+
+  config.locos.forEach(loco => {
+    locoObjects.push({
+      id: loco._id, loco: new Locomotive({ loco: loco })
+    })
+  })
+
+  locoObjects.forEach(loco => {
+    console.log(loco.loco.info())
+  })
 })
 
 // Quit when all windows are closed.
