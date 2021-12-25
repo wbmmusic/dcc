@@ -10,11 +10,6 @@ function App() {
       console.log(theMessage)
     })
 
-    window.electron.receive('app_version', (arg) => {
-      window.electron.removeListener('app_version');
-      document.title = 'Big D\'s Railroad --- v' + arg.version;
-    });
-
     window.electron.send('reactIsReady')
 
     return () => {

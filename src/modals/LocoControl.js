@@ -6,11 +6,7 @@ export default function LocoControl() {
 
     useEffect(() => {
         window.electron.ipcRenderer.invoke(window.electron.getWindowID(), "getThrottle")
-            .then(res => {
-                document.title = `${res.name} ${res.number}`
-                console.log(res)
-                setState(res)
-            })
+            .then(res => setState(res))
             .catch(err => console.log(err))
     }, [])
 
@@ -50,11 +46,19 @@ export default function LocoControl() {
                             <tr>
                                 <td rowSpan={3} style={{ width: '150px' }}>
                                     <div>
-                                        <div style={{ position: 'absolute', top: '30px', display: 'inline-block', fontSize: '14px' }} >Speed</div>
+                                        <div
+                                            style={{
+                                                position: 'absolute',
+                                                top: '30px',
+                                                display: 'inline-block',
+                                                fontSize: '14px',
+                                                paddingLeft: '2px'
+                                            }}
+                                        >{`Speed : ${state.direction}`}</div>
                                         <div style={{ textAlign: 'center', fontSize: '30px' }}><b>{state.speed}</b>
                                         </div>
                                         <div style={{ textAlign: 'center' }}>
-                                            <img style={{ maxHeight: '60px' }} src={`loco://${state.photo}`} alt="loco" />
+                                            <img style={{ maxHeight: '52px' }} src={`loco://${state.photo}`} alt="loco" />
                                         </div>
                                     </div>
                                 </td>

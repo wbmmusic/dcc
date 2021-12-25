@@ -59,6 +59,7 @@ const createWindow = () => {
     icon: __dirname + '/icon.ico',
     autoHideMenuBar: true,
     show: false,
+    title: 'Big D\'s Railroad --- v' + app.getVersion(),
     webPreferences: {
       preload: join(__dirname, 'preload.js')
     }
@@ -77,39 +78,6 @@ const createWindow = () => {
   win.on('ready-to-show', () => win.show())
 }
 
-const createThrottleWindow = () => {
-  // Create the browser window.
-  throttles[0] = new BrowserWindow({
-    width: 250,
-    height: 500,
-    icon: __dirname + '/icon.ico',
-    autoHideMenuBar: true,
-    show: false,
-    resizable: false,
-    webPreferences: {
-      preload: join(__dirname, 'preload.js')
-    }
-  })
-
-  const startUrl = process.env.ELECTRON_START_URL + "#/modal/throttle" || format({
-    pathname: join(__dirname, '/../build/index.html'),
-    protocol: 'file:',
-    slashes: true
-  }) + '#/modal/throttle';
-  throttles[0].loadURL(startUrl);
-
-
-  // Emitted when the window is closed.
-  throttles[0].on('closed', () => {
-    throttles[0] = null
-  })
-
-  throttles[0].on("ready-to-show", () => {
-    console.log("READY TO SHOW POPUP")
-    throttles[0].show()
-  })
-}
-
 app.on('ready', () => {
 
   protocol.registerFileProtocol('file', (request, callback) => {
@@ -121,7 +89,6 @@ app.on('ready', () => {
 
     //console.log('React Is Ready')
     win.webContents.send('message', 'React Is Ready')
-    win.webContents.send('app_version', { version: app.getVersion() });
 
     if (app.isPackaged) {
       win.webContents.send('message', 'App is packaged')

@@ -24,7 +24,9 @@ class Locomotive {
             icon: __dirname + '/throttle.ico',
             autoHideMenuBar: true,
             show: false,
+            title: this.loco.name + " " + this.loco.number,
             //resizable: false,
+            alwaysOnTop: true,
             webPreferences: {
                 preload: join(__dirname, 'preload.js'),
                 additionalArguments: [windowArg]
@@ -76,6 +78,7 @@ class Locomotive {
         this.window.on("ready-to-show", () => {
             this.window.show()
         })
+        this.window.on('moved', () => console.log(this.window.getPosition()))
     }
     closeThrottle = () => {
         if (this.window === null) return
