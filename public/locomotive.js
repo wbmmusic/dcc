@@ -1,14 +1,20 @@
 const { BrowserWindow, ipcMain } = require("electron")
 const { join } = require('path')
 const { format } = require('url')
+const { setSpeedAndDir, sendEStop, setFunction } = require("./messenger")
+
+const makeFunctionState = () => {
+    let out = []
+    for (let i = 0; i < 29; i++)out.push(i)
+    return out
+}
 
 class Locomotive {
     constructor(loco) {
         this.window = null
-        this.throttle = { speed: 0, direction: 'stop' }
+        this.throttle = { speed: 0, direction: 'stop', functions: [...makeFunctionState()] }
         if (loco) { Object.assign(this, { ...loco }) }
     }
-
     info = () => { return { ...this } }
     setName = (newName) => this.loco.name = newName
     showThrottle = () => {
@@ -50,15 +56,23 @@ class Locomotive {
                 case 'setSpeed':
                     this.throttle.speed = data
                     console.log("Setting speed to", data)
+                    setSpeedAndDir(this.loco.address, this.throttle.speed, this.throttle.direction)
                     return this.throttle.speed
 
                 case 'setDirection':
                     this.throttle.direction = data
                     console.log("Setting Direction to", data)
+                    setSpeedAndDir(this.loco.address, this.throttle.speed, this.throttle.direction)
                     return this.throttle.direction
+
+                case 'setFunction':
+                    console.log("Set Function", data)
+                    setFunction(this.loco.address, data, this.throttle.functions)
+                    return 'Yeah'
 
                 case 'eStop':
                     console.log("E-Stop this loco")
+                    sendEStop(this.loco.address, this.throttle.direction)
                     return "Got E-Stop"
 
                 case 'eStopAll':

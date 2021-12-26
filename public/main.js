@@ -1,7 +1,6 @@
 const { app, BrowserWindow, ipcMain, globalShortcut, dialog, protocol } = require('electron')
 const { join, basename, normalize, parse } = require('path')
 const { format } = require('url')
-const SerialPort = require('serialport')
 const { autoUpdater } = require('electron-updater');
 const { existsSync, readFileSync, copyFileSync, mkdirSync, writeFileSync } = require('fs');
 const { config, newDecoder, deleteDecoder, getDecoderByID, updateDecoder, pathToImages, newLoco, deleteLoco, getLocoByID, updateLoco } = require('./utilities');
@@ -13,8 +12,6 @@ let pathToLocos = join('C:', 'ProgramData', 'WBM Tek', 'dcc', 'locos')
 // be closed automatically when the JavaScript object is garbage collected.
 let win
 let port
-let outBuffer = []
-let sending = false
 let locos = []
 let locoObjects = []
 
@@ -100,29 +97,7 @@ app.on('ready', () => {
   })
 
   createWindow()
-  listPorts()
-  port = new SerialPort('COM16', { baudRate: 9600 })
-  port.on('error', (err) => console.log('USB Error: ', err.message))
-  port.on('readable', (data) => console.log(data))
-  port.on('data', (data) => console.log('USB received data: ', data))
 
-  const writeAndDrain = () => {
-    if (!sending) {
-      sending = true
-      port.write(outBuffer[0])
-      outBuffer = outBuffer.slice(1)
-      port.drain(party())
-    }
-  }
-
-  const party = () => {
-    setTimeout(() => {
-      if (outBuffer.length > 0) {
-        sending = false
-        writeAndDrain()
-      } else sending = false
-    }, 50);
-  }
   //console.log(port)
 
   const eStopAllQuickKey = globalShortcut.register('Ctrl+space', () => {
@@ -136,14 +111,6 @@ app.on('ready', () => {
   })
 
   ipcMain.on('getLocos', () => win.webContents.send('locos', locos))
-
-  ipcMain.on('send-serial', (event, arg) => {
-    //console.log('send-serial')
-    //console.log(arg)
-    outBuffer.push(arg)
-    writeAndDrain()
-    //port.write(arg)
-  })
 
   ipcMain.on('addLoco', (event, arg) => {
     console.log('got an add loco')
@@ -243,16 +210,3 @@ app.on('window-all-closed', () => {
 })
 
 app.on('activate', () => { if (win === null) { createWindow() } })
-
-const listPorts = () => {
-  SerialPort.list().then(
-    ports => {
-      if (ports.length > 0) console.log('PORTLIST')
-      ports.forEach(port => {
-        console.log(`${port.path}\t${port.pnpId || ''}\t${port.manufacturer || ''}`)
-        console.log(port)
-      })
-    },
-    err => console.error('Error listing ports', err)
-  )
-}

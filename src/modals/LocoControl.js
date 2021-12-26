@@ -21,6 +21,12 @@ export default function LocoControl() {
             .catch(err => console.log(err))
     }
 
+    const setSpeed = (speed) => {
+        window.electron.ipcRenderer.invoke(window.electron.getWindowID(), 'setSpeed', parseInt(speed))
+            .then(newSpeed => setState(old => ({ ...old, speed: newSpeed })))
+            .catch(err => console.log(err))
+    }
+
     const sendEStop = () => {
         window.electron.ipcRenderer.invoke(window.electron.getWindowID(), 'eStop')
             .then(res => console.log(res))
@@ -31,6 +37,27 @@ export default function LocoControl() {
         window.electron.ipcRenderer.invoke(window.electron.getWindowID(), 'eStopAll')
             .then(res => console.log(res))
             .catch(err => console.log(err))
+    }
+
+    const handleFunctionPress = (func) => {
+        window.electron.ipcRenderer.invoke(window.electron.getWindowID(), 'setFunction', func)
+            .then(res => console.log(res))
+            .catch(err => console.log(err))
+    }
+
+    const makeFunctions = () => {
+        let out = []
+
+        for (let i = 0; i < 28; i++)
+            out.push(
+                <Button
+                    style={{ marginRight: '2px', marginBottom: '2px' }}
+                    size='sm'
+                    onClick={() => handleFunctionPress(i)
+                    }
+                > F{i}</Button >
+            )
+        return out
     }
 
     return (
@@ -104,19 +131,17 @@ export default function LocoControl() {
                             style={{ width: '100%' }}
                             type={'range'}
                             value={state.speed}
-                            max={255}
-                            onChange={(e) => {
-                                window.electron.ipcRenderer.invoke(window.electron.getWindowID(), 'setSpeed', parseInt(e.target.value))
-                                    .then(newSpeed => setState(old => ({ ...old, speed: newSpeed })))
-                                    .catch(err => console.log(err))
-                            }}
+                            max={126}
+                            onChange={(e) => setSpeed(e.target.value)}
                         />
                     </div>
                     <div style={{ paddingLeft: '5px' }}>255</div>
                 </div>
-
             </div>
-            <div style={{ backgroundColor: 'pink', height: '100%' }}>Functions</div>
+            <div style={{ backgroundColor: 'pink', height: '100%' }}>
+                <div>Functions</div>
+                {makeFunctions()}
+            </div>
             <div style={{ padding: '4px' }}>
                 <Button
                     variant='danger'
