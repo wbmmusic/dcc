@@ -7,7 +7,8 @@ export default function EditSwitch() {
     const navigate = useNavigate()
     const theID = useParams().switchID
     console.log(theID)
-    const [state, setState] = useState({ name: '', address: Number })
+    const [state, setState] = useState({ name: '', address: '', reverse: false })
+    const [ogState, setOgState] = useState(null)
 
 
     useEffect(() => {
@@ -15,10 +16,17 @@ export default function EditSwitch() {
 
         } else if (location.pathname.includes('edit')) {
             window.electron.ipcRenderer.invoke('getSwitchByID', theID)
-                .then(res => setState(res))
+                .then(res => {
+                    setState(res)
+                    setOgState(res)
+                })
                 .catch(err => console.log(err))
         } else console.error("Error in use effect")
     }, [theID])
+
+    useEffect(() => {
+        console.log(state.reverse)
+    }, [state.reverse])
 
 
     const makeTitle = () => {
@@ -47,9 +55,9 @@ export default function EditSwitch() {
 
         const makeButton = () => {
             if (location.pathname.includes('new')) {
-                return <Button size='sm' onClick={createSwitch}>Create Switch</Button>
+                return <Button size='sm' disabled={!isCreatable()} onClick={createSwitch}>Create Switch</Button>
             } else if (location.pathname.includes('edit')) {
-                return <Button size='sm' onClick={updateSwitch}>Update Switch</Button>
+                return <Button size='sm' disabled={!isUpdatable()} onClick={updateSwitch}>Update Switch</Button>
             } else return "ERROR"
         }
 
@@ -60,6 +68,17 @@ export default function EditSwitch() {
                 {makeButton()}
             </div>
         )
+    }
+
+    const isCreatable = () => {
+        if (state.name !== '' && +state.address >= 0) return true
+        else return false
+    }
+
+    const isUpdatable = () => {
+        if (!isCreatable()) return false
+        if (JSON.stringify(state) === JSON.stringify(ogState)) return false
+        return true
     }
 
     return (
@@ -89,7 +108,18 @@ export default function EditSwitch() {
                                         min={0} step={1}
                                         placeholder='123'
                                         value={state.address}
-                                        onChange={(e) => setState(old => ({ ...old, address: parseInt(e.target.value) }))}
+                                        onChange={(e) => setState(old => ({ ...old, address: +e.target.value }))}
+                                    />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style={labelStyle}>Reverse:</td>
+                                <td>
+                                    <input
+                                        type="checkbox"
+                                        min={0} step={1}
+                                        checked={state.reverse}
+                                        onChange={(e) => setState(old => ({ ...old, reverse: !old.reverse }))}
                                     />
                                 </td>
                             </tr>

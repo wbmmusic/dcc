@@ -1,9 +1,14 @@
 const { sendAsyncSignal } = require("./messenger")
 
-const sendData = (address, data) => {
-    console.log("INHERE")
-    if (data) sendAsyncSignal(address, 3, 0)
-    else sendAsyncSignal(address, 4, 0)
+const sendData = (address, data, reverse) => {
+    if (reverse) {
+        if (data) sendAsyncSignal(address, 4, 0)
+        else sendAsyncSignal(address, 3, 0)
+    } else {
+        if (data) sendAsyncSignal(address, 3, 0)
+        else sendAsyncSignal(address, 4, 0)
+    }
+
 }
 
 class Switch {
@@ -13,16 +18,19 @@ class Switch {
     }
     open = () => {
         this.state = true
-        sendData(this.address, this.state)
+        sendData(this.address, this.state, this.reverse)
+        return this.state
     }
     close = () => {
         this.state = false
-        sendData(this.address, this.state)
+        sendData(this.address, this.state, this.reverse)
+        return this.state
     }
     toggle = () => {
         console.log("Toggle Switch", this)
         this.state = !this.state
-        sendData(this.address, this.state)
+        sendData(this.address, this.state, this.reverse)
+        return this.state
     }
 }
 

@@ -34,15 +34,45 @@ export default function SwitchesList() {
                     <thead>
                         <tr>
                             <th>Name</th>
+                            <th>Open</th>
+                            <th>Close</th>
                             <th>Edit</th>
                             <th>Del</th>
                         </tr>
                     </thead>
                     <tbody>
                         {
-                            switches.map(switchh => (
-                                <tr key={switchh._id + "switchRow"}>
+                            switches.map((switchh, idx) => (
+                                <tr key={(switchh)._id + "switchRow"}>
                                     <td>{switchh.name}</td>
+                                    <td>
+                                        <button
+                                            style={{ backgroundColor: switchh.state ? 'lightGreen' : '' }}
+                                            onClick={() => {
+                                                window.electron.ipcRenderer.invoke('setSwitch', switchh._id, 'open')
+                                                    .then(res => {
+                                                        let tempSwitches = [...switches]
+                                                        tempSwitches[idx].state = res
+                                                        setSwitches(tempSwitches)
+                                                    })
+                                                    .catch(err => console.log(err))
+                                            }}
+                                        >Open</button>
+                                    </td>
+                                    <td>
+                                        <button
+                                            style={{ backgroundColor: switchh.state ? '' : 'lightGreen' }}
+                                            onClick={() => {
+                                                window.electron.ipcRenderer.invoke('setSwitch', switchh._id, 'close')
+                                                    .then(res => {
+                                                        let tempSwitches = [...switches]
+                                                        tempSwitches[idx].state = res
+                                                        setSwitches(tempSwitches)
+                                                    })
+                                                    .catch(err => console.log(err))
+                                            }}
+                                        >Close</button>
+                                    </td>
                                     <td>
                                         <div
                                             style={{ display: 'inline-block', cursor: 'pointer' }}

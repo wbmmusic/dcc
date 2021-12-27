@@ -141,7 +141,11 @@ app.on('ready', () => {
 
 
   // SWITCHES
-  ipcMain.handle('getSwitches', () => getSwitches())
+  ipcMain.handle('getSwitches', () => {
+    let out = []
+    switchObjects.forEach(swh => out.push({ _id: swh.switch._id, name: swh.switch.name, state: swh.switch.state }))
+    return out
+  })
   ipcMain.handle('createSwitch', (e, newSwitch) => createSwitch(newSwitch))
   ipcMain.handle('getSwitchByID', (e, id) => getSwitchByID(id))
   ipcMain.handle('updateSwitch', (e, editedSwitch) => updateSwitch(editedSwitch))
@@ -184,7 +188,14 @@ app.on('ready', () => {
   })
 
 
-  ipcMain.handle('setSwitch', () => switchObjects[0].switch.toggle())
+  ipcMain.handle('setSwitch', (e, id, action) => {
+    console.log("Set Switch", action)
+    const switchIDX = switchObjects.findIndex(swh => swh.id === id)
+    if (switchIDX < 0) throw new Error('Error in setSwitch')
+    if (action === 'open') return switchObjects[switchIDX].switch.open()
+    else if (action === 'close') return switchObjects[switchIDX].switch.close()
+    else if (action === 'toggle') return switchObjects[switchIDX].switch.toggle()
+  })
 
 })
 
