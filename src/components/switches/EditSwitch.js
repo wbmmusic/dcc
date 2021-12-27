@@ -82,7 +82,7 @@ export default function EditSwitch() {
     }
 
     return (
-        <div>
+        <div style={{ boxShadow: '2px 2px 4px lightGrey', display: 'inline-block', padding: '10px', border: '1px solid black' }}>
             {makeTitle()}
             <hr />
             <div>
@@ -127,7 +127,6 @@ export default function EditSwitch() {
                     </Table>
                 </div>
             </div>
-            <hr />
             {makeButtons()}
         </div>
     )

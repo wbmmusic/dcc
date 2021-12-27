@@ -136,12 +136,14 @@ export default function Decoders() {
     }
 
     return (
-        <div style={{ height: '100%', overflow: 'hidden', overflowY: 'auto', display: 'flex', flexDirection: 'column', paddingTop: '10px', paddingLeft: '10px' }}>
-            <Routes>
-                <Route path="/" element={makeList()} />
-                <Route path='/new' element={(<EditDecoder />)} />
-                <Route path='/edit/:decoderID' element={(<EditDecoder />)} />
-            </Routes>
+        <div style={{ height: '100%', overflow: 'hidden', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ padding: '10px' }}>
+                <Routes>
+                    <Route path="/" element={makeList()} />
+                    <Route path='/new' element={(<EditDecoder />)} />
+                    <Route path='/edit/:decoderID' element={(<EditDecoder />)} />
+                </Routes>
+            </div>
         </div>
 
     )

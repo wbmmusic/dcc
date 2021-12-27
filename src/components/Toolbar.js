@@ -49,7 +49,7 @@ export default function Toolbar(props) {
             </div>
 
             <div style={{ textAlign: 'right', width: '100%', display: 'flex', justifyContent: 'right', alignItems: 'center' }}>
-                <div style={{ display: 'inline-block', backgroundColor: 'lightGrey', whiteSpace: 'nowrap', marginRight: '8px', borderRadius: '3px' }}>
+                <div style={{ display: 'inline-block', backgroundColor: 'lightGrey', whiteSpace: 'nowrap', borderRadius: '3px' }}>
                     <table cellPadding="3">
                         <tbody>
                             <tr>
@@ -63,11 +63,6 @@ export default function Toolbar(props) {
                         </tbody>
                     </table>
                 </div>
-                <Button size="sm" onClick={() => {
-                    window.electron.ipcRenderer.invoke('setSwitch')
-                        .then(res => console.log(res))
-                        .catch(err => console.log(err))
-                }} >Switch</Button>
                 <Button variant='warning' style={{ marginLeft: '8px' }} size="sm" onClick={() => window.electron.send('closeThrottles')} >Close All</Button>
                 <div style={{ display: 'inline-block' }}>
                     <Dropdown style={{ marginLeft: '8px' }}>

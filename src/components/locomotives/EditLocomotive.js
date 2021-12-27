@@ -131,7 +131,7 @@ export default function EditLocomotive() {
 
 
     return (
-        <div>
+        <div style={{ display: 'inline-block', border: '1px solid black', padding: '10px', boxShadow: '2px 2px 4px lightGrey' }}>
             {makeTitle()}
             <hr />
             <div>

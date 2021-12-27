@@ -154,55 +154,57 @@ export default function EditDecoder() {
 
     return (
         <div style={{ height: '100%', overflowY: 'auto' }}>
-            {makeLabel()}
-            <hr />
-            <div style={{ padding: '10px' }}>
-                <div>
-                    <div style={{ display: 'inline-block' }}>
-                        <Table size="sm">
-                            <tbody>
-                                <tr>
-                                    <td style={labelStyle}>Name</td>
-                                    <td><input
-                                        style={{ width: '100%' }}
-                                        placeholder='Decoder Name'
-                                        value={decoder.name}
-                                        onChange={(e) => setDecoder(old => ({ ...old, name: e.target.value }))}
-                                    /></td>
-                                </tr>
-                                <tr>
-                                    <td style={labelStyle}>Model</td>
-                                    <td><input
-                                        style={{ width: '100%' }}
-                                        placeholder='Decoder Model'
-                                        value={decoder.model}
-                                        onChange={(e) => setDecoder(old => ({ ...old, model: e.target.value }))}
-                                    /></td>
-                                </tr>
-                                <tr>
-                                    <td style={labelStyle}>Manufacturer</td>
-                                    <td><input
-                                        style={{ width: '100%' }}
-                                        placeholder='Decoder Manufacturer'
-                                        value={decoder.manufacturer}
-                                        onChange={(e) => setDecoder(old => ({ ...old, manufacturer: e.target.value }))}
-                                    /></td>
-                                </tr>
-                            </tbody>
-                        </Table>
+            <div style={{ display: 'inline-block', boxShadow: '2px 2px 4px lightGrey', border: '1px solid black', padding: '10px' }}>
+                {makeLabel()}
+                <hr />
+                <div style={{ padding: '10px' }}>
+                    <div>
+                        <div style={{ display: 'inline-block' }}>
+                            <Table size="sm">
+                                <tbody>
+                                    <tr>
+                                        <td style={labelStyle}>Name</td>
+                                        <td><input
+                                            style={{ width: '100%' }}
+                                            placeholder='Decoder Name'
+                                            value={decoder.name}
+                                            onChange={(e) => setDecoder(old => ({ ...old, name: e.target.value }))}
+                                        /></td>
+                                    </tr>
+                                    <tr>
+                                        <td style={labelStyle}>Model</td>
+                                        <td><input
+                                            style={{ width: '100%' }}
+                                            placeholder='Decoder Model'
+                                            value={decoder.model}
+                                            onChange={(e) => setDecoder(old => ({ ...old, model: e.target.value }))}
+                                        /></td>
+                                    </tr>
+                                    <tr>
+                                        <td style={labelStyle}>Manufacturer</td>
+                                        <td><input
+                                            style={{ width: '100%' }}
+                                            placeholder='Decoder Manufacturer'
+                                            value={decoder.manufacturer}
+                                            onChange={(e) => setDecoder(old => ({ ...old, manufacturer: e.target.value }))}
+                                        /></td>
+                                    </tr>
+                                </tbody>
+                            </Table>
+                        </div>
                     </div>
+                    <Table size="sm" striped style={{ display: 'inline-block' }}>
+                        <thead>
+                            <th>#</th>
+                            <th>Function</th>
+                            <th>Action</th>
+                        </thead>
+                        <tbody>
+                            {makeChannels()}
+                        </tbody>
+                    </Table>
+                    {makeButtons()}
                 </div>
-                <Table size="sm" striped style={{ display: 'inline-block' }}>
-                    <thead>
-                        <th>#</th>
-                        <th>Function</th>
-                        <th>Action</th>
-                    </thead>
-                    <tbody>
-                        {makeChannels()}
-                    </tbody>
-                </Table>
-                {makeButtons()}
             </div>
         </div>
     )

@@ -108,8 +108,8 @@ export default function LocoControl() {
                                         >{`Speed : ${state.direction}`}</div>
                                         <div style={{ textAlign: 'center', fontSize: '30px' }}><b>{state.speed}</b>
                                         </div>
-                                        <div style={{ textAlign: 'center' }}>
-                                            <img style={{ maxHeight: '52px' }} src={`loco://${state.photo}`} alt="loco" />
+                                        <div style={{ textAlign: 'center', padding: '0px 4px' }}>
+                                            <img style={{ maxHeight: '50px' }} src={`loco://${state.photo}`} alt="loco" />
                                         </div>
                                     </div>
                                 </td>
