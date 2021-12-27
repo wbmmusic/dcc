@@ -3,7 +3,7 @@ const { join, basename, normalize, parse } = require('path')
 const { format } = require('url')
 const { autoUpdater } = require('electron-updater');
 const { copyFileSync } = require('fs');
-const { config, newDecoder, deleteDecoder, getDecoderByID, updateDecoder, pathToImages, newLoco, deleteLoco, getLocoByID, updateLoco } = require('./utilities');
+const { config, newDecoder, deleteDecoder, getDecoderByID, updateDecoder, pathToImages, newLoco, deleteLoco, getLocoByID, updateLoco, getSwitches } = require('./utilities');
 const { Locomotive } = require('./locomotive');
 const { sendAsyncSignal } = require('./messenger');
 
@@ -137,6 +137,11 @@ app.on('ready', () => {
   ipcMain.handle('getDecoderById', (e, id) => getDecoderByID(id))
   ipcMain.handle('updateDecoder', (e, updatedDecoder) => updateDecoder(updatedDecoder)
   )
+
+
+  // SWITCHES
+  ipcMain.handle('getSwitches', () => getSwitches())
+
 
   // LOCOS
   ipcMain.handle('getLocomotives', () => config.locos)

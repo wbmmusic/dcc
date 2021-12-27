@@ -102,3 +102,5 @@ exports.updateLoco = (editedLoco) => {
         return config.locos[locoIdx]
     }
 }
+
+exports.getSwitches = () => config.switches

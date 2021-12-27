@@ -1,6 +1,6 @@
 import React from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { Button } from 'react-bootstrap'
+import { Button, Table } from 'react-bootstrap'
 
 export default function EditSwitch() {
     const location = useLocation()
@@ -34,7 +34,39 @@ export default function EditSwitch() {
     return (
         <div>
             {makeTitle()}
+            <hr />
+            <div>
+                <div style={{ display: 'inline-block' }}>
+                    <Table size='sm'>
+                        <tbody>
+                            <tr>
+                                <td style={labelStyle}>Name:</td>
+                                <td>
+                                    <input
+                                        type="text"
+                                        placeholder='Switch Name'
+                                    />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style={labelStyle}>Address:</td>
+                                <td>
+                                    <input
+                                        type="number"
+                                        min={0}
+                                        step={1}
+                                        placeholder='123'
+                                    />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </Table>
+                </div>
+            </div>
+            <hr />
             {makeButtons()}
         </div>
     )
 }
+
+const labelStyle = { textAlign: 'right' }

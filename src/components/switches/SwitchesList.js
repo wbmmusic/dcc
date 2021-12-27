@@ -1,6 +1,8 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import AddCircleTwoToneIcon from '@mui/icons-material/AddCircleTwoTone';
+import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
+import DeleteForeverTwoToneIcon from '@mui/icons-material/DeleteForeverTwoTone';
 import { Table } from 'react-bootstrap';
 
 export default function SwitchesList() {
@@ -27,9 +29,17 @@ export default function SwitchesList() {
                     </thead>
                     <tbody>
                         <tr>
-                            <td>XX</td>
-                            <td>XX</td>
-                            <td>XX</td>
+                            <td>Some Name</td>
+                            <td>
+                                <div style={{ display: 'inline-block', cursor: 'pointer' }}>
+                                    <EditTwoToneIcon />
+                                </div>
+                            </td>
+                            <td>
+                                <div style={{ display: 'inline-block', cursor: 'pointer', color: 'red' }}>
+                                    <DeleteForeverTwoToneIcon />
+                                </div>
+                            </td>
                         </tr>
                     </tbody>
                 </Table>
