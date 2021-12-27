@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import Toolbar from "./Toolbar";
 import LocoIcon from "./LocoIcon";
-import { dcdr1 } from "./Decoders";
 import Layout from '../layouts/Layout';
 import { Button } from 'react-bootstrap';
-import { Route, Routes, useNavigate } from 'react-router';
+import { Route, Routes } from 'react-router';
 import Decoders from './decoders/Decoders';
 import Consists from './consists/Consists';
 import Locomotives from './locomotives/Locomotives';
@@ -15,7 +14,6 @@ import CVedit from '../CVedit';
 
 
 export default function AppTop() {
-    const navigate = useNavigate()
     const [state, setState] = useState({
         selectedLoco: 0,
         activeTrack: 0,
@@ -24,19 +22,6 @@ export default function AppTop() {
     })
 
     const [lights, setLights] = useState({ tower: false, street: false })
-
-    const defaultLoco = {
-        hidden: false,
-        name: 'Default Name',
-        number: 9999,
-        address: 9999,
-        model: 'Enter Model',
-        photo: 'default.jpg',
-        decoder: dcdr1(),
-        speed: 0,
-        functionState: [],
-        direction: 'stopped'
-    }
 
     useEffect(() => {
         console.log(lights)
@@ -49,7 +34,6 @@ export default function AppTop() {
     }, [lights])
 
     useEffect(() => {
-
         let tempLocos = state.locos
         for (var locoNum = 0; locoNum < state.locos.length; locoNum++) {
 
@@ -81,34 +65,11 @@ export default function AppTop() {
             })
             .catch(err => console.log(err))
 
-        window.electron.receive('locos', (theLocos) => {
-            console.log('Got Locos')
-            console.log(theLocos)
-            let tempState = { ...state }
-            tempState.locos = theLocos
-            tempState.locos.forEach((loco) => {
-                loco.functionState = [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false]
-            })
-            setState(tempState)
-        })
-
-
         let tempState = { ...state }
         tempState.locos = tempLocos
         setState(tempState)
 
-        window.electron.receive('addLoco', () => {
-            let tempState = { ...state }
-            let tempDefault = { ...defaultLoco }
-            tempDefault.functionState = [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false]
-            tempState.locos.push(tempDefault)
-            setState(tempState)
-        })
-
-        window.electron.receive('hereIsYourImage', (name) => setState(old => ({ ...old, photo: name })))
         return () => {
-            window.electron.removeListener('hereIsYourImage')
-            window.electron.removeListener('addLoco')
         }
     }, [])
 
@@ -118,94 +79,10 @@ export default function AppTop() {
         setState(tempState)
     }
 
-    const deleteLoco = (loco) => {
-        var tempState = { ...state }
-        tempState.locos.splice(loco, 1)
-
-        if (state.selectedLoco >= tempState.locos.length - 1) {
-            tempState.selectedLoco = tempState.locos.length - 1
-        }
-
-        if (tempState.locos.length === 0) {
-            tempState.locos.push(defaultLoco)
-            tempState.selectedLoco = 0
-            setState(tempState)
-            navigate("/", { replace: true })
-        } else {
-            navigate("/", { replace: true })
-        }
-    }
-
     const selectLoco = (locoIndex) => {
         //console.log('IN SELECT LOCO ' + locoIndex)
         let tempState = { ...state }
         tempState.selectedLoco = locoIndex
-        setState(tempState)
-    }
-
-    const speedChange = (theSpeed) => {
-        var tempState = { ...state }
-
-        tempState.locos[state.selectedLoco].speed = theSpeed
-
-        setState(tempState)
-    }
-
-    const setFunction = (funNum, funVal) => {
-        console.log('Set Function ' + funNum + funVal)
-
-        var tempState = { ...state }
-
-        tempState.locos[state.selectedLoco].functionState[funNum] = funVal
-
-        setState(tempState)
-    }
-
-    const handleNameChange = (newName) => {
-        console.log('Name change in top ' + newName)
-        var tempState = { ...state }
-
-        tempState.locos[state.selectedLoco].name = newName
-
-        setState(tempState)
-    }
-
-    const handleModelChange = (newModel) => {
-        console.log('Model change in top ' + newModel)
-        var tempState = { ...state }
-
-        tempState.locos[state.selectedLoco].model = newModel
-
-        setState(tempState)
-    }
-
-    const handleNumberChange = (newNumber) => {
-        console.log('Name change in top ' + newNumber)
-        var tempState = { ...state }
-
-        tempState.locos[state.selectedLoco].number = newNumber
-
-        setState(tempState)
-    }
-
-    const handleAddressChange = (newAddress) => {
-        console.log('Name change in top ' + newAddress)
-        var tempState = { ...state }
-
-        tempState.locos[state.selectedLoco].address = newAddress
-
-        setState(tempState)
-    }
-
-    const handleVisible = () => {
-        let tempState = { ...state }
-
-        if (state.locos[state.selectedLoco].hidden) {
-            tempState.locos[state.selectedLoco].hidden = false
-        } else {
-            tempState.locos[state.selectedLoco].hidden = true
-        }
-
         setState(tempState)
     }
 
@@ -221,14 +98,6 @@ export default function AppTop() {
         }
     }
 
-    const handleDirectionChange = (direction) => {
-        var tempState = { ...state }
-
-        tempState.locos[state.selectedLoco].direction = direction
-
-        setState(tempState)
-    }
-
     const handleSetAllStopped = () => {
         var tempState = { ...state }
 
@@ -236,20 +105,6 @@ export default function AppTop() {
             tempState.locos[i].direction = 'stopped'
         }
         setState(tempState)
-    }
-
-    const openMain = () => {
-        let tempState = { ...state }
-        if (state.locos[state.selectedLoco].hidden) {
-            for (var count = 0; count < state.locos.length; count++) {
-                if (!state.locos[count].hidden) {
-                    tempState.selectedLoco = count
-                    break
-                }
-            }
-        }
-        setState(tempState)
-        navigate("/", { replace: true })
     }
 
     const makeLocoControl = () => {

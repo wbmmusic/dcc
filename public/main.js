@@ -87,38 +87,10 @@ app.on('ready', () => {
     win.webContents.send('eStopSelected');
   })
 
-  ipcMain.on('getLocos', () => win.webContents.send('locos', locos))
-
   ipcMain.on('addLoco', (event, arg) => {
     console.log('got an add loco')
     console.log(arg)
     //port.write(arg)
-  })
-
-  ipcMain.on('chooseImage', (event) => {
-    dialog.showOpenDialog(win, {
-      properties: ['openFile'],
-      filters: [
-        { name: 'Image File', extensions: ['png', 'jpg', 'jpeg', 'tiff', 'bmp'] },
-      ]
-    }).then(result => {
-      if (result.canceled) {
-        console.log('CANCLED')
-      } else {
-        console.log(result.filePaths[0])
-        var theName = basename(result.filePaths[0])
-
-        copyFileSync(result.filePaths[0], 'src/locos/' + basename(result.filePaths[0]), (err) => {
-          if (err) throw err;
-          console.log('source.txt was copied to destination.txt');
-        });
-
-
-        event.reply('hereIsYourImage', theName)
-      }
-    }).catch(err => {
-      console.log(err)
-    })
   })
 
   ipcMain.handle('getConsists', () => util.config.consists)
