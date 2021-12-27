@@ -47,9 +47,7 @@ export default function EditLocomotive() {
         }
     }, [])
 
-    useEffect(() => {
-        console.log(loco)
-    }, [loco])
+    useEffect(() => console.log(loco), [loco])
 
     const handelCreateLoco = () => {
         window.electron.ipcRenderer.invoke('createLoco', loco)
@@ -87,10 +85,7 @@ export default function EditLocomotive() {
 
     const handleUpdateLoco = () => {
         window.electron.ipcRenderer.invoke('updateLocomotive', loco)
-            .then(theLoco => {
-                setLoco(theLoco)
-                setOgLoco(theLoco)
-            })
+            .then(theLoco => navigate('/locomotives'))
             .catch(err => console.log(err))
     }
 
@@ -106,7 +101,7 @@ export default function EditLocomotive() {
 
         return (
             <div style={{ textAlign: 'right', marginTop: '10px' }}>
-                <Button size='sm' onClick={() => navigate('/locomotives')} >Cancel</Button>
+                <Button size='sm' onClick={() => navigate(-1)} >Cancel</Button>
                 <div style={{ display: 'inline-block', width: '8px' }} />
                 {makeSaveUpdate()}
             </div>
@@ -222,10 +217,12 @@ export default function EditLocomotive() {
                 </div>
             </div>
             <hr />
-            <div id='photoInput' style={{ backgroundColor: 'lightGrey', padding: '10px' }}>
+            <div id='photoInput' style={{ backgroundColor: 'lightGrey', display: 'inline-block', padding: '10px' }}>
                 <b>Photo</b>
                 <div>
-                    <img src={`loco://${loco.photo}`} alt='loco' />
+                    <div style={{ maxWidth: '100%' }}>
+                        <img style={{ maxWidth: '100%', maxHeight: '200px' }} src={`loco://${loco.photo}`} alt='loco' />
+                    </div>
                 </div>
                 <div style={{ marginTop: '10px' }}>
                     <Button
@@ -238,6 +235,7 @@ export default function EditLocomotive() {
                     >Choose Image</Button>
                 </div>
             </div>
+            <hr />
             {makeButtons()}
         </div >
     )

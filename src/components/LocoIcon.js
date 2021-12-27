@@ -5,10 +5,12 @@ import StopCircleTwoToneIcon from '@mui/icons-material/StopCircleTwoTone';
 import SettingsTwoToneIcon from '@mui/icons-material/SettingsTwoTone';
 import ArrowForwardIosTwoToneIcon from '@mui/icons-material/ArrowForwardIosTwoTone';
 import ArrowBackIosNewTwoToneIcon from '@mui/icons-material/ArrowBackIosNewTwoTone';
+import { useNavigate } from 'react-router-dom';
 const join = window.electron.join
 
 
 export default function LocoIcon(props) {
+    const navigate = useNavigate()
 
     const getAddressBytes = () => {
         var address = props.loco.address
@@ -26,7 +28,7 @@ export default function LocoIcon(props) {
 
     const settings = () => {
         console.log('SETTINGS idx:' + props.index + ' ' + props.loco.name + ' ' + props.loco.number)
-        props.openSettings(props.index)
+        navigate('/locomotives/edit/' + props.loco._id)
     }
 
     const selectThisLoco = () => {
@@ -47,6 +49,8 @@ export default function LocoIcon(props) {
         var addy = getAddressBytes()
         window.electron.send('send-serial', [0xA2, addy[0], addy[1], 5, 0])
     }
+
+    const openThrottle = (id) => window.electron.send('newThrottle', id)
 
     let leftButton = (
         <OverlayTrigger delay={overlayDelay} overlay={<Tooltip id="tooltip-disabled">Move left</Tooltip>}>
@@ -77,7 +81,7 @@ export default function LocoIcon(props) {
         <div
             style={iconContainerStyle}
             onMouseDown={selectThisLoco}
-            onDoubleClick={() => console.log('Open Throttle', props.loco)}
+            onDoubleClick={() => openThrottle(props.loco._id)}
         >
             <div style={{ backgroundColor: props.color }}>
                 <table style={{ width: '100%' }} cellSpacing={0}>
@@ -116,7 +120,7 @@ export default function LocoIcon(props) {
                         overflow: 'hidden'
                     }}
                 >
-                    <img alt="Locomotive" width='80%' src={join('atom://', props.loco.photo)} />
+                    <img alt="Locomotive" width='80%' src={join('loco://', props.loco.photo)} />
                 </div>
 
                 <div style={{ height: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', }}>

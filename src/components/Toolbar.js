@@ -63,8 +63,12 @@ export default function Toolbar(props) {
                         </tbody>
                     </table>
                 </div>
-                <Button size="sm" onClick={() => window.electron.send('newThrottle')} >Window</Button>
-                <Button style={{ marginLeft: '8px' }} size="sm" onClick={() => window.electron.send('closeThrottle')} >Close Window</Button>
+                <Button size="sm" onClick={() => {
+                    window.electron.ipcRenderer.invoke('setSwitch')
+                        .then(res => console.log(res))
+                        .catch(err => console.log(err))
+                }} >Switch</Button>
+                <Button variant='warning' style={{ marginLeft: '8px' }} size="sm" onClick={() => window.electron.send('closeThrottles')} >Close All</Button>
                 <div style={{ display: 'inline-block' }}>
                     <Dropdown style={{ marginLeft: '8px' }}>
                         <Dropdown.Toggle size="sm" variant="primary" id="dropdown-basic">

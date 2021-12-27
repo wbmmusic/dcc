@@ -2,11 +2,10 @@ const { app, BrowserWindow, ipcMain, globalShortcut, dialog, protocol } = requir
 const { join, basename, normalize, parse } = require('path')
 const { format } = require('url')
 const { autoUpdater } = require('electron-updater');
-const { existsSync, readFileSync, copyFileSync, mkdirSync, writeFileSync } = require('fs');
+const { copyFileSync } = require('fs');
 const { config, newDecoder, deleteDecoder, getDecoderByID, updateDecoder, pathToImages, newLoco, deleteLoco, getLocoByID, updateLoco } = require('./utilities');
 const { Locomotive } = require('./locomotive');
-
-let pathToLocos = join('C:', 'ProgramData', 'WBM Tek', 'dcc', 'locos')
+const { sendAsyncSignal } = require('./messenger');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -15,24 +14,6 @@ let port
 let locos = []
 let locoObjects = []
 
-let defaultLocosData = { locos: [] }
-
-if (!existsSync(join(pathToLocos, 'locos.json'))) {
-  console.log('File doesn\'t exist')
-  mkdirSync(pathToLocos, { recursive: true })
-  writeFileSync(join(pathToLocos, 'locos.json'), JSON.stringify(defaultLocosData))
-}
-
-if (!existsSync(join(pathToLocos, 'images', 'default.jpg'))) {
-  console.log('Default Loco image doesn\'t exist')
-  mkdirSync(join(pathToLocos, 'images'), { recursive: true })
-  copyFileSync(join(__dirname, 'default.jpg'), join(pathToLocos, 'images', 'default.jpg'))
-}
-
-const locosFile = () => JSON.parse(readFileSync(join(pathToLocos, 'locos.json')))
-const makeLocos = () => locos = locosFile().locos
-
-makeLocos()
 
 const createWindow = () => {
   // Create the browser window.
@@ -178,8 +159,23 @@ app.on('ready', () => {
   ipcMain.handle('updateLocomotive', (e, editedLoco) => updateLoco(editedLoco))
   ipcMain.handle('deleteLocomotive', (e, id) => deleteLoco(id))
   ipcMain.handle('getLocomotiveById', (e, id) => getLocoByID(id))
-  ipcMain.on('newThrottle', () => locoObjects[0].loco.showThrottle())
-  ipcMain.on('closeThrottle', () => locoObjects[0].loco.closeThrottle())
+
+  ipcMain.on('newThrottle', (e, id) => {
+    console.log("NEW THROTTLE")
+    const locoIdx = locoObjects.findIndex(loco => loco.id === id)
+    if (locoIdx >= 0) {
+      locoObjects[locoIdx].loco.showThrottle()
+    } else console.log("THROTTLE ERROR")
+  })
+
+  ipcMain.on('closeThrottles', () => {
+    locoObjects.forEach(obj => {
+      if (obj.loco.window !== null) obj.loco.closeThrottle()
+    })
+  })
+
+
+  ipcMain.handle('setSwitch', () => sendAsyncSignal(3, 3, 0))
 
 })
 
@@ -188,12 +184,6 @@ app.whenReady().then(() => {
     const url = request.url.substr(6)
     //console.log(url)
     callback({ path: normalize(`${pathToImages}/${url}`) })
-  })
-
-  protocol.registerFileProtocol('atom', (request, callback) => {
-    const url = request.url.substr(6)
-    //console.log(url)
-    callback({ path: normalize(`${pathToLocos}/images/${url}`) })
   })
 
   config.locos.forEach(loco => locoObjects.push({ id: loco._id, loco: new Locomotive({ loco: loco }) }))

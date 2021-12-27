@@ -2,17 +2,26 @@ const { BrowserWindow, ipcMain } = require("electron")
 const { join } = require('path')
 const { format } = require('url')
 const { setSpeedAndDir, sendEStop, setFunction } = require("./messenger")
+const { config } = require("./utilities")
 
-const makeFunctionState = () => {
+const makeFunctionState = (decoderID) => {
+    let theDecoder = null
+    for (let i = 0; i < config.decoders.length; i++) {
+        if (decoderID === config.decoders[i]._id) {
+            theDecoder = config.decoders.find(dcdr => dcdr._id === decoderID)
+        }
+    }
+
     let out = []
-    for (let i = 0; i < 29; i++)out.push(i)
+    for (let i = 0; i < 29; i++)out.push({ ...theDecoder.functions[i], state: false })
     return out
+
 }
 
 class Locomotive {
     constructor(loco) {
         this.window = null
-        this.throttle = { speed: 0, direction: 'stop', functions: [...makeFunctionState()] }
+        this.throttle = { speed: 0, direction: 'stop', functions: [...makeFunctionState(loco.loco.decoder)] }
         if (loco) { Object.assign(this, { ...loco }) }
     }
     info = () => { return { ...this } }
@@ -25,8 +34,8 @@ class Locomotive {
         const windowArg = `--windowID:${this.loco._id}`
         // Create the browser window.
         this.window = new BrowserWindow({
-            width: 250,
-            height: 500,
+            width: 300,
+            height: 550,
             icon: __dirname + '/throttle.ico',
             autoHideMenuBar: true,
             show: false,
@@ -47,11 +56,10 @@ class Locomotive {
         this.window.loadURL(startUrl);
 
         ipcMain.handle(this.loco._id, (e, action, data) => {
-
             switch (action) {
                 case 'getThrottle':
                     console.log('Got Throttle Data Request')
-                    return { ...this.throttle, ...this.loco }
+                    return { ...this.throttle, ...this.loco, dcdr: this.decoder }
 
                 case 'setSpeed':
                     this.throttle.speed = data
@@ -67,13 +75,15 @@ class Locomotive {
 
                 case 'setFunction':
                     console.log("Set Function", data)
+                    this.throttle.functions[data].state = !this.throttle.functions[data].state
                     setFunction(this.loco.address, data, this.throttle.functions)
-                    return 'Yeah'
+                    return this.throttle.functions
 
                 case 'eStop':
                     console.log("E-Stop this loco")
+                    this.throttle.speed = 0
                     sendEStop(this.loco.address, this.throttle.direction)
-                    return "Got E-Stop"
+                    return 0
 
                 case 'eStopAll':
                     console.log("E-Stop ALL")

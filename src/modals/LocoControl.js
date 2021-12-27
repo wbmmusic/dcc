@@ -10,6 +10,8 @@ export default function LocoControl() {
             .catch(err => console.log(err))
     }, [])
 
+    useEffect(() => console.log(state), [state])
+
     const isDisabled = (dir) => {
         if (state.direction === dir) return true
         else return false
@@ -29,7 +31,7 @@ export default function LocoControl() {
 
     const sendEStop = () => {
         window.electron.ipcRenderer.invoke(window.electron.getWindowID(), 'eStop')
-            .then(res => console.log(res))
+            .then(res => setState(old => ({ ...old, speed: res })))
             .catch(err => console.log(err))
     }
 
@@ -41,22 +43,44 @@ export default function LocoControl() {
 
     const handleFunctionPress = (func) => {
         window.electron.ipcRenderer.invoke(window.electron.getWindowID(), 'setFunction', func)
-            .then(res => console.log(res))
+            .then(res => setState(old => ({ ...old, functions: res })))
             .catch(err => console.log(err))
     }
 
     const makeFunctions = () => {
         let out = []
 
-        for (let i = 0; i < 28; i++)
-            out.push(
-                <Button
-                    style={{ marginRight: '2px', marginBottom: '2px' }}
-                    size='sm'
-                    onClick={() => handleFunctionPress(i)
-                    }
-                > F{i}</Button >
-            )
+        if (state.functions === undefined) return
+        state.functions.forEach((func, i) => {
+            if (func.name !== '') {
+                if (func.action === 'toggle') {
+                    out.push(
+                        <Button
+                            variant={func.state ? 'primary' : 'secondary'}
+                            key={`${func.name}function${i}`}
+                            style={{ marginRight: '3px', marginBottom: '3px' }}
+                            size='sm'
+                            onMouseDown={() => handleFunctionPress(i)}
+                        > {func.name}</Button >
+                    )
+                } else {
+                    out.push(
+                        <Button
+                            variant={func.state ? 'primary' : 'secondary'}
+                            key={`${func.name}function${i}`}
+                            style={{ marginRight: '3px', marginBottom: '3px' }}
+                            size='sm'
+                            onMouseDown={() => handleFunctionPress(i)}
+                            onMouseUp={() => handleFunctionPress(i)}
+                        > {func.name}</Button >
+                    )
+                }
+
+            }
+
+        })
+
+
         return out
     }
 
@@ -71,7 +95,7 @@ export default function LocoControl() {
                     <table style={{ width: '100%' }}>
                         <tbody>
                             <tr>
-                                <td rowSpan={3} style={{ width: '150px' }}>
+                                <td rowSpan={2} style={{ width: '150px' }}>
                                     <div>
                                         <div
                                             style={{
@@ -99,17 +123,7 @@ export default function LocoControl() {
                                     >Forward</Button>
                                 </td>
                             </tr>
-                            <tr>
-                                <td>
-                                    <Button
-                                        style={{ width: '100%' }}
-                                        disabled={isDisabled('stop')}
-                                        onClick={() => setDirection('stop')}
-                                        variant='danger'
-                                        size="sm"
-                                    >Stop</Button>
-                                </td>
-                            </tr>
+
                             <tr>
                                 <td>
                                     <Button
@@ -138,8 +152,7 @@ export default function LocoControl() {
                     <div style={{ paddingLeft: '5px' }}>255</div>
                 </div>
             </div>
-            <div style={{ backgroundColor: 'pink', height: '100%' }}>
-                <div>Functions</div>
+            <div style={{ backgroundColor: 'pink', height: '100%', padding: '4px' }}>
                 {makeFunctions()}
             </div>
             <div style={{ padding: '4px' }}>

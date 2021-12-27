@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import Toolbar from "./Toolbar";
-import LocoControl from "./LocoControl";
 import LocoIcon from "./LocoIcon";
-import LocoSettings from "./LocoSettings";
 import { dcdr1 } from "./Decoders";
 import Layout from '../layouts/Layout';
 import { Button } from 'react-bootstrap';
@@ -63,6 +61,26 @@ export default function AppTop() {
             tempLocos[locoNum].functionState = tempFunState
         }
 
+        // Get Locos here
+        window.electron.ipcRenderer.invoke('getLocomotives')
+            .then(theLocos => {
+                console.log('Got Locos')
+
+                const makeLocos = (xLocos) => {
+                    let locos = JSON.parse(JSON.stringify(xLocos))
+
+                    for (let i = 0; i < locos.length; i++) {
+                        locos[i].functionState = [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false]
+
+                    }
+                    console.log(locos)
+                    return locos
+                }
+
+                setState(old => ({ ...old, locos: makeLocos(theLocos) }))
+            })
+            .catch(err => console.log(err))
+
         window.electron.receive('locos', (theLocos) => {
             console.log('Got Locos')
             console.log(theLocos)
@@ -74,7 +92,6 @@ export default function AppTop() {
             setState(tempState)
         })
 
-        window.electron.send('getLocos')
 
         let tempState = { ...state }
         tempState.locos = tempLocos
@@ -221,14 +238,6 @@ export default function AppTop() {
         setState(tempState)
     }
 
-    const openSettings = (idx) => {
-        console.log('In Open Settings', idx)
-        let tempState = { ...state }
-        tempState.selectedLoco = idx
-        setState(tempState)
-        navigate("/locoSettingsWindow", { replace: true })
-    }
-
     const openMain = () => {
         let tempState = { ...state }
         if (state.locos[state.selectedLoco].hidden) {
@@ -243,39 +252,11 @@ export default function AppTop() {
         navigate("/", { replace: true })
     }
 
-    const makeLocoSettings = () => {
-        if (state.locos.length === 0) {
-            return
-        }
-        return (
-            <LocoSettings
-                visibility={handleVisible}
-                changeModel={handleModelChange}
-                changeAddress={handleAddressChange}
-                changeNumber={handleNumberChange}
-                changeName={handleNameChange}
-                hidden={state.locos[state.selectedLoco].hidden}
-                decoder={state.locos[state.selectedLoco].decoder}
-                loco={state.selectedLoco}
-                data={state.locos[state.selectedLoco]}
-                backToMain={openMain}
-                deleteLoco={deleteLoco}
-            />
-        )
-    }
-
     const makeLocoControl = () => {
         if (state.locos.length === 0) {
             return
         }
-        return (
-            <LocoControl
-                setFunction={setFunction}
-                speedChange={speedChange}
-                changeDirection={handleDirectionChange}
-                loco={state.locos[state.selectedLoco]}
-            />
-        )
+        return (<div></div>)
     }
 
     const makeLocoIcons = () => {
@@ -302,7 +283,6 @@ export default function AppTop() {
                 locoIcons.push(
                     <div key={tempKey} name="LocoSlot" style={{ display: 'inline-block' }}>
                         <LocoIcon
-                            openSettings={openSettings}
                             loco={state.locos[i]}
                             numberOfLocos={state.locos.length - 1}
                             index={i}
@@ -367,7 +347,6 @@ export default function AppTop() {
                     <div style={{ width: '250px', minWidth: '250px', maxWidth: '250px' }}>{makeLocoControl()}</div>
                     <div style={{ width: '100%', maxWidth: '100%', overflow: 'hidden', height: '100%' }}>
                         <Routes>
-                            <Route path="/locoSettingsWindow" element={makeLocoSettings()} />
                             <Route path="/locomotives/*" element={<Locomotives />} />
                             <Route path="/decoders/*" element={<Decoders />} />
                             <Route path="/consists/*" element={<Consists />} />
