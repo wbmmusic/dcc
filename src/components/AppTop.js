@@ -24,7 +24,7 @@ export default function AppTop() {
     const [lights, setLights] = useState({ tower: false, street: false })
 
     useEffect(() => {
-        console.log(lights)
+        //console.log(lights)
         let out = 0
 
         if (lights.tower) out = out | 16
@@ -36,28 +36,20 @@ export default function AppTop() {
     useEffect(() => {
         let tempLocos = state.locos
         for (var locoNum = 0; locoNum < state.locos.length; locoNum++) {
-
             var tempFunState = []
-            for (var i = 0; i < 32; i++) {
-                tempFunState[i] = false
-            }
-
+            for (var i = 0; i < 32; i++) { tempFunState[i] = false }
             tempLocos[locoNum].functionState = tempFunState
         }
 
         // Get Locos here
         window.electron.ipcRenderer.invoke('getLocomotives')
             .then(theLocos => {
-                console.log('Got Locos')
-
                 const makeLocos = (xLocos) => {
                     let locos = JSON.parse(JSON.stringify(xLocos))
 
                     for (let i = 0; i < locos.length; i++) {
                         locos[i].functionState = [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false]
-
                     }
-                    console.log(locos)
                     return locos
                 }
 
