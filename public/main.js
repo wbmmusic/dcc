@@ -1,5 +1,5 @@
 const { app, BrowserWindow, ipcMain, globalShortcut, dialog, protocol } = require('electron')
-const { join, basename, normalize, parse } = require('path')
+const { join, normalize, parse } = require('path')
 const { format } = require('url')
 const { autoUpdater } = require('electron-updater');
 const { copyFileSync } = require('fs');
@@ -11,7 +11,6 @@ const { Switch } = require('./switches');
 // be closed automatically when the JavaScript object is garbage collected.
 let win
 let port
-let locos = []
 let locoObjects = []
 let switchObjects = []
 
@@ -87,12 +86,7 @@ app.on('ready', () => {
     win.webContents.send('eStopSelected');
   })
 
-  ipcMain.on('addLoco', (event, arg) => {
-    console.log('got an add loco')
-    console.log(arg)
-    //port.write(arg)
-  })
-
+  // CONSISTS
   ipcMain.handle('getConsists', () => util.config.consists)
 
   // DECODERS
@@ -172,9 +166,7 @@ app.on('ready', () => {
 
 app.whenReady().then(() => {
   protocol.registerFileProtocol('loco', (request, callback) => {
-    const url = request.url.substr(6)
-    //console.log(url)
-    callback({ path: normalize(`${util.pathToImages}/${url}`) })
+    callback({ path: normalize(`${util.pathToImages}/${request.url.substr(6)}`) })
   })
 
   // IMPORTANT /////////////////////////////////////////////////////////////////////////////////////////////////
