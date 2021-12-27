@@ -122,3 +122,26 @@ exports.updateSwitch = (editedSwitch) => {
         return 0
     } else return new Error("Error in update switch")
 }
+
+// MACROS
+exports.createMacro = (newMacro) => {
+    config.macros.push(newMacro)
+    saveFile()
+    return 'created'
+}
+exports.updateMacro = (editedMacro) => {
+    let macroIDX = config.macros.findIndex(mcro => mcro._id === editedMacro._id)
+    if (macroIDX >= 0) {
+        config.macros[macroIDX] = editedMacro
+        saveFile()
+        return 'updated'
+    }
+    else return new Error('Error in updateMacro')
+}
+exports.getMacroByID = (id) => {
+    console.log(config.macros)
+    console.log(id)
+    let theMacroIDX = config.macros.findIndex(mcro => mcro._id === id)
+    if (theMacroIDX >= 0) return config.macros[theMacroIDX]
+    else return new Error('Error in getMacroByID')
+}

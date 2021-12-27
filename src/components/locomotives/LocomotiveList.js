@@ -59,7 +59,7 @@ export default function LocomotiveList() {
     }
 
     return (
-        <div>
+        <div className='pageContainer' >
             <div style={{ display: 'flex', alignItems: 'center' }}>
                 <b>Locomotives</b>
                 <div
@@ -76,7 +76,6 @@ export default function LocomotiveList() {
                             <tr>
                                 <th>Name</th>
                                 <th>#</th>
-                                <th>Addr</th>
                                 <th>Model</th>
                                 <th>Edit</th>
                                 <th>Delete</th>
@@ -88,7 +87,6 @@ export default function LocomotiveList() {
                                     <tr key={loco._id + i}>
                                         <td>{loco.name}</td>
                                         <td>{loco.number}</td>
-                                        <td>{loco.address}</td>
                                         <td>{loco.model}</td>
                                         <td>
                                             <div

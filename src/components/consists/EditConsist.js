@@ -166,7 +166,7 @@ export default function EditConsist() {
         let out = []
         for (let i = 0; i < 4; i++) {
             out.push(
-                <div style={{ display: 'inline-block', whiteSpace: 'nowrap', overflow: 'hidden' }}>
+                <div key={`direction${i}`} style={{ display: 'inline-block', whiteSpace: 'nowrap', overflow: 'hidden' }}>
                     Forward <ArrowForwardTwoToneIcon />
                 </div>
             )

@@ -77,7 +77,7 @@ export default function Decoders() {
         }
 
         return (
-            <div>
+            <div className='pageContainer' >
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                     <b>DECODERS</b>
                     <div

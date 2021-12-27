@@ -1,13 +1,24 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button, Table } from 'react-bootstrap'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 
 export default function EditMacro() {
     const location = useLocation()
     const navigate = useNavigate()
-    const [state, setState] = useState({
-        name: ''
-    })
+    const macroID = useParams().macroID
+    const [state, setState] = useState({ name: '' })
+
+    const createMacro = () => {
+        window.electron.ipcRenderer.invoke('createMacro', { _id: window.electron.uuid(), ...state })
+            .then(res => navigate('/macros'))
+            .catch(err => console.error(err))
+    }
+
+    const updateMacro = () => {
+        window.electron.ipcRenderer.invoke('updateMacro', state)
+            .then(res => navigate('/macros'))
+            .catch(err => console.error(err))
+    }
 
     const makeTitle = () => {
         if (location.pathname.includes('new')) {
@@ -20,9 +31,9 @@ export default function EditMacro() {
     const makeButtons = () => {
         const makeButton = () => {
             if (location.pathname.includes('new')) {
-                return <Button size='sm'>Create Macro</Button>
+                return <Button size='sm' onClick={createMacro}>Create Macro</Button>
             } else if (location.pathname.includes('edit')) {
-                return <Button size='sm'>Update Macro</Button>
+                return <Button size='sm' onClick={updateMacro}>Update Macro</Button>
             } else return "ERROR"
         }
 
@@ -35,8 +46,21 @@ export default function EditMacro() {
         )
     }
 
+    useEffect(() => {
+        if (macroID) {
+            window.electron.ipcRenderer.invoke('getMacroByID', macroID)
+                .then(res => {
+                    console.log(res)
+                    setState(res)
+                })
+                .catch(err => console.error(err))
+        }
+    }, [])
+
+
+
     return (
-        <div>
+        <div className='pageContainer'>
             <b>{`${makeTitle()} Macro`}</b>
             <hr />
             <div>

@@ -13,8 +13,8 @@ export default function EditLocomotive() {
         _id: uuid(),
         hidden: false,
         name: '',
-        number: NaN,
-        address: NaN,
+        number: '',
+        address: '',
         model: '',
         photo: 'default.jpg',
         decoder: '',
@@ -56,7 +56,7 @@ export default function EditLocomotive() {
     }
 
     const readyToCreate = () => {
-        if (loco.name !== '' && loco.decoder !== '' && !isNaN(loco.address)) return true
+        if (loco.name !== '' && loco.decoder !== '' && loco.address !== '' && !isNaN(loco.address)) return true
         else return false
     }
 
@@ -131,7 +131,7 @@ export default function EditLocomotive() {
 
 
     return (
-        <div style={{ display: 'inline-block', border: '1px solid black', padding: '10px', boxShadow: '2px 2px 4px lightGrey' }}>
+        <div className='pageContainer'>
             {makeTitle()}
             <hr />
             <div>

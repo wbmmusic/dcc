@@ -19,7 +19,7 @@ export default function SwitchesList() {
     }, [])
 
     return (
-        <div>
+        <div className='pageContainer'>
             <div style={{ display: 'flex', alignItems: 'center' }}>
                 <b>Switches</b>
                 <div

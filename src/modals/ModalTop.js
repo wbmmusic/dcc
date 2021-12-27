@@ -4,10 +4,8 @@ import LocoControl from './LocoControl'
 
 export default function ModalTop() {
     return (
-        <div>
-            <Routes>
-                <Route path="/throttle/*" element={<LocoControl />} />
-            </Routes>
-        </div>
+        <Routes>
+            <Route path="/throttle/*" element={<LocoControl />} />
+        </Routes>
     )
 }

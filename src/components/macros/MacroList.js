@@ -1,18 +1,62 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import AddCircleTwoToneIcon from '@mui/icons-material/AddCircleTwoTone';
+import { Table } from 'react-bootstrap';
 
 export default function MacroList() {
     const navigate = useNavigate()
+    const [macros, setMacros] = useState([])
+
+    useEffect(() => {
+        window.electron.ipcRenderer.invoke('getMacros')
+            .then(res => setMacros(res))
+            .catch(err => console.error(err))
+    }, [])
 
     return (
-        <div>
+        <div className='pageContainer'>
             <div style={{ display: 'flex', alignItems: 'center' }}>
                 <b>Macro List</b>
                 <div style={{ color: 'green', display: 'inline-block', marginLeft: '10px', cursor: 'pointer' }}
                     onClick={() => navigate('/macros/new')}
                 >
                     <AddCircleTwoToneIcon />
+                </div>
+            </div>
+            <hr />
+            <div>
+                <div style={{ display: 'inline-block' }}>
+                    <Table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Edit</th>
+                                <th>Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {
+                                macros.map((macro, idx) => (
+                                    <tr key={`maroRow${idx}`}>
+                                        <td>{macro.name}</td>
+                                        <td>
+                                            <div
+                                                style={{ display: 'inline-block', cursor: 'pointer' }}
+                                                onClick={() => navigate('/macros/edit/' + macro._id)}
+                                            >
+                                                Edit
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div style={{ display: 'inline-block', cursor: 'pointer' }}>
+                                                Delete
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            }
+                        </tbody>
+                    </Table>
                 </div>
             </div>
         </div>

@@ -152,7 +152,7 @@ export default function LocoControl() {
                     <div style={{ paddingLeft: '5px' }}>255</div>
                 </div>
             </div>
-            <div style={{ backgroundColor: 'pink', height: '100%', padding: '4px' }}>
+            <div style={{ backgroundColor: 'pink', height: '100%', padding: '4px', overflow: 'hidden', overflowY: 'auto' }}>
                 {makeFunctions()}
             </div>
             <div style={{ padding: '4px' }}>

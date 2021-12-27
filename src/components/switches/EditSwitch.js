@@ -82,7 +82,7 @@ export default function EditSwitch() {
     }
 
     return (
-        <div style={{ boxShadow: '2px 2px 4px lightGrey', display: 'inline-block', padding: '10px', border: '1px solid black' }}>
+        <div className='pageContainer'>
             {makeTitle()}
             <hr />
             <div>

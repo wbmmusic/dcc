@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 export default function ConsistsList() {
     const navigate = useNavigate()
     return (
-        <div>
+        <div className='pageContainer'>
             <div style={{ display: 'flex', alignItems: 'center' }}>
                 <b>Consists</b>
                 <div

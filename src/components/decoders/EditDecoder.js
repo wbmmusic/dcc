@@ -103,7 +103,7 @@ export default function EditDecoder() {
         let out = []
         decoder.functions.forEach((func, i) => {
             out.push(
-                <tr>
+                <tr key={`functionChannel${i}`}>
                     <td><b>{i}</b></td>
                     <td>
                         <input
@@ -154,7 +154,7 @@ export default function EditDecoder() {
 
     return (
         <div style={{ height: '100%', overflowY: 'auto' }}>
-            <div style={{ display: 'inline-block', boxShadow: '2px 2px 4px lightGrey', border: '1px solid black', padding: '10px' }}>
+            <div className='pageContainer'>
                 {makeLabel()}
                 <hr />
                 <div style={{ padding: '10px' }}>
@@ -195,9 +195,11 @@ export default function EditDecoder() {
                     </div>
                     <Table size="sm" striped style={{ display: 'inline-block' }}>
                         <thead>
-                            <th>#</th>
-                            <th>Function</th>
-                            <th>Action</th>
+                            <tr>
+                                <th>#</th>
+                                <th>Function</th>
+                                <th>Action</th>
+                            </tr>
                         </thead>
                         <tbody>
                             {makeChannels()}
