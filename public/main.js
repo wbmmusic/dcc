@@ -3,9 +3,10 @@ const { join, basename, normalize, parse } = require('path')
 const { format } = require('url')
 const { autoUpdater } = require('electron-updater');
 const { copyFileSync } = require('fs');
-const { config, newDecoder, deleteDecoder, getDecoderByID, updateDecoder, pathToImages, newLoco, deleteLoco, getLocoByID, updateLoco, getSwitches } = require('./utilities');
+const { config, newDecoder, deleteDecoder, getDecoderByID, updateDecoder, pathToImages, newLoco, deleteLoco, getLocoByID, updateLoco, getSwitches, createSwitch, getSwitchByID, updateSwitch } = require('./utilities');
 const { Locomotive } = require('./locomotive');
 const { sendAsyncSignal } = require('./messenger');
+const { Switch } = require('./switches');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -13,6 +14,7 @@ let win
 let port
 let locos = []
 let locoObjects = []
+let switchObjects = []
 
 
 const createWindow = () => {
@@ -135,12 +137,14 @@ app.on('ready', () => {
   })
   ipcMain.handle('deleteDecoder', (e, decoderID) => deleteDecoder(decoderID))
   ipcMain.handle('getDecoderById', (e, id) => getDecoderByID(id))
-  ipcMain.handle('updateDecoder', (e, updatedDecoder) => updateDecoder(updatedDecoder)
-  )
+  ipcMain.handle('updateDecoder', (e, updatedDecoder) => updateDecoder(updatedDecoder))
 
 
   // SWITCHES
   ipcMain.handle('getSwitches', () => getSwitches())
+  ipcMain.handle('createSwitch', (e, newSwitch) => createSwitch(newSwitch))
+  ipcMain.handle('getSwitchByID', (e, id) => getSwitchByID(id))
+  ipcMain.handle('updateSwitch', (e, editedSwitch) => updateSwitch(editedSwitch))
 
 
   // LOCOS
@@ -180,7 +184,7 @@ app.on('ready', () => {
   })
 
 
-  ipcMain.handle('setSwitch', () => sendAsyncSignal(3, 3, 0))
+  ipcMain.handle('setSwitch', () => switchObjects[0].switch.toggle())
 
 })
 
@@ -192,8 +196,8 @@ app.whenReady().then(() => {
   })
 
   config.locos.forEach(loco => locoObjects.push({ id: loco._id, loco: new Locomotive({ loco: loco }) }))
+  config.switches.forEach(switchh => switchObjects.push({ id: switchh._id, switch: new Switch({ ...switchh }) }))
 
-  locoObjects.forEach(loco => console.log(loco.loco.info()))
 })
 
 // Quit when all windows are closed.

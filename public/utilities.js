@@ -104,3 +104,21 @@ exports.updateLoco = (editedLoco) => {
 }
 
 exports.getSwitches = () => config.switches
+exports.createSwitch = (newSwitch) => {
+    config.switches.push(newSwitch)
+    saveFile()
+    return 'created'
+}
+exports.getSwitchByID = (id) => {
+    let switchIDX = config.switches.findIndex(sw => sw._id === id)
+    if (switchIDX >= 0) return config.switches[switchIDX]
+    return new Error('Error in get switch by id')
+}
+exports.updateSwitch = (editedSwitch) => {
+    let switchIDX = config.switches.findIndex(sw => sw._id === editedSwitch._id)
+    if (switchIDX >= 0) {
+        config.switches[switchIDX] = editedSwitch
+        saveFile()
+        return 0
+    } else return new Error("Error in update switch")
+}

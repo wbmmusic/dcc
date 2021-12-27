@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import AddCircleTwoToneIcon from '@mui/icons-material/AddCircleTwoTone';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
@@ -7,6 +7,17 @@ import { Table } from 'react-bootstrap';
 
 export default function SwitchesList() {
     const navigate = useNavigate()
+    const [switches, setSwitches] = useState([])
+
+    useEffect(() => {
+        window.electron.ipcRenderer.invoke('getSwitches')
+            .then(res => {
+                console.log(res)
+                setSwitches(res)
+            })
+            .catch(err => console.log(err))
+    }, [])
+
     return (
         <div>
             <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -28,22 +39,29 @@ export default function SwitchesList() {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>Some Name</td>
-                            <td>
-                                <div style={{ display: 'inline-block', cursor: 'pointer' }}>
-                                    <EditTwoToneIcon />
-                                </div>
-                            </td>
-                            <td>
-                                <div style={{ display: 'inline-block', cursor: 'pointer', color: 'red' }}>
-                                    <DeleteForeverTwoToneIcon />
-                                </div>
-                            </td>
-                        </tr>
+                        {
+                            switches.map(switchh => (
+                                <tr key={switchh._id + "switchRow"}>
+                                    <td>{switchh.name}</td>
+                                    <td>
+                                        <div
+                                            style={{ display: 'inline-block', cursor: 'pointer' }}
+                                            onClick={() => navigate('/switches/edit/' + switchh._id)}
+                                        >
+                                            <EditTwoToneIcon />
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div style={{ display: 'inline-block', cursor: 'pointer', color: 'red' }}>
+                                            <DeleteForeverTwoToneIcon />
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))
+                        }
                     </tbody>
                 </Table>
             </div>
-        </div>
+        </div >
     )
 }
