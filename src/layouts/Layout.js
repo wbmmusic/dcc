@@ -1,13 +1,16 @@
 import { Button } from 'react-bootstrap'
-import React, { Fragment } from 'react'
+import React, { Fragment, useState } from 'react'
 
 
-export default function Layout(props) {
+export default function Layout() {
     const activeColor = '#00FF00'
     const inactiveColor = 'black'
+    const [activeTrack, setActiveTrack] = useState(0)
 
-    const setActiveTrack = (track) => {
-        props.setActiveTrack(track)
+    const selectTrack = (track) => {
+        window.electron.ipcRenderer.invoke('fireMacro', track)
+            .then(res => setActiveTrack(track))
+            .catch(err => console.error(err))
     }
 
     const track3 = (active) => {
@@ -17,7 +20,7 @@ export default function Layout(props) {
         }
 
         return (
-            <g id="Track_3" data-name="Track 3" style={{ cursor: 'pointer' }} onClick={() => setActiveTrack(3)}>
+            <g id="Track_3" data-name="Track 3" style={{ cursor: 'pointer' }} onClick={() => selectTrack(3)}>
                 <line id="track3" x1="4563.03" y1="968.74" x2="3612.36" y2="1917.69" fill="none" stroke={color} strokeLinecap="square" strokeLinejoin="bevel" strokeWidth="80" />
                 <polyline id="track3curve" points="3149.14 2156.84 3159.61 2154.65 3170.86 2152.38 3181.32 2150.12 3192.57 2147.93 3203.03 2145.67 3213.5 2143.4 3224.74 2140.43 3235.21 2137.47 3245.68 2134.42 3256.14 2131.45 3266.61 2127.7 3277.07 2124.74 3287.61 2120.99 3298.08 2117.24 3308.55 2113.49 3319.01 2109.82 3329.48 2105.29 3339.24 2101.54 3349.7 2097.09 3359.39 2092.56 3369.93 2088.11 3379.62 2083.66 3389.38 2078.42 3399.84 2073.19 3409.53 2067.96 3419.29 2062.72 3428.27 2057.49 3437.96 2052.26 3447.72 2046.24 3457.48 2041.01 3466.46 2035 3475.45 2029.06 3485.13 2023.05 3494.11 2016.33 3503.09 2010.4 3512.07 2003.6 3521.06 1997.67 3530.04 1990.95 3538.24 1984.23 3547.22 1976.74 3555.5 1970.02 3563.7 1962.52 3572.68 1955.81 3580.88 1948.31 3589.16 1940.89 3596.66 1933.39 3604.86 1925.89 3612.36 1917.69" fill="none" stroke={color} strokeLinecap="square" strokeLinejoin="bevel" strokeWidth="80" />
                 <line id="track3ShortStraight" x1="2270.68" y1="2303.35" x2="3149.14" y2="2156.83" fill="none" stroke={color} strokeLinecap="square" strokeLinejoin="bevel" strokeWidth="80" />
@@ -32,7 +35,7 @@ export default function Layout(props) {
         }
 
         return (
-            <g id="Track_2" data-name="Track 2" style={{ cursor: 'pointer' }} onClick={() => setActiveTrack(2)}>
+            <g id="Track_2" data-name="Track 2" style={{ cursor: 'pointer' }} onClick={() => selectTrack(2)}>
                 <line id="track2" x1="4390.19" y1="796.06" x2="3529.26" y2="1656.06" fill="none" stroke={color} strokeLinecap="square" strokeLinejoin="bevel" strokeWidth="80" />
                 <polyline id="track2Curve" points="2270.68 2303.35 2300.59 2298.12 2329.8 2292.89 2358.93 2286.95 2388.14 2280.23 2418.05 2274.22 2446.48 2266.72 2475.69 2259.3 2504.9 2251.8 2534.03 2243.6 2562.46 2235.32 2590.89 2226.42 2619.39 2216.66 2647.82 2206.97 2676.25 2197.21 2704.68 2186.75 2732.32 2176.28 2760.05 2165.11 2787.7 2153.87 2815.42 2141.92 2843.07 2129.97 2870.01 2117.24 2896.96 2104.59 2923.9 2091.07 2950.85 2077.64 2977.01 2064.21 3003.96 2049.21 3030.2 2035 3055.58 2020.08 3081.82 2005.16 3107.28 1989.47 3132.66 1973.77 3158.13 1957.29 3182.8 1940.89 3207.49 1923.63 3232.24 1906.45 3256.14 1889.26 3280.82 1871.3 3304.8 1853.42 3327.99 1834.67 3351.19 1816.01 3374.38 1797.34 3397.58 1777.89 3420.07 1758.45 3442.49 1738.3 3464.9 1718.07 3486.61 1697.92 3508.33 1676.99 3529.26 1656.06" fill="none" stroke={color} strokeLinecap="square" strokeLinejoin="bevel" strokeWidth="80" />
             </g>
@@ -47,7 +50,7 @@ export default function Layout(props) {
         }
 
         return (
-            <g id="Track_1" data-name="Track 1" style={{ cursor: 'pointer' }} onClick={() => setActiveTrack(1)}>
+            <g id="Track_1" data-name="Track 1" style={{ cursor: 'pointer' }} onClick={() => selectTrack(1)}>
                 <line id="track1" x1="4293" y1="504.54" x2="3062.38" y2="1733.77" fill="none" stroke={color} strokeLinecap="square" strokeLinejoin="bevel" strokeWidth="80" />
                 <polyline id="track1Curve" points="1803.71 2381.14 1833.63 2376.61 1862.84 2370.67 1892.05 2364.66 1921.18 2358.72 1950.39 2351.93 1979.6 2345.21 2008.73 2337.79 2037.94 2329.51 2066.37 2321.31 2095.57 2313.11 2124 2304.13 2152.43 2295.15 2180.86 2285.47 2209.29 2275 2237.01 2265.24 2265.44 2254.07 2293.09 2242.82 2320.82 2231.65 2348.46 2219.63 2376.19 2207.68 2403.13 2195.03 2430.08 2182.3 2456.94 2169.57 2483.89 2156.13 2510.13 2141.92 2537.07 2127.7 2563.24 2112.79 2588.7 2098.57 2614.86 2082.87 2640.32 2067.18 2665.78 2051.48 2691.16 2035 2715.92 2018.6 2740.6 2002.12 2765.28 1984.94 2789.26 1967.05 2813.94 1949.09 2837.13 1931.13 2861.03 1913.16 2884.23 1894.5 2907.42 1875.05 2930.62 1855.6 2953.11 1836.23 2975.53 1816.01 2998.02 1795.86 3019.73 1775.63 3041.37 1754.7 3062.38 1733.77" fill="none" stroke={color} strokeLinecap="square" strokeLinejoin="bevel" strokeWidth="80" />
             </g>
@@ -88,7 +91,7 @@ export default function Layout(props) {
         }
 
         return (
-            <g id="loopStraight" style={{ cursor: 'pointer' }} onClick={() => setActiveTrack(0)}>
+            <g id="loopStraight" style={{ cursor: 'pointer' }} onClick={() => selectTrack(0)}>
                 <line id="loopTrack" x1="3637.82" y1="2422.22" x2="1559.81" y2="2422.22" fill="none" stroke={color} strokeLinecap="square" strokeLinejoin="bevel" strokeWidth="80" />
                 <line id="loopTrackShort" x1="1559.81" y1="2422.22" x2="1366.75" y2="2422.22" fill="none" stroke={color} strokeLinecap="square" strokeLinejoin="bevel" strokeWidth="80" />
             </g>
@@ -96,7 +99,7 @@ export default function Layout(props) {
     }
 
     const makeTrack = () => {
-        switch (props.activeTrack) {
+        switch (activeTrack) {
             case 0:
                 return (
                     <Fragment>
@@ -160,7 +163,7 @@ export default function Layout(props) {
         window.electron.send('send-serial', [0xAD, 0x00, switchNum, 4, 0])
     }
 
-    switch (props.activeTrack) {
+    switch (activeTrack) {
         case 0:
             close(1)
             break;
@@ -187,7 +190,7 @@ export default function Layout(props) {
     }
 
     const makeVariant = (num) => {
-        if (props.activeTrack === num) return 'primary'
+        if (activeTrack === num) return 'primary'
         else return 'secondary'
     }
 
@@ -204,10 +207,10 @@ export default function Layout(props) {
             </svg>
             <div style={{ textAlign: 'center', marginTop: '10px' }}>
                 <div style={{ display: 'inline-block' }}>
-                    <Button size="sm" variant={makeVariant(1)} style={{ marginRight: '5px' }} onClick={() => setActiveTrack(1)}>Track 1</Button>
-                    <Button size="sm" variant={makeVariant(2)} style={{ marginRight: '5px' }} onClick={() => setActiveTrack(2)}>Track 2</Button>
-                    <Button size="sm" variant={makeVariant(3)} style={{ marginRight: '5px' }} onClick={() => setActiveTrack(3)}>Track 3</Button>
-                    <Button size="sm" variant={makeVariant(0)} onClick={() => setActiveTrack(0)}>Loop</Button>
+                    <Button size="sm" variant={makeVariant(1)} style={{ marginRight: '5px' }} onClick={() => selectTrack(1)}>Track 1</Button>
+                    <Button size="sm" variant={makeVariant(2)} style={{ marginRight: '5px' }} onClick={() => selectTrack(2)}>Track 2</Button>
+                    <Button size="sm" variant={makeVariant(3)} style={{ marginRight: '5px' }} onClick={() => selectTrack(3)}>Track 3</Button>
+                    <Button size="sm" variant={makeVariant(0)} onClick={() => selectTrack(0)}>Loop</Button>
                 </div>
             </div>
         </div>

@@ -60,6 +60,12 @@ export default function EditMacro() {
 
     }
 
+    const getSwitchName = (id) => {
+        const switchID = switches.findIndex(sw => sw._id === id)
+        if (switchID >= 0) return switches[switchID].name
+        else return "ERROR"
+    }
+
     const closeActionModal = () => setActionModal(defaultActionModal)
 
     const constMakeActionModal = () => {
@@ -148,11 +154,14 @@ export default function EditMacro() {
     const makeActions = () => {
         let out = []
 
-        state.actions.forEach(act => (
-            <tr>
-                <td>{act.state}</td>
-            </tr>
-        ))
+        state.actions.forEach((act, i) => {
+            out.push(
+                <tr key={`actionRow${i}`}>
+                    <td>{getSwitchName(act.switch)}</td>
+                    <td>{act.state}</td>
+                </tr>
+            )
+        })
 
         return out
     }
@@ -203,9 +212,8 @@ export default function EditMacro() {
                     <Table>
                         <thead>
                             <tr>
-                                <th>
-                                    Switch Name
-                                </th>
+                                <th>Switch</th>
+                                <th>State</th>
                             </tr>
                         </thead>
                         <tbody>

@@ -86,6 +86,21 @@ app.on('ready', () => {
     win.webContents.send('eStopSelected');
   })
 
+  const setSwitch = (id, action) => {
+    const switchIDX = switchObjects.findIndex(swh => swh.id === id)
+    if (switchIDX < 0) throw new Error('Error in setSwitch')
+    if (action === 'open') return switchObjects[switchIDX].switch.open()
+    else if (action === 'close') return switchObjects[switchIDX].switch.close()
+    else if (action === 'toggle') return switchObjects[switchIDX].switch.toggle()
+  }
+
+  const handleMacro = (idx) => {
+    console.log("Handle Macro", idx)
+    if (util.config.macros[idx] === undefined) return new Error('Invalid Macro Index')
+    let actions = util.config.macros[idx].actions
+    actions.forEach(act => { setSwitch(act.switch, act.state) })
+  }
+
   // CONSISTS
   ipcMain.handle('getConsists', () => util.config.consists)
 
@@ -152,14 +167,13 @@ app.on('ready', () => {
   ipcMain.handle('updateMacro', (e, editedMacro) => util.updateMacro(editedMacro))
   ipcMain.handle('getMacroByID', (e, id) => util.getMacroByID(id))
 
+  ipcMain.handle('fireMacro', (e, macroNumber) => handleMacro(macroNumber)
+  )
+
 
   ipcMain.handle('setSwitch', (e, id, action) => {
     console.log("Set Switch", action)
-    const switchIDX = switchObjects.findIndex(swh => swh.id === id)
-    if (switchIDX < 0) throw new Error('Error in setSwitch')
-    if (action === 'open') return switchObjects[switchIDX].switch.open()
-    else if (action === 'close') return switchObjects[switchIDX].switch.close()
-    else if (action === 'toggle') return switchObjects[switchIDX].switch.toggle()
+    return setSwitch(id, action)
   })
 
 })
