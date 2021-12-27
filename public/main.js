@@ -3,9 +3,8 @@ const { join, basename, normalize, parse } = require('path')
 const { format } = require('url')
 const { autoUpdater } = require('electron-updater');
 const { copyFileSync } = require('fs');
-const { config, newDecoder, deleteDecoder, getDecoderByID, updateDecoder, pathToImages, newLoco, deleteLoco, getLocoByID, updateLoco, getSwitches, createSwitch, getSwitchByID, updateSwitch } = require('./utilities');
+const { config, newDecoder, deleteDecoder, getDecoderByID, updateDecoder, pathToImages, newLoco, deleteLoco, getLocoByID, updateLoco, createSwitch, getSwitchByID, updateSwitch } = require('./utilities');
 const { Locomotive } = require('./locomotive');
-const { sendAsyncSignal } = require('./messenger');
 const { Switch } = require('./switches');
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -45,11 +44,6 @@ const createWindow = () => {
 }
 
 app.on('ready', () => {
-
-  protocol.registerFileProtocol('file', (request, callback) => {
-    const pathname = decodeURI(request.url.replace('file:///', ''));
-    callback(pathname);
-  });
 
   ipcMain.on('reactIsReady', () => {
     //console.log('React Is Ready')
@@ -206,6 +200,7 @@ app.whenReady().then(() => {
     callback({ path: normalize(`${pathToImages}/${url}`) })
   })
 
+  // IMPORTANT /////////////////////////////////////////////////////////////////////////////////////////////////
   config.locos.forEach(loco => locoObjects.push({ id: loco._id, loco: new Locomotive({ loco: loco }) }))
   config.switches.forEach(switchh => switchObjects.push({ id: switchh._id, switch: new Switch({ ...switchh }) }))
 
