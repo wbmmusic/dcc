@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Button, Table } from 'react-bootstrap'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import Select from 'react-select'
+import { selectStyle } from '../../styles';
 const { v4: uuid } = require('uuid');
 
 export default function EditLocomotive() {
@@ -242,23 +243,3 @@ export default function EditLocomotive() {
 }
 
 const labelStyle = { textAlign: 'right' }
-
-const selectStyle = {
-    control: base => ({
-        ...base,
-        fontSize: '12px',
-        minHeight: '15px'
-    }),
-    menu: base => ({
-        ...base,
-        fontSize: '12px'
-    }),
-    dropdownIndicator: base => ({
-        ...base,
-        padding: '0px 8px'
-    }),
-    valueContainer: base => ({
-        ...base,
-        padding: '0px 8px'
-    })
-}

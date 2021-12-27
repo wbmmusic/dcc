@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import AddCircleTwoToneIcon from '@mui/icons-material/AddCircleTwoTone';
+import DeleteForeverTwoToneIcon from '@mui/icons-material/DeleteForeverTwoTone';
+import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import { Table } from 'react-bootstrap';
 
 export default function MacroList() {
@@ -44,12 +46,12 @@ export default function MacroList() {
                                                 style={{ display: 'inline-block', cursor: 'pointer' }}
                                                 onClick={() => navigate('/macros/edit/' + macro._id)}
                                             >
-                                                Edit
+                                                <EditTwoToneIcon />
                                             </div>
                                         </td>
                                         <td>
-                                            <div style={{ display: 'inline-block', cursor: 'pointer' }}>
-                                                Delete
+                                            <div style={{ display: 'inline-block', cursor: 'pointer', color: 'red' }}>
+                                                <DeleteForeverTwoToneIcon />
                                             </div>
                                         </td>
                                     </tr>

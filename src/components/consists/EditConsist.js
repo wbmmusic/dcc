@@ -7,6 +7,7 @@ import ClearTwoToneIcon from '@mui/icons-material/ClearTwoTone';
 import ArrowBackIosNewTwoToneIcon from '@mui/icons-material/ArrowBackIosNewTwoTone';
 import ArrowForwardIosTwoToneIcon from '@mui/icons-material/ArrowForwardIosTwoTone';
 import Select from 'react-select';
+import { selectStyle } from '../../styles';
 
 export default function EditConsist() {
     const location = useLocation()
@@ -226,22 +227,3 @@ export default function EditConsist() {
 
 const labelStyle = { textAlign: 'right' }
 const moveDivStyle = { borderTop: '1px solid black', padding: '10px' }
-const selectStyle = {
-    control: base => ({
-        ...base,
-        fontSize: '12px',
-        minHeight: '15px'
-    }),
-    menu: base => ({
-        ...base,
-        fontSize: '12px'
-    }),
-    dropdownIndicator: base => ({
-        ...base,
-        padding: '0px 8px'
-    }),
-    valueContainer: base => ({
-        ...base,
-        padding: '0px 8px'
-    })
-}
