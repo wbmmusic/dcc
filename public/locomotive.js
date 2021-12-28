@@ -15,7 +15,6 @@ const makeFunctionState = (decoderID) => {
     let out = []
     for (let i = 0; i < 29; i++)out.push({ ...theDecoder.functions[i], state: false })
     return out
-
 }
 
 class Locomotive {
@@ -26,6 +25,44 @@ class Locomotive {
     }
     info = () => { return { ...this } }
     setName = (newName) => this.loco.name = newName
+    handleThrottleCommand = (action, data) => {
+        switch (action) {
+            case 'getThrottle':
+                console.log('Got Throttle Data Request')
+                return { ...this.throttle, ...this.loco, dcdr: this.decoder }
+
+            case 'setSpeed':
+                this.throttle.speed = data
+                console.log("Setting speed to", data)
+                setSpeedAndDir(this.loco.address, this.throttle.speed, this.throttle.direction)
+                return this.throttle.speed
+
+            case 'setDirection':
+                this.throttle.direction = data
+                console.log("Setting Direction to", data)
+                setSpeedAndDir(this.loco.address, this.throttle.speed, this.throttle.direction)
+                return this.throttle.direction
+
+            case 'setFunction':
+                console.log("Set Function", data)
+                this.throttle.functions[data].state = !this.throttle.functions[data].state
+                setFunction(this.loco.address, data, this.throttle.functions)
+                return this.throttle.functions
+
+            case 'eStop':
+                console.log("E-Stop this loco")
+                this.throttle.speed = 0
+                sendEStop(this.loco.address, this.throttle.direction)
+                return 0
+
+            case 'eStopAll':
+                console.log("E-Stop ALL")
+                return "Got E-Stop All"
+
+            default:
+                return "Got your Message"
+        }
+    }
     showThrottle = () => {
         if (this.window !== null) {
             this.window.focus()
@@ -55,44 +92,7 @@ class Locomotive {
         }) + '#/modal/throttle';
         this.window.loadURL(startUrl);
 
-        ipcMain.handle(this.loco._id, (e, action, data) => {
-            switch (action) {
-                case 'getThrottle':
-                    console.log('Got Throttle Data Request')
-                    return { ...this.throttle, ...this.loco, dcdr: this.decoder }
-
-                case 'setSpeed':
-                    this.throttle.speed = data
-                    console.log("Setting speed to", data)
-                    setSpeedAndDir(this.loco.address, this.throttle.speed, this.throttle.direction)
-                    return this.throttle.speed
-
-                case 'setDirection':
-                    this.throttle.direction = data
-                    console.log("Setting Direction to", data)
-                    setSpeedAndDir(this.loco.address, this.throttle.speed, this.throttle.direction)
-                    return this.throttle.direction
-
-                case 'setFunction':
-                    console.log("Set Function", data)
-                    this.throttle.functions[data].state = !this.throttle.functions[data].state
-                    setFunction(this.loco.address, data, this.throttle.functions)
-                    return this.throttle.functions
-
-                case 'eStop':
-                    console.log("E-Stop this loco")
-                    this.throttle.speed = 0
-                    sendEStop(this.loco.address, this.throttle.direction)
-                    return 0
-
-                case 'eStopAll':
-                    console.log("E-Stop ALL")
-                    return "Got E-Stop All"
-
-                default:
-                    return "Got your Message"
-            }
-        })
+        ipcMain.handle(this.loco._id, (e, action, data) => this.handleThrottleCommand(action, data))
 
         // Emitted when the window is closed.
         this.window.on('closed', () => {

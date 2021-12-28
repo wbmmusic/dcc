@@ -157,6 +157,7 @@ app.on('ready', () => {
       locoObjects[locoIdx].loco.showThrottle()
     } else console.log("THROTTLE ERROR")
   })
+  ipcMain.handle('mainWindowThrottle', (e, locoIdx, action, data) => locoObjects[locoIdx].loco.handleThrottleCommand(action, data))
   ipcMain.on('closeThrottles', () => {
     locoObjects.forEach(obj => {
       if (obj.loco.window !== null) obj.loco.closeThrottle()

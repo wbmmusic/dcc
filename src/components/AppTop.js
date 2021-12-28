@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import Toolbar from "./Toolbar";
 import LocoIcon from "./LocoIcon";
 import Layout from '../layouts/Layout';
-import { Button } from 'react-bootstrap';
 import { Route, Routes } from 'react-router';
 import Decoders from './decoders/Decoders';
 import Consists from './consists/Consists';
@@ -12,6 +11,7 @@ import Accessories from './accessories/Accessories';
 import Macros from './macros/Macros';
 import CVedit from '../CVedit';
 import AccessoryButtons from './accessories/AccessoryButtons';
+import LocoControl from '../modals/LocoControl';
 
 
 export default function AppTop() {
@@ -100,13 +100,6 @@ export default function AppTop() {
         setState(tempState)
     }
 
-    const makeLocoControl = () => {
-        if (state.locos.length === 0) {
-            return
-        }
-        return (<div></div>)
-    }
-
     const makeLocoIcons = () => {
         let locoIcons = []
         //console.log('START')
@@ -191,7 +184,7 @@ export default function AppTop() {
             <div><Toolbar locos={state.locos} setAllStopped={handleSetAllStopped} /></div>
             <div style={{ height: '100%', maxHeight: '100%', overflow: 'hidden' }}>
                 <div style={{ height: '100%', width: '100%', maxWidth: '100%', maxHeight: '100%', display: 'flex', overflow: 'hidden' }}>
-                    <div style={{ width: '250px', minWidth: '250px', maxWidth: '250px' }}>{makeLocoControl()}</div>
+                    <div style={{ width: '300px', height: '100%', overflow: 'hidden' }}><LocoControl selectedLoco={state.selectedLoco} /></div>
                     <div style={{ width: '100%', maxWidth: '100%', overflow: 'hidden', height: '100%' }}>
                         <Routes>
                             <Route path="/locomotives/*" element={<Locomotives />} />

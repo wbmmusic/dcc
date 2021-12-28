@@ -1,14 +1,23 @@
 import React, { useEffect, useState } from 'react'
 import { Button } from 'react-bootstrap'
+import { useLocation } from 'react-router-dom'
 
-export default function LocoControl() {
+export default function LocoControl({ selectedLoco }) {
+    const location = useLocation()
     const [state, setState] = useState({})
+    const isModal = location.pathname.includes('/modal')
+
+    const makeChannel = () => {
+        if (isModal) return [window.electron.getWindowID()]
+        else return ['mainWindowThrottle', selectedLoco]
+    }
 
     useEffect(() => {
-        window.electron.ipcRenderer.invoke(window.electron.getWindowID(), "getThrottle")
+        window.electron.ipcRenderer.invoke(...makeChannel(), "getThrottle")
             .then(res => setState(res))
             .catch(err => console.log(err))
-    }, [])
+
+    }, [selectedLoco])
 
     useEffect(() => console.log(state), [state])
 
@@ -18,31 +27,31 @@ export default function LocoControl() {
     }
 
     const setDirection = (dir) => {
-        window.electron.ipcRenderer.invoke(window.electron.getWindowID(), 'setDirection', dir)
+        window.electron.ipcRenderer.invoke(...makeChannel(), 'setDirection', dir)
             .then(newDir => setState(old => ({ ...old, direction: newDir })))
             .catch(err => console.log(err))
     }
 
     const setSpeed = (speed) => {
-        window.electron.ipcRenderer.invoke(window.electron.getWindowID(), 'setSpeed', parseInt(speed))
+        window.electron.ipcRenderer.invoke(...makeChannel(), 'setSpeed', parseInt(speed))
             .then(newSpeed => setState(old => ({ ...old, speed: newSpeed })))
             .catch(err => console.log(err))
     }
 
     const sendEStop = () => {
-        window.electron.ipcRenderer.invoke(window.electron.getWindowID(), 'eStop')
+        window.electron.ipcRenderer.invoke(...makeChannel(), 'eStop')
             .then(res => setState(old => ({ ...old, speed: res })))
             .catch(err => console.log(err))
     }
 
     const sendEStopAll = () => {
-        window.electron.ipcRenderer.invoke(window.electron.getWindowID(), 'eStopAll')
+        window.electron.ipcRenderer.invoke(...makeChannel(), 'eStopAll')
             .then(res => console.log(res))
             .catch(err => console.log(err))
     }
 
     const handleFunctionPress = (func) => {
-        window.electron.ipcRenderer.invoke(window.electron.getWindowID(), 'setFunction', func)
+        window.electron.ipcRenderer.invoke(...makeChannel(), 'setFunction', func)
             .then(res => setState(old => ({ ...old, functions: res })))
             .catch(err => console.log(err))
     }
@@ -85,7 +94,7 @@ export default function LocoControl() {
     }
 
     return (
-        <div style={{ width: '100vw', height: '100vh', overFlow: 'hidden', display: 'flex', flexDirection: 'column', borderTop: '1px solid lightGrey' }}>
+        <div style={{ width: '100%', height: '100%', overFlow: 'hidden', display: 'flex', flexDirection: 'column', borderTop: '1px solid lightGrey' }}>
             <div style={{ display: 'flex', borderBottom: '1px solid lightGrey', fontSize: '20px' }}>
                 <div style={{ whiteSpace: 'nowrap', paddingLeft: '5px' }}><b>{state.name}</b></div>
                 <div style={{ textAlign: 'right', width: '100%', paddingRight: '5px' }}><b>{state.number}</b></div>
