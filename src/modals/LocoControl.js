@@ -147,7 +147,7 @@ export default function LocoControl({ selectedLoco }) {
                                         style={{ width: '100%' }}
                                         disabled={isDisabled('forward')}
                                         onClick={() => setDirection('forward')}
-                                        variant='success'
+                                        variant={state.direction === 'forward' ? 'success' : 'outline-secondary'}
                                         size="sm"
                                     >Forward</Button>
                                 </td>
@@ -159,7 +159,7 @@ export default function LocoControl({ selectedLoco }) {
                                         style={{ width: '100%' }}
                                         disabled={isDisabled('reverse')}
                                         onClick={() => setDirection('reverse')}
-                                        variant='warning'
+                                        variant={state.direction === 'reverse' ? 'success' : 'outline-secondary'}
                                         size="sm"
                                     >Reverse</Button>
                                 </td>
