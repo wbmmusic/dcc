@@ -6,6 +6,7 @@ const { copyFileSync } = require('fs');
 const util = require('./utilities');
 const { Locomotive } = require('./locomotive');
 const { Switch } = require('./switches');
+const { config } = require('process');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -169,6 +170,13 @@ app.on('ready', () => {
 
   ipcMain.handle('fireMacro', (e, macroNumber) => handleMacro(macroNumber)
   )
+
+
+  // ACCESSORIES
+  ipcMain.handle('getAccessories', () => util.config.accessories)
+  ipcMain.handle('createAccessory', (e, newAcc) => util.createAccessory(newAcc))
+  ipcMain.handle('updateAccessory', (e, editedAcc) => util.updateAccessory(editedAcc))
+  ipcMain.handle('getAccessoryByID', (e, id) => util.getAccessoryByID(id))
 
 
   ipcMain.handle('setSwitch', (e, id, action) => {
