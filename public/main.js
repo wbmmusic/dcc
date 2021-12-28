@@ -7,6 +7,7 @@ const util = require('./utilities');
 const { Locomotive } = require('./locomotive');
 const { Switch } = require('./switches');
 const { config } = require('process');
+const { Accessory } = require('./accessory');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -14,6 +15,7 @@ let win
 let port
 let locoObjects = []
 let switchObjects = []
+let accessoryObjects = []
 
 
 const createWindow = () => {
@@ -194,7 +196,7 @@ app.whenReady().then(() => {
   // IMPORTANT /////////////////////////////////////////////////////////////////////////////////////////////////
   util.config.locos.forEach(loco => locoObjects.push({ id: loco._id, loco: new Locomotive({ loco: loco }) }))
   util.config.switches.forEach(switchh => switchObjects.push({ id: switchh._id, switch: new Switch({ ...switchh }) }))
-
+  util.config.accessories.forEach(acc => accessoryObjects.push({ id: acc._id, accessory: new Accessory({ ...acc }) }))
 })
 
 // Quit when all windows are closed.
