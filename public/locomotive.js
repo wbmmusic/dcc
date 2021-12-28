@@ -21,7 +21,7 @@ const makeFunctionState = (decoderID) => {
 class Locomotive {
     constructor(loco) {
         this.window = null
-        this.throttle = { speed: 0, direction: 'stop', functions: [...makeFunctionState(loco.loco.decoder)] }
+        this.throttle = { speed: 0, direction: 'forward', functions: [...makeFunctionState(loco.loco.decoder)] }
         if (loco) { Object.assign(this, { ...loco }) }
     }
     info = () => { return { ...this } }

@@ -11,6 +11,7 @@ import Switches from './switches/Switches';
 import Accessories from './accessories/Accessories';
 import Macros from './macros/Macros';
 import CVedit from '../CVedit';
+import AccessoryButtons from './accessories/AccessoryButtons';
 
 
 export default function AppTop() {
@@ -185,7 +186,6 @@ export default function AppTop() {
         return locoIcons
     }
 
-
     return (
         <div style={{ height: '100vh', width: '100vw', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div><Toolbar locos={state.locos} setAllStopped={handleSetAllStopped} /></div>
@@ -224,19 +224,7 @@ export default function AppTop() {
                                         }}>
                                             <Layout activeTrack={state.activeTrack} setActiveTrack={setTrack} />
                                         </div>
-                                        <div style={{ padding: '10px' }}>
-                                            <Button
-                                                size="sm"
-                                                variant={lights.tower ? 'success' : 'outline-secondary'}
-                                                onClick={() => setLights(old => ({ ...old, tower: !old.tower }))}
-                                            >Water Tower</Button>
-                                            <div style={{ width: '10px', display: 'inline-block' }}></div>
-                                            <Button
-                                                size="sm"
-                                                variant={lights.street ? 'success' : 'outline-secondary'}
-                                                onClick={() => setLights(old => ({ ...old, street: !old.street }))}
-                                            >Street Lights</Button>
-                                        </div>
+                                        <div style={{ padding: '10px' }}><AccessoryButtons /></div>
                                     </div>
                                 }
                             />

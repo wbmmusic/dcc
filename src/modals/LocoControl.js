@@ -149,7 +149,7 @@ export default function LocoControl() {
                             onChange={(e) => setSpeed(e.target.value)}
                         />
                     </div>
-                    <div style={{ paddingLeft: '5px' }}>255</div>
+                    <div style={{ paddingLeft: '5px' }}>126</div>
                 </div>
             </div>
             <div style={{ backgroundColor: 'pink', height: '100%', padding: '4px', overflow: 'hidden', overflowY: 'auto' }}>

@@ -60,7 +60,6 @@ exports.sendEStop = (address, direction) => {
 }
 
 exports.setFunction = (address, funcNum, functionStates) => {
-
     const makeOP = () => {
         let op = 0
         if (funcNum >= 0 && funcNum <= 4) {

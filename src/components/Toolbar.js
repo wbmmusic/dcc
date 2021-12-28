@@ -63,11 +63,6 @@ export default function Toolbar(props) {
                         </tbody>
                     </table>
                 </div>
-                <Button style={{ marginLeft: '8px' }} size="sm" onClick={() => {
-                    window.electron.ipcRenderer.invoke('fireMacro')
-                        .then(res => console.log(res))
-                        .catch(err => console.error(err))
-                }} >Macro</Button>
                 <Button variant='warning' style={{ marginLeft: '8px' }} size="sm" onClick={() => window.electron.send('closeThrottles')} >Close All</Button>
                 <div style={{ display: 'inline-block' }}>
                     <Dropdown style={{ marginLeft: '8px' }}>

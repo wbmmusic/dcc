@@ -180,6 +180,29 @@ app.on('ready', () => {
   ipcMain.handle('updateAccessory', (e, editedAcc) => util.updateAccessory(editedAcc))
   ipcMain.handle('getAccessoryByID', (e, id) => util.getAccessoryByID(id))
 
+  const getAccessoryActions = () => {
+    let out = []
+    accessoryObjects.forEach(acc => {
+      acc.accessory.device.actions.forEach((act, idx) => {
+        if (act.name !== '') out.push({ action: acc.accessory._id, idx: idx, ...act })
+      })
+    })
+    return out
+  }
+
+  ipcMain.handle('getAccessoryActions', () => getAccessoryActions())
+  ipcMain.handle('accessoryAction', (e, data) => {
+    const accIDX = accessoryObjects.findIndex(acc => acc.id === data.id)
+    console.log("INDEX", accIDX)
+    console.log("OBJECTS", accessoryObjects)
+    if (accIDX < 0) return new Error("Error in ipc handle accessoryAction")
+    console.log(accessoryObjects[accIDX])
+    accessoryObjects[accIDX].accessory.toggleFunction(accessoryObjects[accIDX].accessory.address, data.idx)
+    return getAccessoryActions()
+  })
+
+  ipcMain.handle('toggleAcc', () => accessoryObjects[0].accessory.toggleFunction(5, 0))
+
 
   ipcMain.handle('setSwitch', (e, id, action) => {
     console.log("Set Switch", action)
