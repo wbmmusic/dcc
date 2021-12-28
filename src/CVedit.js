@@ -9,8 +9,7 @@ export default function CVedit() {
 
     const isProgrammable = () => {
         console.log(state)
-        return true
-        if (state.loco === '' || isNaN(state.loco)) return false
+        if (state.loco === '' || state.loco === undefined) return false
         if (state.cv === '' || isNaN(state.cv)) return false
         if (state.value === '' || isNaN(state.value)) return false
         return true
@@ -49,7 +48,7 @@ export default function CVedit() {
                     <Table size='sm'>
                         <tbody>
                             <tr>
-                                <td style={labelStyle}>Loco</td>
+                                <td style={labelStyle}>Loco:</td>
                                 <td>
                                     <Select
                                         styles={selectStyle}
@@ -60,9 +59,10 @@ export default function CVedit() {
                                 </td>
                             </tr>
                             <tr>
-                                <td style={labelStyle}>CV</td>
+                                <td style={labelStyle}>CV:</td>
                                 <td>
                                     <input
+                                        style={{ minWidth: '150px' }}
                                         type="number"
                                         min={0}
                                         max={255}
@@ -72,7 +72,7 @@ export default function CVedit() {
                                 </td>
                             </tr>
                             <tr>
-                                <td style={labelStyle}>Value</td>
+                                <td style={labelStyle}>Value:</td>
                                 <td>
                                     <input
                                         type="number"
