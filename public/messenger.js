@@ -1,16 +1,82 @@
 const SerialPort = require('serialport')
+const ByteLength = require('@serialport/parser-byte-length')
 const port = new SerialPort('COM16', { baudRate: 9600 })
 
 let outBuffer = []
 let sending = false
 
-const sendNextInBuffer = () => port.write(outBuffer.shift())
+const sendLocoCtrlCmd = async (command) => {
+    console.log('sendLocoCtrlCmd')
+    const parser = port.pipe(new ByteLength({ length: 1 }))
 
-const sendCommand = (data) => {
-    outBuffer.push(data)
+    return new Promise(async (resolve, reject) => {
+        parser.once('data', (data) => {
+            let res = data.toString()
+            port.unpipe(parser)
+            if (res === '!') resolve('Sent Locomotive Control Command')
+            else reject(new Error('Error in Locomotive Control Command'))
+        })
+        port.write([0xA2, ...command])
+    })
+}
+
+const xsendAsyncSignal = async (command) => {
+    console.log('sendAsyncSignal')
+    const parser = port.pipe(new ByteLength({ length: 1 }))
+
+    return new Promise(async (resolve, reject) => {
+        parser.once('data', (data) => {
+            let res = data.toString()
+            port.unpipe(parser)
+            if (res === '!') resolve('Sent Locomotive Control Command')
+            else reject(new Error('Error in Locomotive Control Command'))
+        })
+        port.write([0xAD, ...command])
+    })
+}
+
+const sendOpsProgrammingMsg = async (command) => {
+    console.log('sendOpsProgrammingMsg')
+    const parser = port.pipe(new ByteLength({ length: 1 }))
+
+    return new Promise(async (resolve, reject) => {
+        parser.once('data', (data) => {
+            let res = data.toString()
+            port.unpipe(parser)
+            if (res === '!') resolve('Sent Ops Programming msg')
+            else reject(new Error('Error Send ops programming message'))
+        })
+        port.write([0xAE, ...command])
+    })
+}
+
+const sendNextInBuffer2 = async () => {
+    const cmd = outBuffer.shift()
+    switch (cmd.type) {
+        case 'locoCtrlCmd':
+            await sendLocoCtrlCmd(cmd.data)
+            break;
+
+        case 'asyncSignal':
+            await xsendAsyncSignal(cmd.data)
+            break
+
+        case 'opsProgramming':
+            await sendOpsProgrammingMsg(cmd.data)
+            break
+
+        default:
+            break;
+    }
+    if (outBuffer.length === 0) sending = false
+    else sendNextInBuffer2()
+}
+
+const sendMSG = (msg) => {
+    outBuffer.push(msg)
     if (!sending) {
         sending = true
-        sendNextInBuffer()
+        sendNextInBuffer2()
     }
 }
 
@@ -45,18 +111,24 @@ exports.setSpeedAndDir = (address, speed, direction) => {
 
         return out
     }
-    sendCommand([0xA2, ...getAddressBytes(address, true), ...makeDirection(direction, speed)])
+
+    sendMSG({
+        type: 'locoCtrlCmd',
+        data: [...getAddressBytes(address, true), ...makeDirection(direction, speed)]
+    })
 }
 
 exports.sendEStop = (address, direction) => {
     const makeDirection = () => {
-        if (direction === "forward") {
-            return 5
-        } else if (direction === 'reverse') {
-            return 6
-        } else throw new Error("E Stop Error")
+        if (direction === "forward") return 5
+        else if (direction === 'reverse') return 6
+        else throw new Error("E Stop Error")
     }
-    sendCommand([0xA2, ...getAddressBytes(address, true), makeDirection(), 0])
+
+    sendMSG({
+        type: 'locoCtrlCmd',
+        data: [...getAddressBytes(address, true), makeDirection(), 0]
+    })
 }
 
 exports.setFunction = (address, funcNum, functionStates) => {
@@ -66,86 +138,94 @@ exports.setFunction = (address, funcNum, functionStates) => {
             op = 7
             let dataByte = 0
             const currentStates = functionStates.slice(0, 5)
-            console.log("0 - 4", currentStates)
+            //console.log("0 - 4", currentStates)
 
             if (currentStates[0].state) dataByte = 1
             for (let i = 4; i >= 1; i--) {
                 if (currentStates[i].state) dataByte = (dataByte << 1) | 1
                 else dataByte = (dataByte << 1)
             }
-            console.log(dataByte.toString(2))
+            //console.log(dataByte.toString(2))
             return [op, dataByte]
 
         } else if (funcNum >= 5 && funcNum <= 8) {
             op = 8
             let dataByte = 0
             const currentStates = functionStates.slice(5, 9)
-            console.log("5 - 8", currentStates)
+            //console.log("5 - 8", currentStates)
             let shift = 0
             for (let i = 3; i >= 0; i--) {
                 if (currentStates[i].state) dataByte = dataByte | (1 << shift++)
                 else dataByte = (dataByte << 1)
             }
-            console.log(dataByte.toString(2))
+            //console.log(dataByte.toString(2))
             return [op, dataByte]
 
         } else if (funcNum >= 9 && funcNum <= 12) {
             op = 9
             let dataByte = 0
             const currentStates = functionStates.slice(9, 13)
-            console.log("9 - 12", currentStates)
+            //console.log("9 - 12", currentStates)
             let shift = 0
             for (let i = 3; i >= 0; i--) {
                 if (currentStates[i].state) dataByte = dataByte | (1 << shift++)
                 else dataByte = (dataByte << 1)
             }
-            console.log(dataByte.toString(2))
+            //console.log(dataByte.toString(2))
             return [op, dataByte]
 
         } else if (funcNum >= 13 && funcNum <= 20) {
             op = 0x15
             let dataByte = 0
             const currentStates = functionStates.slice(13, 21)
-            console.log("13 - 20", currentStates)
+            //console.log("13 - 20", currentStates)
             let shift = 0
             for (let i = 7; i >= 0; i--) {
                 if (currentStates[i].state) dataByte = dataByte | (1 << shift++)
                 else dataByte = (dataByte << 1)
             }
-            console.log(dataByte.toString(2))
+            //console.log(dataByte.toString(2))
             return [op, dataByte]
 
         } else if (funcNum >= 21 && funcNum <= 28) {
             op = 0x16
             let dataByte = 0
             const currentStates = functionStates.slice(21, 29)
-            console.log("21 - 28", currentStates)
+            //console.log("21 - 28", currentStates)
             let shift = 0
             for (let i = 7; i >= 0; i--) {
                 if (currentStates[i].state) dataByte = dataByte | (1 << shift++)
                 else dataByte = (dataByte << 1)
             }
-            console.log(dataByte.toString(2))
+            //console.log(dataByte.toString(2))
             return [op, dataByte]
 
         } else throw new Error('Error in setFunction')
     }
 
-    sendCommand([0xA2, ...getAddressBytes(address, true), ...makeOP()])
+    sendMSG({
+        type: 'locoCtrlCmd',
+        data: [...getAddressBytes(address, true), ...makeOP()]
+    })
+
 }
 
 exports.sendAsyncSignal = (address, op, data) => {
     console.log("Seting Switch", address)
-    sendCommand([0xAD, ...getAddressBytes(address, false), op, data])
+    sendMSG({
+        type: 'asyncSignal',
+        data: [...getAddressBytes(address, false), op, data]
+    })
+}
+
+exports.setCV = (address, cv, value) => {
+    sendMSG({
+        type: 'opsProgramming',
+        data: [...getAddressBytes(address, true), ...getAddressBytes(cv, false), value]
+    })
+
 }
 
 listPorts()
 
 port.on('error', (err) => console.log('USB Error: ', err.message))
-port.on('data', (data) => {
-    console.log('USB received data: ', data.toString())
-    if (outBuffer.length > 0) {
-        sendNextInBuffer()
-    }
-    else if (sending) sending = false
-})

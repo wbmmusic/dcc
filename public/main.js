@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, globalShortcut, dialog, protocol } = require('electron')
+const { app, BrowserWindow, ipcMain, dialog, protocol } = require('electron')
 const { join, normalize, parse } = require('path')
 const { format } = require('url')
 const { autoUpdater } = require('electron-updater');
@@ -6,8 +6,8 @@ const { copyFileSync } = require('fs');
 const util = require('./utilities');
 const { Locomotive } = require('./locomotive');
 const { Switch } = require('./switches');
-const { config } = require('process');
 const { Accessory } = require('./accessory');
+const { setCV } = require('./messenger')
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -78,16 +78,6 @@ app.on('ready', () => {
   createWindow()
 
   //console.log(port)
-
-  const eStopAllQuickKey = globalShortcut.register('Ctrl+space', () => {
-    console.log('SPACE PRESS')
-    win.webContents.send('eStopAll');
-  })
-
-  const eStopSelectedQuickKey = globalShortcut.register('shift+space', () => {
-    console.log('SHIFT SPACE PRESS')
-    win.webContents.send('eStopSelected');
-  })
 
   const setSwitch = (id, action) => {
     const switchIDX = switchObjects.findIndex(swh => swh.id === id)
@@ -166,6 +156,10 @@ app.on('ready', () => {
       if (obj.loco.window !== null) obj.loco.closeThrottle()
     })
   })
+
+
+  //CVs
+  ipcMain.handle('setCV', (e, address, cv, value) => setCV(address, cv, value))
 
 
   // MACROS
