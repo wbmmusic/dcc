@@ -57,6 +57,7 @@ export default function EditAccessory() {
     }
 
     const makeDeviceInput = () => {
+        if (state.device.name === undefined) return
 
         const makeInputRows = () => {
             let out = []
