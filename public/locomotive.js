@@ -63,7 +63,7 @@ class Locomotive {
                 return "Got your Message"
         }
     }
-    showThrottle = () => {
+    showThrottle = (window, idx) => {
         if (this.window !== null) {
             this.window.focus()
             return
@@ -92,7 +92,16 @@ class Locomotive {
         }) + '#/modal/throttle';
         this.window.loadURL(startUrl);
 
-        ipcMain.handle(this.loco._id, (e, action, data) => this.handleThrottleCommand(action, data))
+        let lastRes = null
+        ipcMain.handle(this.loco._id, (e, action, data) => {
+            const res = this.handleThrottleCommand(action, data)
+            if (JSON.stringify(res) !== lastRes) {
+                window.webContents.send('throttleUpdate', idx)
+                lastRes = JSON.stringify(res)
+            }
+
+            return res
+        })
 
         // Emitted when the window is closed.
         this.window.on('closed', () => {

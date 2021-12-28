@@ -153,11 +153,14 @@ app.on('ready', () => {
   ipcMain.on('newThrottle', (e, id) => {
     console.log("NEW THROTTLE")
     const locoIdx = locoObjects.findIndex(loco => loco.id === id)
-    if (locoIdx >= 0) {
-      locoObjects[locoIdx].loco.showThrottle()
-    } else console.log("THROTTLE ERROR")
+    if (locoIdx >= 0) locoObjects[locoIdx].loco.showThrottle(win, locoIdx)
+    else return new Error("THROTTLE ERROR")
   })
-  ipcMain.handle('mainWindowThrottle', (e, locoIdx, action, data) => locoObjects[locoIdx].loco.handleThrottleCommand(action, data))
+  ipcMain.handle('mainWindowThrottle', (e, locoIdx, action, data) => {
+    const res = locoObjects[locoIdx].loco.handleThrottleCommand(action, data)
+    if (locoObjects[locoIdx].loco.window !== null) locoObjects[locoIdx].loco.window.webContents.send('modalThrottleUpdate')
+    return res
+  })
   ipcMain.on('closeThrottles', () => {
     locoObjects.forEach(obj => {
       if (obj.loco.window !== null) obj.loco.closeThrottle()

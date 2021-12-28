@@ -17,6 +17,27 @@ export default function LocoControl({ selectedLoco }) {
             .then(res => setState(res))
             .catch(err => console.log(err))
 
+        if (!isModal) {
+            window.electron.receive('throttleUpdate', idx => {
+                if (idx === selectedLoco) {
+                    window.electron.ipcRenderer.invoke(...makeChannel(), "getThrottle")
+                        .then(res => setState(res))
+                        .catch(err => console.log(err))
+                }
+            })
+        } else {
+            window.electron.receive('modalThrottleUpdate', () => {
+                window.electron.ipcRenderer.invoke(...makeChannel(), "getThrottle")
+                    .then(res => setState(res))
+                    .catch(err => console.log(err))
+            })
+        }
+
+        return () => {
+            if (!isModal) window.electron.removeListener('throttleUpdate')
+            else window.electron.removeListener('modalThrottleUpdate')
+        }
+
     }, [selectedLoco])
 
     useEffect(() => console.log(state), [state])
@@ -100,7 +121,7 @@ export default function LocoControl({ selectedLoco }) {
                 <div style={{ textAlign: 'right', width: '100%', paddingRight: '5px' }}><b>{state.number}</b></div>
             </div>
             <div>
-                <div style={{ padding: '10px 10px 0px 0px' }}>
+                <div style={{ padding: '0px 10px 0px 0px' }}>
                     <table style={{ width: '100%' }}>
                         <tbody>
                             <tr>
@@ -109,16 +130,15 @@ export default function LocoControl({ selectedLoco }) {
                                         <div
                                             style={{
                                                 position: 'absolute',
-                                                top: '30px',
                                                 display: 'inline-block',
                                                 fontSize: '14px',
                                                 paddingLeft: '2px'
                                             }}
-                                        >{`Speed : ${state.direction}`}</div>
+                                        >Speed</div>
                                         <div style={{ textAlign: 'center', fontSize: '30px' }}><b>{state.speed}</b>
                                         </div>
                                         <div style={{ textAlign: 'center', padding: '0px 4px' }}>
-                                            <img style={{ maxHeight: '50px' }} src={`loco://${state.photo}`} alt="loco" />
+                                            <img style={{ maxHeight: '50px', maxWidth: '135px' }} src={`loco://${state.photo}`} alt="loco" />
                                         </div>
                                     </div>
                                 </td>
@@ -161,7 +181,7 @@ export default function LocoControl({ selectedLoco }) {
                     <div style={{ paddingLeft: '5px' }}>126</div>
                 </div>
             </div>
-            <div style={{ backgroundColor: 'pink', height: '100%', padding: '4px', overflow: 'hidden', overflowY: 'auto' }}>
+            <div style={{ height: '100%', padding: '4px', overflow: 'hidden', overflowY: 'auto', backgroundColor: 'silver' }}>
                 {makeFunctions()}
             </div>
             <div style={{ padding: '4px' }}>
