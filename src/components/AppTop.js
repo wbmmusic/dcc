@@ -23,18 +23,6 @@ export default function AppTop() {
         locos: []
     })
 
-    const [lights, setLights] = useState({ tower: false, street: false })
-
-    useEffect(() => {
-        //console.log(lights)
-        let out = 0
-
-        if (lights.tower) out = out | 16
-        if (lights.street) out = out | 1
-
-        window.electron.send('send-serial', [0xa2, 192, 5, 0x07, out])
-    }, [lights])
-
     useEffect(() => {
         let tempLocos = state.locos
         for (var locoNum = 0; locoNum < state.locos.length; locoNum++) {

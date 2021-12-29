@@ -2,6 +2,7 @@ const { contextBridge, ipcRenderer } = require('electron')
 const { join } = require('path')
 const { v4: uuid } = require('uuid');
 
+
 contextBridge.exposeInMainWorld('electron', {
     getWindowID: () => {
         let idArgIdx = window.process.argv.findIndex(arg => arg.includes('--windowID:'))

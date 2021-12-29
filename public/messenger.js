@@ -1,85 +1,10 @@
-const SerialPort = require('serialport')
-const ByteLength = require('@serialport/parser-byte-length')
-const port = new SerialPort('COM16', { baudRate: 9600 })
+const { NceUSB } = require('./interfaces/nceUsb')
 
-let outBuffer = []
-let sending = false
+const iface = { type: 'nceUsb', port: 'COM16' }
 
-const sendLocoCtrlCmd = async (command) => {
-    console.log('sendLocoCtrlCmd')
-    const parser = port.pipe(new ByteLength({ length: 1 }))
+let nceBoard = new NceUSB({ comPort: iface.port })
 
-    return new Promise(async (resolve, reject) => {
-        parser.once('data', (data) => {
-            let res = data.toString()
-            port.unpipe(parser)
-            if (res === '!') resolve('Sent Locomotive Control Command')
-            else reject(new Error('Error in Locomotive Control Command'))
-        })
-        port.write([0xA2, ...command])
-    })
-}
-
-const xsendAsyncSignal = async (command) => {
-    console.log('sendAsyncSignal')
-    const parser = port.pipe(new ByteLength({ length: 1 }))
-
-    return new Promise(async (resolve, reject) => {
-        parser.once('data', (data) => {
-            let res = data.toString()
-            port.unpipe(parser)
-            if (res === '!') resolve('Sent Locomotive Control Command')
-            else reject(new Error('Error in Locomotive Control Command'))
-        })
-        port.write([0xAD, ...command])
-    })
-}
-
-const sendOpsProgrammingMsg = async (command) => {
-    console.log('sendOpsProgrammingMsg')
-    const parser = port.pipe(new ByteLength({ length: 1 }))
-
-    return new Promise(async (resolve, reject) => {
-        parser.once('data', (data) => {
-            let res = data.toString()
-            port.unpipe(parser)
-            if (res === '!') resolve('Sent Ops Programming msg')
-            else reject(new Error('Error Send ops programming message'))
-        })
-        port.write([0xAE, ...command])
-    })
-}
-
-const sendNextInBuffer2 = async () => {
-    const cmd = outBuffer.shift()
-    switch (cmd.type) {
-        case 'locoCtrlCmd':
-            await sendLocoCtrlCmd(cmd.data)
-            break;
-
-        case 'asyncSignal':
-            await xsendAsyncSignal(cmd.data)
-            break
-
-        case 'opsProgramming':
-            await sendOpsProgrammingMsg(cmd.data)
-            break
-
-        default:
-            break;
-    }
-    if (outBuffer.length === 0) sending = false
-    else sendNextInBuffer2()
-}
-
-const sendMSG = (msg) => {
-    outBuffer.push(msg)
-    if (!sending) {
-        sending = true
-        sendNextInBuffer2()
-    }
-}
-
+/*
 const listPorts = () => {
     SerialPort.list().then(
         ports => {
@@ -92,6 +17,7 @@ const listPorts = () => {
         err => console.error('Error listing ports', err)
     )
 }
+*/
 
 const getAddressBytes = (address, useC0) => {
     var lowByte = address & 0xff
@@ -112,7 +38,7 @@ exports.setSpeedAndDir = (address, speed, direction) => {
         return out
     }
 
-    sendMSG({
+    nceBoard.sendMSG({
         type: 'locoCtrlCmd',
         data: [...getAddressBytes(address, true), ...makeDirection(direction, speed)]
     })
@@ -125,7 +51,7 @@ exports.sendEStop = (address, direction) => {
         else throw new Error("E Stop Error")
     }
 
-    sendMSG({
+    nceBoard.sendMSG({
         type: 'locoCtrlCmd',
         data: [...getAddressBytes(address, true), makeDirection(), 0]
     })
@@ -203,7 +129,7 @@ exports.setFunction = (address, funcNum, functionStates) => {
         } else throw new Error('Error in setFunction')
     }
 
-    sendMSG({
+    nceBoard.sendMSG({
         type: 'locoCtrlCmd',
         data: [...getAddressBytes(address, true), ...makeOP()]
     })
@@ -212,20 +138,16 @@ exports.setFunction = (address, funcNum, functionStates) => {
 
 exports.sendAsyncSignal = (address, op, data) => {
     console.log("Seting Switch", address)
-    sendMSG({
+    nceBoard.sendMSG({
         type: 'asyncSignal',
         data: [...getAddressBytes(address, false), op, data]
     })
 }
 
 exports.setCV = (address, cv, value) => {
-    sendMSG({
+    nceBoard.sendMSG({
         type: 'opsProgramming',
         data: [...getAddressBytes(address, true), ...getAddressBytes(cv, false), value]
     })
 
 }
-
-listPorts()
-
-port.on('error', (err) => console.log('USB Error: ', err.message))

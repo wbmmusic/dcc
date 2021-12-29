@@ -27,6 +27,7 @@
     "react-scripts": "5.0.0",
     "react-select": "^5.2.1",
     "serialport": "^9.2.8",
+    "usb-detection": "^4.13.0",
     "uuid": "^8.3.2"
   },
   "scripts": {
@@ -80,13 +81,7 @@
       "public/locos/*"
     ],
     "win": {
-      "icon": "public/icon.ico",
-      "fileAssociations": [
-        {
-          "ext": "dccConfig",
-          "icon": "public/win_config.ico"
-        }
-      ]
+      "icon": "public/icon.ico"
     }
   },
   "repository": {

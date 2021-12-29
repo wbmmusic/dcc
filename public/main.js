@@ -158,6 +158,16 @@ app.on('ready', () => {
   })
 
 
+  // SETTINGS
+  ipcMain.handle('getSettings', () => util.settings)
+  ipcMain.handle('setUSBiface', (e, iface) => util.setUSBiface(iface))
+  ipcMain.handle('setUSBport', (e, port) => util.setUSBport(port))
+
+
+  // SerialPorts
+  ipcMain.handle('getSerialPorts', () => util.serialPorts)
+  ipcMain.handle('getUsbConnection', () => util.usbConnected)
+
   // CONFIG
   ipcMain.on('backupConfig', async () => {
     let file = await dialog.showSaveDialog(win, {

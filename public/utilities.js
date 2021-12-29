@@ -1,12 +1,15 @@
 const { app } = require('electron')
-const { existsSync, writeFileSync, mkdirSync, readFileSync, cpSync, createWriteStream } = require('fs')
+const { existsSync, writeFileSync, mkdirSync, cpSync, createWriteStream, readFileSync } = require('fs')
 const { join } = require('path')
 const archiver = require('archiver');
 var AdmZip = require("adm-zip");
+const SerialPort = require('serialport')
+var usbDetect = require('usb-detection');
 
 // PATHS
 const pathToDataFolder = join(app.getPath('userData'), 'data')
 const pathToConfigFile = join(pathToDataFolder, 'config.json')
+const pathToSettingsFile = join(pathToDataFolder, 'settings.json')
 const pathToImages = join(pathToDataFolder, 'images')
 const pathToAppImages = join(pathToDataFolder, 'appImages')
 const pathToDefaultLocoImage = join(pathToImages, 'default.jpg')
@@ -14,6 +17,7 @@ exports.pathToImages = pathToImages
 exports.pathToAppImages = pathToAppImages
 
 const defaultConfig = { locos: [], decoders: [], switches: [], consists: [], accessories: [], macros: [] }
+const defaultSettings = { usbInterface: { type: '', port: '' } }
 
 if (!existsSync(pathToDataFolder)) {
     mkdirSync(pathToDataFolder)
@@ -32,6 +36,11 @@ if (!existsSync(pathToAppImages)) {
 
 if (!existsSync(pathToConfigFile)) {
     writeFileSync(pathToConfigFile, JSON.stringify(defaultConfig, null, '\t'))
+    console.log("Created config.json")
+}
+
+if (!existsSync(pathToSettingsFile)) {
+    writeFileSync(pathToSettingsFile, JSON.stringify(defaultSettings, null, '\t'))
     console.log("Created config.json")
 }
 
@@ -56,25 +65,35 @@ if (!existsSync(join(pathToAppImages, 'locoSideProfile.png'))) {
 }
 
 let config = {}
+let settings = {}
+exports.serialPorts = []
+exports.usbConnected = false
 
-const readFile = () => JSON.parse(readFileSync(pathToConfigFile))
-const saveFile = () => {
+const readConfig = () => JSON.parse(readFileSync(pathToConfigFile))
+const saveConfig = () => {
     writeFileSync(pathToConfigFile, JSON.stringify(config, null, '\t'))
-    readFile()
+    readConfig()
 }
 
-config = readFile()
-exports.config = config
+const readSettings = () => JSON.parse(readFileSync(pathToSettingsFile))
+const saveSettings = () => {
+    writeFileSync(pathToSettingsFile, JSON.stringify(settings, null, '\t'))
+    readConfig()
+}
 
+config = readConfig()
+settings = readSettings()
+exports.config = config
+exports.settings = settings
 
 // DECODERS
 exports.newDecoder = decoder => {
     config.decoders.push(decoder)
-    saveFile()
+    saveConfig()
 }
 exports.deleteDecoder = id => {
     config.decoders = config.decoders.filter(dcdr => dcdr._id !== id)
-    saveFile()
+    saveConfig()
     return config.decoders
 }
 exports.getDecoderByID = id => {
@@ -84,19 +103,19 @@ exports.updateDecoder = updatedDecoder => {
     let decoderIdx = config.decoders.findIndex(dcdr => dcdr._id === updatedDecoder._id)
     console.log("DCDR IDX", decoderIdx)
     config.decoders[decoderIdx] = updatedDecoder
-    saveFile()
+    saveConfig()
     return 'Updated'
 }
 
 // LOCOMOTIVES
 exports.newLoco = loco => {
     config.locos.push(loco)
-    saveFile()
+    saveConfig()
     return 'created'
 }
 exports.deleteLoco = locoID => {
     config.locos = config.locos.filter(loco => loco._id !== locoID)
-    saveFile()
+    saveConfig()
     return config.locos
 }
 exports.getLocoByID = id => config.locos.find(loco => loco._id === id)
@@ -104,7 +123,7 @@ exports.updateLoco = editedLoco => {
     let locoIdx = config.locos.findIndex(loco => loco._id === editedLoco._id)
     if (locoIdx >= 0) {
         config.locos[locoIdx] = editedLoco
-        saveFile()
+        saveConfig()
         return config.locos[locoIdx]
     }
 }
@@ -113,7 +132,7 @@ exports.updateLoco = editedLoco => {
 exports.getSwitches = () => config.switches
 exports.createSwitch = newSwitch => {
     config.switches.push(newSwitch)
-    saveFile()
+    saveConfig()
     return 'created'
 }
 exports.getSwitchByID = id => {
@@ -125,7 +144,7 @@ exports.updateSwitch = editedSwitch => {
     let switchIDX = config.switches.findIndex(sw => sw._id === editedSwitch._id)
     if (switchIDX >= 0) {
         config.switches[switchIDX] = editedSwitch
-        saveFile()
+        saveConfig()
         return 0
     } else return new Error("Error in update switch")
 }
@@ -133,14 +152,14 @@ exports.updateSwitch = editedSwitch => {
 // MACROS
 exports.createMacro = newMacro => {
     config.macros.push(newMacro)
-    saveFile()
+    saveConfig()
     return 'created'
 }
 exports.updateMacro = editedMacro => {
     let macroIDX = config.macros.findIndex(mcro => mcro._id === editedMacro._id)
     if (macroIDX >= 0) {
         config.macros[macroIDX] = editedMacro
-        saveFile()
+        saveConfig()
         return 'updated'
     }
     else return new Error('Error in updateMacro')
@@ -156,7 +175,7 @@ exports.getMacroByID = id => {
 // ACCESSORIES
 exports.createAccessory = newAcc => {
     config.accessories.push(newAcc)
-    saveFile()
+    saveConfig()
     return 'created'
 }
 exports.updateAccessory = editedAcc => {
@@ -248,3 +267,27 @@ exports.restoreConfig = async (pathToZip) => {
     app.relaunch()
     app.exit()
 }
+
+// SETTINGS
+exports.setUSBiface = (iface) => {
+    settings.usbInterface.type = iface
+    saveSettings()
+    return settings
+}
+exports.setUSBport = (port) => {
+    settings.usbInterface.port = port
+    saveSettings()
+    return settings
+}
+
+const listPorts = () => {
+    SerialPort.list()
+        .then(ports => this.serialPorts = ports)
+        .catch(err => console.error('Error listing ports', err))
+}
+listPorts()
+
+usbDetect.on('add', function (device) { console.log('add', device); });
+usbDetect.on('remove', function (device) { console.log('remove', device); });
+
+usbDetect.startMonitoring();

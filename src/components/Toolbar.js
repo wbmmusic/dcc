@@ -1,10 +1,12 @@
 import React, { useEffect } from 'react'
 import { Button, Dropdown } from 'react-bootstrap'
 import { useLocation, useNavigate } from 'react-router-dom'
+import USBstatus from './USBstatus';
 
 export default function Toolbar(props) {
     const navigate = useNavigate()
     const location = useLocation()
+    
     const estop = () => {
         console.log('E Stop All')
         for (var i = 0; i < props.locos.length; i++) {
@@ -33,6 +35,7 @@ export default function Toolbar(props) {
         if (location.pathname !== '/') return <Button style={{ marginLeft: '8px' }} size="sm" onClick={() => navigate('/')} >Home</Button>
     }
 
+
     useEffect(() => {
         window.electron.receive('eStopAll', () => estop())
 
@@ -52,22 +55,8 @@ export default function Toolbar(props) {
             >
                 <Button style={{ width: '150px' }} variant='danger' size="sm">E-STOP ALL</Button>
             </div>
-
+            <USBstatus />
             <div style={{ textAlign: 'right', width: '100%', display: 'flex', justifyContent: 'right', alignItems: 'center' }}>
-                <div style={{ display: 'inline-block', backgroundColor: 'lightGrey', whiteSpace: 'nowrap', borderRadius: '3px' }}>
-                    <table cellPadding="3">
-                        <tbody>
-                            <tr>
-                                <td>Serial Port: </td>
-                                <td>
-                                    <select>
-                                        <option>COM16</option>
-                                    </select>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
                 {makeHomeBtn()}
                 <Button variant='warning' style={{ marginLeft: '8px' }} size="sm" onClick={() => window.electron.send('closeThrottles')} >Close All</Button>
                 <div style={{ display: 'inline-block' }}>
