@@ -1,4 +1,4 @@
-const selectStyle = {
+export const selectStyle = {
     control: base => ({
         ...base,
         fontSize: '12px',
@@ -17,5 +17,3 @@ const selectStyle = {
         padding: '0px 8px'
     })
 }
-
-exports.selectStyle = selectStyle
