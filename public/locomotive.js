@@ -95,7 +95,7 @@ class Locomotive {
             startUrl = url.format({
                 pathname: join(__dirname, '/../build/index.html'),
                 protocol: 'file:',
-                slashes: true,
+                slashes: true, 
                 hash: '#/modal/throttle'
             });
         }
