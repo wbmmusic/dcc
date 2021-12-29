@@ -12,6 +12,7 @@ import Macros from './macros/Macros';
 import CVedit from '../CVedit';
 import AccessoryButtons from './accessories/AccessoryButtons';
 import LocoControl from '../modals/LocoControl';
+import Settings from './Settings';
 
 
 export default function AppTop() {
@@ -194,6 +195,7 @@ export default function AppTop() {
                             <Route path="/accessories/*" element={<Accessories />} />
                             <Route path="/macros/*" element={<Macros />} />
                             <Route path="/cv/*" element={<CVedit />} />
+                            <Route path="/settings" element={<Settings />} />
                             <Route path="*"
                                 element={
                                     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>

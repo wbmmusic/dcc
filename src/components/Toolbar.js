@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react'
 import { Button, Dropdown } from 'react-bootstrap'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 export default function Toolbar(props) {
     const navigate = useNavigate()
+    const location = useLocation()
     const estop = () => {
         console.log('E Stop All')
         for (var i = 0; i < props.locos.length; i++) {
@@ -26,6 +27,10 @@ export default function Toolbar(props) {
         let output = [highBytex, lowByte]
 
         return output
+    }
+
+    const makeHomeBtn = () => {
+        if (location.pathname !== '/') return <Button style={{ marginLeft: '8px' }} size="sm" onClick={() => navigate('/')} >Home</Button>
     }
 
     useEffect(() => {
@@ -63,8 +68,7 @@ export default function Toolbar(props) {
                         </tbody>
                     </table>
                 </div>
-                <Button variant='warning' style={{ marginLeft: '8px' }} size="sm" onClick={() => window.electron.send('backupConfig')} >Backup</Button>
-                <Button variant='danger' style={{ marginLeft: '8px' }} size="sm" onClick={() => window.electron.send('restoreConfig')} >Restore</Button>
+                {makeHomeBtn()}
                 <Button variant='warning' style={{ marginLeft: '8px' }} size="sm" onClick={() => window.electron.send('closeThrottles')} >Close All</Button>
                 <div style={{ display: 'inline-block' }}>
                     <Dropdown style={{ marginLeft: '8px' }}>
@@ -73,6 +77,7 @@ export default function Toolbar(props) {
                         </Dropdown.Toggle>
                         <Dropdown.Menu>
                             <Dropdown.Item onClick={() => navigate('/')} >Home</Dropdown.Item>
+                            <Dropdown.Item onClick={() => navigate('/settings')} >Settings</Dropdown.Item>
                             <Dropdown.Item onClick={() => navigate('/locomotives')} >Locomotives</Dropdown.Item>
                             <Dropdown.Item onClick={() => navigate('/decoders')} >Decoders</Dropdown.Item>
                             <Dropdown.Item onClick={() => navigate('/consists')} >Consists</Dropdown.Item>

@@ -1,6 +1,6 @@
 {
   "name": "dcc",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "author": "Marece Williams",
   "description": "React and Electron Awesome App",
   "homepage": "./",
@@ -80,7 +80,13 @@
       "public/locos/*"
     ],
     "win": {
-      "icon": "public/icon.ico"
+      "icon": "public/icon.ico",
+      "fileAssociations": [
+        {
+          "ext": "dccConfig",
+          "icon": "public/win_config.ico"
+        }
+      ]
     }
   },
   "repository": {
