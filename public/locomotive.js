@@ -1,6 +1,6 @@
 const { BrowserWindow, ipcMain } = require("electron")
 const { join } = require('path')
-const { format } = require('url')
+const url = require('url')
 const { setSpeedAndDir, sendEStop, setFunction } = require("./messenger")
 const { config } = require("./utilities")
 
@@ -64,7 +64,9 @@ class Locomotive {
         }
     }
     showThrottle = (window, idx) => {
+        console.log("In show Throttle")
         if (this.window !== null) {
+            console.log("Window is not Null")
             this.window.focus()
             return
         }
@@ -85,11 +87,28 @@ class Locomotive {
             }
         })
 
-        const startUrl = process.env.ELECTRON_START_URL + "#/modal/throttle" || format({
-            pathname: join(__dirname, '/../build/index.html'),
-            protocol: 'file:',
-            slashes: true
-        }) + '#/modal/throttle';
+        let startUrl
+
+        if (process.env.ELECTRON_START_URL !== undefined) {
+            startUrl = process.env.ELECTRON_START_URL + "#/modal/throttle"
+        } else {
+            startUrl = url.format({
+                pathname: join(__dirname, '/../build/index.html'),
+                protocol: 'file:',
+                slashes: true,
+                hash: '#/modal/throttle'
+            });
+        }
+
+        /*
+                const startUrl = process.env.ELECTRON_START_URL + "#/modal/throttle" || url.format({
+                    pathname: join(__dirname, '/../build/index.html'),
+                    protocol: 'file:',
+                    slashes: true,
+                    hash: '#/modal/throttle'
+                });
+                */
+        console.log("Start url=", startUrl)
         this.window.loadURL(startUrl);
 
         let lastRes = null
@@ -109,6 +128,7 @@ class Locomotive {
             this.window = null
         })
         this.window.on("ready-to-show", () => {
+            console.log('window is ready to show')
             this.window.show()
         })
         this.window.on('moved', () => console.log(this.window.getPosition()))
