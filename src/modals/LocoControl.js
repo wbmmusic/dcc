@@ -12,6 +12,7 @@ export default function LocoControl({ selectedLoco }) {
         else return ['mainWindowThrottle', selectedLoco]
     }
 
+
     useEffect(() => {
         window.electron.ipcRenderer.invoke(...makeChannel(), "getThrottle")
             .then(res => setState(res))
@@ -41,6 +42,12 @@ export default function LocoControl({ selectedLoco }) {
     }, [selectedLoco])
 
     useEffect(() => console.log(state), [state])
+
+    if (state.name === undefined) {
+        return (
+            <div style={{ height: '100%', textAlign: 'center', paddingTop: '10px', backgroundColor: 'silver' }}><b>No Locomotives</b></div>
+        )
+    }
 
     const isDisabled = (dir) => {
         if (state.direction === dir) return true

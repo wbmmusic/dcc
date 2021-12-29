@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Toolbar from "./Toolbar";
 import LocoIcon from "./LocoIcon";
 import Layout from '../layouts/Layout';
-import { Route, Routes } from 'react-router';
+import { Route, Routes, useNavigate } from 'react-router-dom';
 import Decoders from './decoders/Decoders';
 import Consists from './consists/Consists';
 import Locomotives from './locomotives/Locomotives';
@@ -13,15 +13,12 @@ import CVedit from '../CVedit';
 import AccessoryButtons from './accessories/AccessoryButtons';
 import LocoControl from '../modals/LocoControl';
 import Settings from './Settings';
+import { Button } from 'react-bootstrap';
 
 
 export default function AppTop() {
-    const [state, setState] = useState({
-        selectedLoco: 0,
-        activeTrack: 0,
-        showAll: false,
-        locos: []
-    })
+    const navigate = useNavigate()
+    const [state, setState] = useState({ selectedLoco: 0, activeTrack: 0, showAll: false, locos: [] })
 
     useEffect(() => {
         let tempLocos = state.locos
@@ -94,6 +91,13 @@ export default function AppTop() {
         //console.log('START')
         //console.log(locoIcons.length)
         //console.log(locoIcons)
+
+        if (state.locos.length <= 0) return (
+            <div style={{ width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                <div style={{ textAlign: 'center' }}><b>No Locomotives</b></div>
+                <div style={{ textAlign: 'center' }}><Button size='sm' onClick={() => navigate('/locomotives/new')}>Add Locomotive</Button></div>
+            </div>
+        )
 
         for (var i = 0; i < state.locos.length; i++) {
             //console.log('Look Here ' + i)
