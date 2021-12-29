@@ -158,6 +158,41 @@ app.on('ready', () => {
   })
 
 
+  // CONFIG
+  ipcMain.on('backupConfig', async () => {
+    let file = await dialog.showSaveDialog(win, {
+      filters: [
+        {
+          name: 'dccConfig',
+          extensions: ['dccConfig']
+        }
+      ],
+    })
+    if (!file.canceled) {
+
+      try {
+        let zip = await util.backupConfig(file.filePath)
+        console.log(zip)
+      } catch (error) {
+        throw error
+      }
+    } else return "canceled"
+  })
+
+  ipcMain.on('restoreConfig', async () => {
+    let file = await dialog.showOpenDialog(win, {
+      filters: [
+        {
+          name: 'dccConfig',
+          extensions: ['dccConfig']
+        }
+      ],
+    })
+    if (!file.canceled) {
+      util.restoreConfig(file.filePaths[0])
+    } else return "canceled"
+  })
+
   //CVs
   ipcMain.handle('setCV', (e, address, cv, value) => setCV(address, cv, value))
 
@@ -212,6 +247,10 @@ app.on('ready', () => {
 app.whenReady().then(() => {
   protocol.registerFileProtocol('loco', (request, callback) => {
     callback({ path: normalize(`${util.pathToImages}/${request.url.substr(6)}`) })
+  })
+
+  protocol.registerFileProtocol('aimg', (request, callback) => {
+    callback({ path: normalize(`${util.pathToAppImages}/${request.url.substr(6)}`) })
   })
 
   // IMPORTANT /////////////////////////////////////////////////////////////////////////////////////////////////

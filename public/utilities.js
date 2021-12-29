@@ -1,13 +1,17 @@
 const { app } = require('electron')
-const { existsSync, writeFileSync, mkdirSync, readFileSync, cpSync } = require('fs')
+const { existsSync, writeFileSync, mkdirSync, readFileSync, cpSync, createWriteStream } = require('fs')
 const { join } = require('path')
+const archiver = require('archiver');
+var AdmZip = require("adm-zip");
 
 // PATHS
 const pathToDataFolder = join(app.getPath('userData'), 'data')
 const pathToConfigFile = join(pathToDataFolder, 'config.json')
 const pathToImages = join(pathToDataFolder, 'images')
+const pathToAppImages = join(pathToDataFolder, 'appImages')
 const pathToDefaultLocoImage = join(pathToImages, 'default.jpg')
 exports.pathToImages = pathToImages
+exports.pathToAppImages = pathToAppImages
 
 const defaultConfig = { locos: [], decoders: [], switches: [], consists: [], accessories: [], macros: [] }
 
@@ -19,6 +23,11 @@ if (!existsSync(pathToDataFolder)) {
 if (!existsSync(pathToImages)) {
     mkdirSync(pathToImages)
     console.log("Created Images Folder")
+}
+
+if (!existsSync(pathToAppImages)) {
+    mkdirSync(pathToAppImages)
+    console.log("Created appImages Folder")
 }
 
 if (!existsSync(pathToConfigFile)) {
@@ -36,9 +45,9 @@ if (!existsSync(pathToDefaultLocoImage)) {
     console.log("Created Default Loco Image")
 }
 
-if (!existsSync(join(pathToImages, 'locoSideProfile.png'))) {
+if (!existsSync(join(pathToAppImages, 'locoSideProfile.png'))) {
     try {
-        cpSync(join(__dirname, 'locoSideProfile.png'), join(pathToImages, 'locoSideProfile.png'))
+        cpSync(join(__dirname, 'locoSideProfile.png'), join(pathToAppImages, 'locoSideProfile.png'))
     } catch (error) {
         console.log(error)
     }
@@ -159,4 +168,83 @@ exports.getAccessoryByID = id => {
     let accIdx = config.accessories.findIndex(acc => acc._id === id)
     if (accIdx >= 0) return config.accessories[accIdx]
     else return new Error("Error in getAccessoryByID")
+}
+
+exports.backupConfig = async (outputPath) => {
+    return new Promise((resolve, reject) => {
+        // create a file to stream archive data to.
+        const output = createWriteStream(outputPath);
+        const archive = archiver('zip', {
+            zlib: { level: 9 } // Sets the compression level.
+        });
+
+        // listen for all archive data to be written
+        // 'close' event is fired only when a file descriptor is involved
+        output.on('close', function () {
+            console.log(archive.pointer() + ' total bytes');
+            console.log('archiver has been finalized and the output file descriptor has closed.');
+            resolve('All Zipped Up')
+        });
+
+        // This event is fired when the data source is drained no matter what was the data source.
+        // It is not part of this library but rather from the NodeJS Stream API.
+        // @see: https://nodejs.org/api/stream.html#stream_event_end
+        output.on('end', function () {
+            console.log('Data has been drained');
+        });
+
+        // good practice to catch warnings (ie stat failures and other non-blocking errors)
+        archive.on('warning', function (err) {
+            if (err.code === 'ENOENT') {
+                // log warning
+            } else {
+                // throw error
+                reject(err)
+            }
+        });
+
+        // good practice to catch this error explicitly
+        archive.on('error', function (err) {
+            reject(err)
+        });
+
+        // pipe archive data to the file
+        archive.pipe(output);
+
+
+        // append a file
+        archive.file(pathToConfigFile, { name: 'config.json' });
+
+        // append files from a sub-directory and naming it `new-subdir` within the archive
+        archive.directory(pathToImages, 'images');
+
+        // append files from a glob pattern
+        archive.glob('file*.txt', { cwd: __dirname });
+
+
+
+
+
+        // finalize the archive (ie we are done appending files but streams have to finish yet)
+        // 'close', 'end' or 'finish' may be fired right after calling this method so register to them beforehand
+        archive.finalize();
+    })
+
+}
+
+exports.restoreConfig = async (pathToZip) => {
+    // reading archives
+    var zip = new AdmZip(pathToZip);
+    var zipEntries = zip.getEntries(); // an array of ZipEntry records
+
+    zipEntries.forEach(function (zipEntry) {
+        console.log(zipEntry.toString()); // outputs zip entries information
+        if (zipEntry.entryName == "my_file.txt") {
+            console.log(zipEntry.getData().toString("utf8"));
+        }
+    });
+    // extracts everything
+    zip.extractAllTo(/*target path*/ pathToDataFolder, /*overwrite*/ true);
+    app.relaunch()
+    app.exit()
 }

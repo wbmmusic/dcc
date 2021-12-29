@@ -116,7 +116,7 @@ export default function EditConsist() {
         consists.forEach((loco, i) => {
             out.unshift(
                 <div key={`loco${loco + i}`} style={{ display: 'inline-block', backgroundColor: loco.forward ? 'lightGrey' : 'khaki', margin: '2px' }}>
-                    <img style={{ width: '100%', ...flip(loco) }} src="loco://locoSideProfile.png" alt="side profile" />
+                    <img style={{ width: '100%', ...flip(loco) }} src="aimg://locoSideProfile.png" alt="side profile" />
                     <div style={{ display: 'flex' }}>
                         <div style={{ whiteSpace: 'nowrap' }}><b>{loco.name}</b></div>
                         <div style={{ textAlign: 'right', width: '100%' }}>

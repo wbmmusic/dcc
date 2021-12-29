@@ -63,6 +63,8 @@ export default function Toolbar(props) {
                         </tbody>
                     </table>
                 </div>
+                <Button variant='warning' style={{ marginLeft: '8px' }} size="sm" onClick={() => window.electron.send('backupConfig')} >Backup</Button>
+                <Button variant='danger' style={{ marginLeft: '8px' }} size="sm" onClick={() => window.electron.send('restoreConfig')} >Restore</Button>
                 <Button variant='warning' style={{ marginLeft: '8px' }} size="sm" onClick={() => window.electron.send('closeThrottles')} >Close All</Button>
                 <div style={{ display: 'inline-block' }}>
                     <Dropdown style={{ marginLeft: '8px' }}>
