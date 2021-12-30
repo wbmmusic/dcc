@@ -1,23 +1,19 @@
 const { NceUSB } = require('./interfaces/nceUsb')
+const util = require('./utilities')
 
-const iface = { type: 'nceUsb', port: 'COM16' }
+let dccInterface = null
+exports.dccInterface = this.dccInterface
 
-let nceBoard = new NceUSB({ comPort: iface.port })
+exports.startInterface = (iface, status) => {
+    switch (iface.type) {
+        case 'nceUsb':
+            dccInterface = new NceUSB({ comPort: iface.port, status: status })
+            return true
 
-/*
-const listPorts = () => {
-    SerialPort.list().then(
-        ports => {
-            if (ports.length > 0) console.log('PORTLIST')
-            ports.forEach(port => {
-                console.log(`${port.path}\t${port.pnpId || ''}\t${port.manufacturer || ''}`)
-                console.log(port)
-            })
-        },
-        err => console.error('Error listing ports', err)
-    )
+        default:
+            return false
+    }
 }
-*/
 
 const getAddressBytes = (address, useC0) => {
     var lowByte = address & 0xff
@@ -28,6 +24,7 @@ const getAddressBytes = (address, useC0) => {
 
 exports.setSpeedAndDir = (address, speed, direction) => {
     console.log(`Address: ${address} | Speed: ${speed} | Direction: ${direction}`)
+    if (!util.usbConnected) return
 
     const makeDirection = (direction, speed) => {
         let out = [direction, speed]
@@ -38,20 +35,21 @@ exports.setSpeedAndDir = (address, speed, direction) => {
         return out
     }
 
-    nceBoard.sendMSG({
+    dccInterface.sendMSG({
         type: 'locoCtrlCmd',
         data: [...getAddressBytes(address, true), ...makeDirection(direction, speed)]
     })
 }
 
 exports.sendEStop = (address, direction) => {
+    if (!util.usbConnected) return
     const makeDirection = () => {
         if (direction === "forward") return 5
         else if (direction === 'reverse') return 6
         else throw new Error("E Stop Error")
     }
 
-    nceBoard.sendMSG({
+    dccInterface.sendMSG({
         type: 'locoCtrlCmd',
         data: [...getAddressBytes(address, true), makeDirection(), 0]
     })
@@ -129,7 +127,8 @@ exports.setFunction = (address, funcNum, functionStates) => {
         } else throw new Error('Error in setFunction')
     }
 
-    nceBoard.sendMSG({
+    if (!util.usbConnected) return
+    dccInterface.sendMSG({
         type: 'locoCtrlCmd',
         data: [...getAddressBytes(address, true), ...makeOP()]
     })
@@ -138,14 +137,16 @@ exports.setFunction = (address, funcNum, functionStates) => {
 
 exports.sendAsyncSignal = (address, op, data) => {
     console.log("Seting Switch", address)
-    nceBoard.sendMSG({
+    if (!util.usbConnected) return
+    dccInterface.sendMSG({
         type: 'asyncSignal',
         data: [...getAddressBytes(address, false), op, data]
     })
 }
 
 exports.setCV = (address, cv, value) => {
-    nceBoard.sendMSG({
+    if (!util.usbConnected) return
+    dccInterface.sendMSG({
         type: 'opsProgramming',
         data: [...getAddressBytes(address, true), ...getAddressBytes(cv, false), value]
     })

@@ -43,6 +43,8 @@ const createWindow = () => {
   // Emitted when the window is closed.
   win.on('closed', () => app.quit())
   win.on('ready-to-show', () => win.show())
+
+  util.setWindow(win)
 }
 
 app.on('ready', () => {

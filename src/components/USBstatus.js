@@ -11,7 +11,10 @@ export default function USBstatus() {
             .then(res => setIsConnected(res))
             .catch(err => console.error(err))
 
-        window.electron.receive('usbConnection', (e, connection) => setIsConnected(connection))
+        window.electron.receive('usbConnection', (connection) => {
+            console.log(connection)
+            setIsConnected(connection)
+        })
 
         return () => window.electron.removeListener('usbConnection')
     }, [])

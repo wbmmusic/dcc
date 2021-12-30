@@ -57,6 +57,10 @@ export default function Settings() {
         window.electron.ipcRenderer.invoke('getSerialPorts')
             .then(res => setSerialPorts(res))
             .catch(err => console.error(err))
+
+        window.electron.receive('serialPorts', (ports) => setSerialPorts(ports))
+        
+        return () => window.electron.removeListener('serialPorts')
     }, [])
 
     useEffect(() => console.log(settings), [settings])

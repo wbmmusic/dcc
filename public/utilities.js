@@ -5,6 +5,7 @@ const archiver = require('archiver');
 var AdmZip = require("adm-zip");
 const SerialPort = require('serialport')
 var usbDetect = require('usb-detection');
+const messenger = require('./messenger');
 
 // PATHS
 const pathToDataFolder = join(app.getPath('userData'), 'data')
@@ -19,55 +20,61 @@ exports.pathToAppImages = pathToAppImages
 const defaultConfig = { locos: [], decoders: [], switches: [], consists: [], accessories: [], macros: [] }
 const defaultSettings = { usbInterface: { type: '', port: '' } }
 
-if (!existsSync(pathToDataFolder)) {
-    mkdirSync(pathToDataFolder)
-    console.log("Created Data Folder")
-}
-
-if (!existsSync(pathToImages)) {
-    mkdirSync(pathToImages)
-    console.log("Created Images Folder")
-}
-
-if (!existsSync(pathToAppImages)) {
-    mkdirSync(pathToAppImages)
-    console.log("Created appImages Folder")
-}
-
-if (!existsSync(pathToConfigFile)) {
-    writeFileSync(pathToConfigFile, JSON.stringify(defaultConfig, null, '\t'))
-    console.log("Created config.json")
-}
-
-if (!existsSync(pathToSettingsFile)) {
-    writeFileSync(pathToSettingsFile, JSON.stringify(defaultSettings, null, '\t'))
-    console.log("Created config.json")
-}
-
-if (!existsSync(pathToDefaultLocoImage)) {
-    try {
-        cpSync(join(__dirname, 'default.jpg'), pathToDefaultLocoImage)
-    } catch (error) {
-        console.log(error)
+const checkForFilesAndFolders = () => {
+    if (!existsSync(pathToDataFolder)) {
+        mkdirSync(pathToDataFolder)
+        console.log("Created Data Folder")
     }
 
-    console.log("Created Default Loco Image")
-}
-
-if (!existsSync(join(pathToAppImages, 'locoSideProfile.png'))) {
-    try {
-        cpSync(join(__dirname, 'locoSideProfile.png'), join(pathToAppImages, 'locoSideProfile.png'))
-    } catch (error) {
-        console.log(error)
+    if (!existsSync(pathToImages)) {
+        mkdirSync(pathToImages)
+        console.log("Created Images Folder")
     }
 
-    console.log("Created Side Profile Loco Image")
+    if (!existsSync(pathToAppImages)) {
+        mkdirSync(pathToAppImages)
+        console.log("Created appImages Folder")
+    }
+
+    if (!existsSync(pathToConfigFile)) {
+        writeFileSync(pathToConfigFile, JSON.stringify(defaultConfig, null, '\t'))
+        console.log("Created config.json")
+    }
+
+    if (!existsSync(pathToSettingsFile)) {
+        writeFileSync(pathToSettingsFile, JSON.stringify(defaultSettings, null, '\t'))
+        console.log("Created config.json")
+    }
+
+    if (!existsSync(pathToDefaultLocoImage)) {
+        try {
+            cpSync(join(__dirname, 'default.jpg'), pathToDefaultLocoImage)
+        } catch (error) {
+            console.log(error)
+        }
+
+        console.log("Created Default Loco Image")
+    }
+
+    if (!existsSync(join(pathToAppImages, 'locoSideProfile.png'))) {
+        try {
+            cpSync(join(__dirname, 'locoSideProfile.png'), join(pathToAppImages, 'locoSideProfile.png'))
+        } catch (error) {
+            console.log(error)
+        }
+
+        console.log("Created Side Profile Loco Image")
+    }
 }
+checkForFilesAndFolders()
 
 let config = {}
 let settings = {}
 exports.serialPorts = []
 exports.usbConnected = false
+
+let window
+exports.setWindow = (win) => window = win
 
 const readConfig = () => JSON.parse(readFileSync(pathToConfigFile))
 const saveConfig = () => {
@@ -280,14 +287,75 @@ exports.setUSBport = (port) => {
     return settings
 }
 
-const listPorts = () => {
-    SerialPort.list()
-        .then(ports => this.serialPorts = ports)
-        .catch(err => console.error('Error listing ports', err))
+const listPorts = async () => {
+    return new Promise(async (resolve, reject) => {
+        SerialPort.list()
+            .then(ports => resolve(ports))
+            .catch(err => reject('Error listing ports', err))
+    })
 }
-listPorts()
 
-usbDetect.on('add', function (device) { console.log('add', device); });
-usbDetect.on('remove', function (device) { console.log('remove', device); });
+const interfaceIsConfigured = () => {
+    if (settings.usbInterface.type === '' || settings.usbInterface.port === '') {
+        console.log(("No interface specified in settings.config"))
+        return false
+    } else return true
+}
+
+const updatePorts = async () => {
+    return new Promise(async (resolve, reject) => {
+        const ports = await listPorts()
+        if (JSON.stringify(this.serialPorts) !== JSON.stringify(ports)) {
+            this.serialPorts = ports
+            window.webContents.send('serialPorts', this.serialPorts)
+            resolve(true)
+        } else resolve(false)
+    })
+
+}
+
+const ourPortIsAvailable = () => {
+    const portIDX = this.serialPorts.findIndex(port => port.path === settings.usbInterface.port)
+    if (portIDX >= 0) return true
+    return false
+}
+
+const setConnectedStatus = (status) => {
+    console.log("In Send Status", status)
+    this.usbConnected = status
+    window.webContents.send('usbConnection', status)
+    if (!status) messenger.dccInterface = null
+}
+
+const doWeCareAboutThisUSBdevice = async (device) => {
+    if (await updatePorts()) {
+        // if we are already connected all we need to do is send new ports to window
+        if (this.usbConnected) return
+        console.log("USB not already connected")
+        if (ourPortIsAvailable()) messenger.startInterface(settings.usbInterface, setConnectedStatus)
+        else console.log("Didn't Find")
+    }
+}
+
+const bootInterface = async () => {
+    await updatePorts()
+    if (!interfaceIsConfigured()) return
+    if (ourPortIsAvailable()) messenger.startInterface(settings.usbInterface, setConnectedStatus)
+    else console.log("Didn't Find")
+}
+
+const handleRemove = async () => {
+    if (await updatePorts()) {
+        if (!ourPortIsAvailable()) {
+            setConnectedStatus(false)
+        }
+    }
+}
+
+bootInterface()
+
+
+usbDetect.on('add', (device) => doWeCareAboutThisUSBdevice(device));
+usbDetect.on('remove', (device) => handleRemove());
 
 usbDetect.startMonitoring();

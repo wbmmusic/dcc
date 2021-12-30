@@ -1,18 +1,17 @@
 const SerialPort = require('serialport')
 const ByteLength = require('@serialport/parser-byte-length')
-const util = require('../utilities')
 
 class NceUSB {
     constructor(device) {
         this.outBuffer = []
         this.sending = false
         if (device) { Object.assign(this, { ...device }) }
-        
-        this.port = new SerialPort(this.comPort, { baudRate: 9600 })
-        this.port.on('error', (msg) => util.usbConnected = false)
-        this.port.on('open', () => util.usbConnected = true)
-    }
 
+        this.port = new SerialPort(this.comPort, { baudRate: 9600 })
+        this.port.on('error', (msg) => this.status(false))
+        this.port.on('open', () => this.status(true))
+    }
+    closeSerialPort = () => this.port.close()
     info = () => { return { ...this } }
     sendNextInBuffer2 = async () => {
         const cmd = this.outBuffer.shift()
@@ -22,7 +21,7 @@ class NceUSB {
                 break;
 
             case 'asyncSignal':
-                await this.xsendAsyncSignal(cmd.data)
+                await this.sendAsyncSignal(cmd.data)
                 break
 
             case 'opsProgramming':
@@ -57,7 +56,7 @@ class NceUSB {
             this.port.write([0xA2, ...command])
         })
     }
-    xsendAsyncSignal = async (command) => {
+    sendAsyncSignal = async (command) => {
         console.log('sendAsyncSignal')
         const parser = this.port.pipe(new ByteLength({ length: 1 }))
 
