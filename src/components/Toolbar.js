@@ -6,7 +6,7 @@ import USBstatus from './USBstatus';
 export default function Toolbar(props) {
     const navigate = useNavigate()
     const location = useLocation()
-    
+
     const estop = () => {
         console.log('E Stop All')
         for (var i = 0; i < props.locos.length; i++) {

@@ -4,3 +4,20 @@
     padding: 10px;
     box-shadow: 2px 2px 4px lightGrey;
 }
+
+@keyframes warning {
+    from {
+      background-color: rgb(255, 0, 0);
+    }
+  
+    to {
+      background-color: yellow;
+    }
+  }
+
+  .usbError {
+    animation-duration: .5s;
+    animation-name: warning;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+}

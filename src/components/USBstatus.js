@@ -22,19 +22,25 @@ export default function USBstatus() {
     const makeUsbStatus = () => {
         if (isConnected) {
             return (
-                <div style={{ ...usbStyle, color: 'green' }}>
-                    <UsbIcon />
-                </div>
+                <OverlayTrigger
+                    placement='right'
+                    overlay={<Tooltip>USB device connected</Tooltip>}
+                    delay={{ show: 250, hide: 0 }}
+                >
+                    <div style={{ ...usbStyle, color: 'green', backgroundColor: 'white' }}>
+                        <UsbIcon style={{ fontSize: '31px' }} />
+                    </div>
+                </OverlayTrigger>
             )
         } else {
             return (
                 <OverlayTrigger
                     placement='right'
-                    overlay={<Tooltip>No USB device connected</Tooltip>}
+                    overlay={<Tooltip>USB device disconnected</Tooltip>}
                     delay={{ show: 250, hide: 0 }}
                 >
-                    <div style={{ ...usbStyle, color: 'red' }}>
-                        <UsbOffIcon />
+                    <div className='usbError' style={{ ...usbStyle }}>
+                        <UsbOffIcon style={{ fontSize: '31px' }} />
                     </div>
                 </OverlayTrigger>
             )
@@ -50,8 +56,6 @@ export default function USBstatus() {
 
 const usbStyle = {
     marginLeft: '8px',
-    backgroundColor: 'white',
-    padding: '2px',
     borderRadius: '4px',
-    transform: 'rotate(270deg)'
+    transform: 'rotate(90deg)',
 }

@@ -107,6 +107,7 @@ export default function EditDecoder() {
                     <td><b>{i}</b></td>
                     <td>
                         <input
+                            spellCheck="true"
                             placeholder='Enter Function Name'
                             value={func.name}
                             onChange={(e) => {
