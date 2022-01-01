@@ -12,13 +12,24 @@ import { selectStyle } from '../../styles';
 export default function EditConsist() {
     const location = useLocation()
     const navigate = useNavigate()
-    const [consist, setConsist] = useState({ locos: [] })
+    const [consist, setConsist] = useState({ name: '', address: '', locos: [] })
     const [locos, setLocos] = useState([])
+
+    const isCreatable = () => {
+        if (consist.name === '' || consist.address === '' || isNaN(consist.address)) return false
+        else return true
+    }
+
+    const makeTitle = () => {
+        if (location.pathname.includes('new')) return "Create"
+        else if (location.pathname.includes('edit')) return "Edit"
+        else return 'ERROR'
+    }
 
     const makeButtons = () => {
 
         const makeBtn = () => {
-            if (location.pathname.includes('new')) return <Button size="sm">Create Consist</Button>
+            if (location.pathname.includes('new')) return <Button disabled={!isCreatable()} size="sm">Create Consist</Button>
             else if (location.pathname.includes('edit')) return <Button size="sm">Update Consist</Button>
             else return 'ERROR'
         }
@@ -215,12 +226,19 @@ export default function EditConsist() {
     const makeLocoSelectValue = () => {
         let out = []
 
-        consist.locos.forEach(theLoco => {
+        consist.locos.slice().reverse().forEach(theLoco => {
             let loco = locos.find(lco => lco._id === theLoco._id)
             out.push({ label: `${loco.name} ${loco.number}`, value: loco._id })
         })
 
         return out
+    }
+
+    const handleAddressInput = (address) => {
+        const newAddress = parseInt(address)
+        if (newAddress > 127) return 127
+        if (newAddress < 0) return 127
+        return newAddress
     }
 
     useEffect(() => {
@@ -233,7 +251,7 @@ export default function EditConsist() {
 
     return (
         <div>
-            <div><b>Edit Consist</b></div>
+            <div><b>{makeTitle()} Consist</b></div>
             <hr />
             <div>
                 <div style={{ display: 'inline-block' }}>
@@ -242,13 +260,25 @@ export default function EditConsist() {
                             <tr>
                                 <td style={labelStyle}>Name:</td>
                                 <td>
-                                    <input type="text" />
+                                    <input
+                                        placeholder='Consist Name'
+                                        type="text"
+                                        value={consist.name}
+                                        onChange={(e) => setConsist(old => ({ ...old, name: e.target.value }))}
+                                    />
                                 </td>
                             </tr>
                             <tr>
                                 <td style={labelStyle}>Address:</td>
                                 <td>
-                                    <input type="text" />
+                                    <input
+                                        type='number'
+                                        min={0}
+                                        max={127}
+                                        placeholder='0-127'
+                                        value={consist.address}
+                                        onChange={e => setConsist(old => ({ ...old, address: handleAddressInput(e.target.value) }))}
+                                    />
                                 </td>
                             </tr>
                             <tr>
@@ -267,7 +297,6 @@ export default function EditConsist() {
                     </Table>
                 </div>
             </div>
-            <hr />
             <div>
                 <div
                     style={{
