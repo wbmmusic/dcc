@@ -14,6 +14,7 @@ import AccessoryButtons from './accessories/AccessoryButtons';
 import LocoControl from '../modals/LocoControl';
 import Settings from './Settings';
 import { Button } from 'react-bootstrap';
+import ProgrammingTrack from './ProgrammingTrack';
 
 
 export default function AppTop() {
@@ -188,6 +189,7 @@ export default function AppTop() {
                             <Route path="/macros/*" element={<Macros />} />
                             <Route path="/cv/*" element={<CVedit />} />
                             <Route path="/settings" element={<Settings />} />
+                            <Route path="/programming" element={<ProgrammingTrack />} />
                             <Route path="*"
                                 element={
                                     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>

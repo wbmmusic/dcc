@@ -2,8 +2,10 @@ import React, { useEffect, useState } from 'react'
 import UsbIcon from '@mui/icons-material/Usb';
 import UsbOffIcon from '@mui/icons-material/UsbOff';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 
 export default function USBstatus() {
+    const navigate = useNavigate()
     const [isConnected, setIsConnected] = useState(false)
 
     useEffect(() => {
@@ -39,7 +41,11 @@ export default function USBstatus() {
                     overlay={<Tooltip>USB device disconnected</Tooltip>}
                     delay={{ show: 250, hide: 0 }}
                 >
-                    <div className='usbError' style={{ ...usbStyle }}>
+                    <div
+                        className='usbError'
+                        style={{ ...usbStyle, cursor:'pointer' }}
+                        onClick={() => navigate('/settings')}
+                    >
                         <UsbOffIcon style={{ fontSize: '31px' }} />
                     </div>
                 </OverlayTrigger>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Button } from 'react-bootstrap'
+import { Button, Modal } from 'react-bootstrap'
 import Select from 'react-select'
 import { selectStyle } from './../styles'
 
@@ -10,6 +10,7 @@ const ifaceOptions = [
 export default function Settings() {
     const [settings, setSettings] = useState(null)
     const [serialPorts, setSerialPorts] = useState([])
+    const [restoreModal, setRestoreModal] = useState(false)
 
     const makeIfaceValue = () => {
         if (settings !== null) {
@@ -41,12 +42,42 @@ export default function Settings() {
 
     const makePortValue = () => {
         if (settings === null || serialPorts.length <= 0) return null
+        if (settings.usbInterface.port === '') return null
         const portIDX = serialPorts.findIndex(prt => prt.path === settings.usbInterface.port)
         if (portIDX >= 0) {
             const port = serialPorts[portIDX]
             return { label: `${port.path} | SN:${port.serialNumber}`, value: port.path }
+        } else return { label: `! ${settings.usbInterface.port} NOT FOUND !`, value: 'xxx' }
+    }
+
+    const makeRestoreModal = () => {
+        if (restoreModal) {
+            return (
+                <Modal
+                    show={restoreModal}
+                    onHide={() => setRestoreModal(false)}
+                    backdrop="static"
+                    keyboard={false}
+                >
+                    <Modal.Header closeButton>
+                        <Modal.Title>Restore Warning</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <div>All current locomotives, decoders, consists, macros, switches, and images will be lost.</div>
+                        <div><b>If you care about your current configuration you better back it up!!</b></div>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setRestoreModal(false)}>Close</Button>
+                        <Button variant="danger"
+                            onClick={() => {
+                                window.electron.send('restoreConfig')
+                                setRestoreModal(false)
+                            }}
+                        >Proceed to Restore</Button>
+                    </Modal.Footer>
+                </Modal>
+            )
         }
-        return null
     }
 
     useEffect(() => {
@@ -59,7 +90,7 @@ export default function Settings() {
             .catch(err => console.error(err))
 
         window.electron.receive('serialPorts', (ports) => setSerialPorts(ports))
-        
+
         return () => window.electron.removeListener('serialPorts')
     }, [])
 
@@ -72,7 +103,7 @@ export default function Settings() {
                 <div><b>Settings</b></div>
                 <hr />
                 <div>
-                    <div><b>USB</b></div>
+                    <div style={{ marginBottom: '8px' }}><b>USB Interface</b></div>
                     <div style={{ display: 'inline-block', backgroundColor: 'lightGrey', whiteSpace: 'nowrap', borderRadius: '3px' }}>
                         <table cellPadding="3">
                             <tbody>
@@ -104,18 +135,20 @@ export default function Settings() {
                 </div>
                 <hr />
                 <div>
+                    <div style={{ marginBottom: '8px' }}><b>Backup & Restore</b></div>
                     <Button
                         variant='warning'
                         style={{ marginLeft: '8px' }}
                         size="sm"
                         onClick={() => window.electron.send('backupConfig')}
-                    >Backup</Button>
+                    >Backup to file</Button>
                     <Button
                         variant='danger'
                         style={{ marginLeft: '8px' }}
                         size="sm"
-                        onClick={() => window.electron.send('restoreConfig')}
-                    >Restore</Button>
+                        onClick={() => setRestoreModal(true)}
+                    >Restore from file</Button>
+                    {makeRestoreModal()}
                 </div>
             </div>
         </div>

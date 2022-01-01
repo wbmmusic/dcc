@@ -41,7 +41,7 @@ export default function LocoControl({ selectedLoco }) {
 
     }, [selectedLoco])
 
-    useEffect(() => console.log(state), [state])
+    //useEffect(() => console.log(state), [state])
 
     if (state.name === undefined) {
         return (

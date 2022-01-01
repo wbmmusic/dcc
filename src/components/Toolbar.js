@@ -47,10 +47,7 @@ export default function Toolbar(props) {
     return (
         <div style={barStyle}>
             <div
-                style={{
-                    display: 'inline-block',
-                    whiteSpace: 'nowrap'
-                }}
+                style={{ display: 'inline-block', whiteSpace: 'nowrap' }}
                 onMouseDown={() => estop()}
             >
                 <Button style={{ width: '150px' }} variant='danger' size="sm">E-STOP ALL</Button>
@@ -73,7 +70,8 @@ export default function Toolbar(props) {
                             <Dropdown.Item onClick={() => navigate('/switches')} >Switches</Dropdown.Item>
                             <Dropdown.Item onClick={() => navigate('/accessories')} >Accessories</Dropdown.Item>
                             <Dropdown.Item onClick={() => navigate('/macros')} >Macros</Dropdown.Item>
-                            <Dropdown.Item onClick={() => navigate('/cv')} >CVs</Dropdown.Item>
+                            <Dropdown.Item onClick={() => navigate('/cv')} >CV programmer</Dropdown.Item>
+                            <Dropdown.Item onClick={() => navigate('/programming')} >Programming Track</Dropdown.Item>
                         </Dropdown.Menu>
                     </Dropdown>
                 </div>

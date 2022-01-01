@@ -152,3 +152,52 @@ exports.setCV = (address, cv, value) => {
     })
 
 }
+
+
+// PROGRAMMING
+exports.enableProgrammingTrack = async () => {
+    return new Promise((resolve, reject) => {
+        const trackStatus = (state) => {
+            this.programmingTrackEnabled = state
+            resolve(state)
+        }
+
+        dccInterface.sendMSG({
+            type: 'enableProgrammingTrack',
+            data: null,
+            callback: trackStatus
+        })
+
+    })
+}
+
+exports.disableProgrammingTrack = async () => {
+    return new Promise((resolve, reject) => {
+        const trackStatus = (state) => {
+            this.programmingTrackEnabled = state
+            resolve(state)
+        }
+
+        dccInterface.sendMSG({
+            type: 'disableProgrammingTrack',
+            data: null,
+            callback: trackStatus
+        })
+
+    })
+}
+
+exports.getProgrammingTrackStatus = () => dccInterface.programmingTrackEnabled
+
+exports.readCvPrg = async (cv) => {
+    return new Promise((resolve, reject) => {
+        const cvVal = (state) => resolve(state)
+
+        dccInterface.sendMSG({
+            type: 'readCvPrg',
+            data: [...getAddressBytes(cv, true)],
+            callback: cvVal
+        })
+
+    })
+}

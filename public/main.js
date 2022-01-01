@@ -7,7 +7,7 @@ const util = require('./utilities');
 const { Locomotive } = require('./locomotive');
 const { Switch } = require('./switches');
 const { Accessory } = require('./accessory');
-const { setCV } = require('./messenger')
+const { setCV, getProgrammingTrackStatus, enableProgrammingTrack, disableProgrammingTrack, readCvPrg } = require('./messenger')
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -66,9 +66,7 @@ app.on('ready', () => {
       ipcMain.on('installUpdate', () => autoUpdater.quitAndInstall())
 
       autoUpdater.checkForUpdates()
-      setInterval(() => {
-        autoUpdater.checkForUpdates()
-      }, 1000 * 60 * 60);
+      setInterval(() => autoUpdater.checkForUpdates(), 1000 * 60 * 60);
     }
 
   })
@@ -169,6 +167,7 @@ app.on('ready', () => {
   // CONFIG
   ipcMain.on('backupConfig', async () => {
     let file = await dialog.showSaveDialog(win, {
+      title: 'Backup config to file',
       filters: [
         {
           name: 'dccConfig',
@@ -186,9 +185,9 @@ app.on('ready', () => {
       }
     } else return "canceled"
   })
-
   ipcMain.on('restoreConfig', async () => {
     let file = await dialog.showOpenDialog(win, {
+      title: 'Restore from file',
       filters: [
         {
           name: 'dccConfig',
@@ -213,6 +212,19 @@ app.on('ready', () => {
 
   ipcMain.handle('fireMacro', (e, macroNumber) => handleMacro(macroNumber)
   )
+
+
+  // PROGRAMMING TRACK
+  ipcMain.handle('getProgrammingTrackStatus', () => getProgrammingTrackStatus())
+  ipcMain.handle('setProgrammingTrack', async (e, state) => {
+    if (!util.usbConnected) return false
+    if (getProgrammingTrackStatus() === state) return state
+    if (state) return await enableProgrammingTrack()
+    else return await disableProgrammingTrack()
+  })
+  ipcMain.handle('readCvPrg', async (e, cv) => await readCvPrg(cv))
+
+
 
 
   // ACCESSORIES

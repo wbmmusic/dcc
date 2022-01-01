@@ -42,7 +42,7 @@ export default function CVedit() {
     return (
         <div style={{ padding: '10px' }}>
             <div className='pageContainer'>
-                <div><b>CV Programmer</b></div>
+                <div><b>Main Track CV Programmer</b></div>
                 <hr />
                 <div>
                     <Table size='sm'>
@@ -66,6 +66,7 @@ export default function CVedit() {
                                         type="number"
                                         min={0}
                                         max={255}
+                                        placeholder='CV#'
                                         value={state.cv}
                                         onChange={(e) => setState(old => ({ ...old, cv: parseInt(e.target.value) }))}
                                     />
@@ -79,6 +80,7 @@ export default function CVedit() {
                                         min={0}
                                         max={255}
                                         value={state.value}
+                                        placeholder='CV val'
                                         onChange={(e) => setState(old => ({ ...old, value: parseInt(e.target.value) }))}
                                     />
                                 </td>
