@@ -10,7 +10,7 @@ import Select from 'react-select';
 import { selectStyle } from '../../styles';
 
 export default function EditConsist() {
-    const location = useLocation()
+    const location = useLocation() 
     const navigate = useNavigate()
     const consistID = useParams().consistID
 
