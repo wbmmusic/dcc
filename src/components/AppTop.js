@@ -22,35 +22,9 @@ export default function AppTop() {
     const [state, setState] = useState({ selectedLoco: 0, activeTrack: 0, showAll: false, locos: [] })
 
     useEffect(() => {
-        let tempLocos = state.locos
-        for (var locoNum = 0; locoNum < state.locos.length; locoNum++) {
-            var tempFunState = []
-            for (var i = 0; i < 32; i++) { tempFunState[i] = false }
-            tempLocos[locoNum].functionState = tempFunState
-        }
-
-        // Get Locos here
         window.electron.ipcRenderer.invoke('getLocomotives')
-            .then(theLocos => {
-                const makeLocos = (xLocos) => {
-                    let locos = JSON.parse(JSON.stringify(xLocos))
-
-                    for (let i = 0; i < locos.length; i++) {
-                        locos[i].functionState = [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false]
-                    }
-                    return locos
-                }
-
-                setState(old => ({ ...old, locos: makeLocos(theLocos) }))
-            })
+            .then(theLocos => setState(old => ({ ...old, locos: theLocos })))
             .catch(err => console.log(err))
-
-        let tempState = { ...state }
-        tempState.locos = tempLocos
-        setState(tempState)
-
-        return () => {
-        }
     }, [])
 
     const setTrack = (track) => {
@@ -89,9 +63,6 @@ export default function AppTop() {
 
     const makeLocoIcons = () => {
         let locoIcons = []
-        //console.log('START')
-        //console.log(locoIcons.length)
-        //console.log(locoIcons)
 
         if (state.locos.length <= 0) return (
             <div style={{ width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
@@ -101,16 +72,9 @@ export default function AppTop() {
         )
 
         for (var i = 0; i < state.locos.length; i++) {
-            //console.log('Look Here ' + i)
-
             var color = 'lightgrey'
-            if (i === state.selectedLoco) {
-                color = '#3498DB'
-            }
-
-            if (state.locos[i].hidden) {
-                color = '#D98880'
-            }
+            if (i === state.selectedLoco) color = '#3498DB'
+            if (state.locos[i].hidden) color = '#D98880'
 
             var tempKey = "LocoIcon" + i
 
@@ -131,11 +95,8 @@ export default function AppTop() {
 
         let btnLbl
 
-        if (state.showAll) {
-            btnLbl = "Hide Locos"
-        } else {
-            btnLbl = "Show All Locos"
-        }
+        if (state.showAll) btnLbl = "Hide Locos"
+        else btnLbl = "Show All Locos"
 
         var isOneHidden = false
         for (var locoCnt = 0; locoCnt < state.locos.length; locoCnt++) {
@@ -162,9 +123,7 @@ export default function AppTop() {
                     }}
                         onMouseDown={handleToggleHidden}
                     >
-                        <div>
-                            {btnLbl}
-                        </div>
+                        <div>{btnLbl}</div>
                     </div>
                 </div>
             )

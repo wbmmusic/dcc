@@ -112,6 +112,22 @@ exports.updateConsist = (updatedConsist) => {
         return config.consists[consistIDX]
     } else return new Error("Couldn't Update Consist with this ID")
 }
+exports.deleteConsist = (id) => {
+    const consistIDX = config.consists.findIndex(consist => consist._id === id)
+    if (consistIDX !== -1) {
+        config.consists.splice(consistIDX, 1)
+        saveConfig()
+        return config.consists
+    } else return new Error("Couldn't Delete Consist with this ID")
+}
+exports.toggleConsist = (id) => {
+    const consistIDX = config.consists.findIndex(consist => consist._id === id)
+    if (consistIDX !== -1) {
+        config.consists[consistIDX].enabled = !config.consists[consistIDX].enabled
+        saveConfig()
+        return config.consists
+    } else return new Error("Couldn't Toggle Consist with this ID")
+}
 
 // DECODERS
 exports.newDecoder = decoder => {

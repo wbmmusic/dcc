@@ -10,7 +10,7 @@ import Select from 'react-select';
 import { selectStyle } from '../../styles';
 
 export default function EditConsist() {
-    const location = useLocation() 
+    const location = useLocation()
     const navigate = useNavigate()
     const consistID = useParams().consistID
 
@@ -38,6 +38,7 @@ export default function EditConsist() {
     const handleCreateConsist = () => {
         window.electron.ipcRenderer.invoke('createConsist', {
             _id: window.electron.uuid(),
+            enabled: true,
             ...consist
         })
             .then(res => navigate('/consists'))
@@ -284,7 +285,7 @@ export default function EditConsist() {
         }
     }, [])
 
-    useEffect(() => console.log(consist), [consist])
+    //useEffect(() => console.log(consist), [consist])
 
     return (
         <div>
