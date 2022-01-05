@@ -38,7 +38,7 @@ export default function EditConsist() {
     const handleCreateConsist = () => {
         window.electron.ipcRenderer.invoke('createConsist', {
             _id: window.electron.uuid(),
-            enabled: true,
+            enabled: false,
             ...consist
         })
             .then(res => navigate('/consists'))

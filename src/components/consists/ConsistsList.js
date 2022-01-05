@@ -8,8 +8,34 @@ import DeleteForeverTwoToneIcon from '@mui/icons-material/DeleteForeverTwoTone';
 export default function ConsistsList() {
     const navigate = useNavigate()
     const [consists, setConsists] = useState([])
+    const [locos, setLocos] = useState([])
     const defaultDeleteModal = { show: false, id: '' }
     const [deleteModal, setDeleteModal] = useState(defaultDeleteModal)
+
+    const toggleConsist = (id) => {
+        window.electron.ipcRenderer.invoke('toggleConsist', id)
+            .then(res => setConsists(res))
+            .catch(err => console.error(err))
+    }
+
+    const getLocoName = (id) => {
+        const locoIDX = locos.findIndex(loco => loco._id === id)
+        if (locoIDX !== -1) {
+            return `${locos[locoIDX].name} ${locos[locoIDX].number}`
+        } else return 'ERROR'
+    }
+
+    const makeLocoNames = (theLocos) => {
+        let out = []
+        theLocos.forEach((loco, i) => {
+            out.push(
+                <div key={`locoInTbl${i}`}>
+                    {getLocoName(loco._id)}
+                </div>
+            )
+        })
+        return out
+    }
 
     const makeConsists = () => {
         let out = []
@@ -21,11 +47,7 @@ export default function ConsistsList() {
                         <input
                             type="checkbox"
                             checked={consist.enabled}
-                            onClick={() => {
-                                window.electron.ipcRenderer.invoke('toggleConsist', consist._id)
-                                    .then(res => setConsists(res))
-                                    .catch(err => console.error(err))
-                            }}
+                            onChange={() => toggleConsist(consist._id)}
                         />
                     </td>
                     <td>
@@ -34,6 +56,7 @@ export default function ConsistsList() {
                     <td>
                         {consist.address}
                     </td>
+                    <td>{makeLocoNames(consist.locos)}</td>
                     <td>
                         <div
                             style={{ display: 'inline-block', cursor: 'pointer' }}
@@ -96,6 +119,10 @@ export default function ConsistsList() {
         window.electron.ipcRenderer.invoke('getConsists')
             .then(res => setConsists(res))
             .catch(err => console.error(err))
+
+        window.electron.ipcRenderer.invoke('getLocomotives')
+            .then(res => setLocos(res))
+            .catch(err => console.error(err))
     }, [])
 
     return (
@@ -116,6 +143,7 @@ export default function ConsistsList() {
                             <th>En</th>
                             <th>Name</th>
                             <th>Address</th>
+                            <th>Locos</th>
                             <th>Edit</th>
                             <th>Delete</th>
                         </tr>

@@ -19,11 +19,15 @@ import ProgrammingTrack from './ProgrammingTrack';
 
 export default function AppTop() {
     const navigate = useNavigate()
-    const [state, setState] = useState({ selectedLoco: 0, activeTrack: 0, showAll: false, locos: [] })
+    const [state, setState] = useState({ selectedLoco: 0, activeTrack: 0, showAll: false, locos: [], consists: [] })
 
     useEffect(() => {
         window.electron.ipcRenderer.invoke('getLocomotives')
             .then(theLocos => setState(old => ({ ...old, locos: theLocos })))
+            .catch(err => console.log(err))
+
+        window.electron.ipcRenderer.invoke('getConsists')
+            .then(theConsists => setState(old => ({ ...old, consists: theConsists })))
             .catch(err => console.log(err))
     }, [])
 
