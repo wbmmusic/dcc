@@ -44,11 +44,20 @@ export default function EditConsist() {
             .catch(err => console.log(err))
     }
 
+    const handleUpdateConsist = () => {
+        window.electron.ipcRenderer.invoke('updateConsist', consist)
+            .then(res => {
+                setConsist(res)
+                setOgConsist(res)
+            })
+            .catch(err => console.log(err))
+    }
+
     const makeButtons = () => {
 
         const makeBtn = () => {
             if (location.pathname.includes('new')) return <Button disabled={!isCreatable()} size="sm" onClick={handleCreateConsist}>Create Consist</Button>
-            else if (location.pathname.includes('edit')) return <Button disabled={!isUpdatable()} size="sm">Update Consist</Button>
+            else if (location.pathname.includes('edit')) return <Button disabled={!isUpdatable()} size="sm" onClick={handleUpdateConsist}>Update Consist</Button>
             else return 'ERROR'
         }
 

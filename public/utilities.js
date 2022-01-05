@@ -104,6 +104,14 @@ exports.getConsistById = (id) => {
     if (consistIDX !== -1) return config.consists[consistIDX]
     else return new Error("Couldn't Find Consist with this ID")
 }
+exports.updateConsist = (updatedConsist) => {
+    const consistIDX = config.consists.findIndex(consist => consist._id === updatedConsist._id)
+    if (consistIDX !== -1) {
+        config.consists[consistIDX] = updatedConsist
+        saveConfig()
+        return config.consists[consistIDX]
+    } else return new Error("Couldn't Update Consist with this ID")
+}
 
 // DECODERS
 exports.newDecoder = decoder => {

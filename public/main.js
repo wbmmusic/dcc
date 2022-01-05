@@ -109,6 +109,7 @@ app.on('ready', () => {
   ipcMain.handle('getConsists', () => util.config.consists)
   ipcMain.handle('createConsist', (e, newConsist) => util.createConsist(newConsist))
   ipcMain.handle('getConsistByID', (e, id) => util.getConsistById(id))
+  ipcMain.handle('updateConsist', (e, updatedConsist) => util.updateConsist(updatedConsist))
 
   // DECODERS
   ipcMain.handle('getDecoders', () => util.config.decoders)
