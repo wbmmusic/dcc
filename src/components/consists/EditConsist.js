@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect, useState } from 'react'
 import { Button, Table } from 'react-bootstrap'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import ArrowForwardTwoToneIcon from '@mui/icons-material/ArrowForwardTwoTone';
 import SwapHorizTwoToneIcon from '@mui/icons-material/SwapHorizTwoTone';
 import ClearTwoToneIcon from '@mui/icons-material/ClearTwoTone';
@@ -12,12 +12,21 @@ import { selectStyle } from '../../styles';
 export default function EditConsist() {
     const location = useLocation()
     const navigate = useNavigate()
+    const consistID = useParams().consistID
+
     const [consist, setConsist] = useState({ name: '', address: '', locos: [] })
+    const [ogConsist, setOgConsist] = useState()
     const [locos, setLocos] = useState([])
 
     const isCreatable = () => {
         if (consist.name === '' || consist.address === '' || isNaN(consist.address)) return false
         else return true
+    }
+
+    const isUpdatable = () => {
+        if (!isCreatable()) return false
+        if (JSON.stringify(ogConsist) === JSON.stringify(consist)) return false
+        return true
     }
 
     const makeTitle = () => {
@@ -26,11 +35,20 @@ export default function EditConsist() {
         else return 'ERROR'
     }
 
+    const handleCreateConsist = () => {
+        window.electron.ipcRenderer.invoke('createConsist', {
+            _id: window.electron.uuid(),
+            ...consist
+        })
+            .then(res => navigate('/consists'))
+            .catch(err => console.log(err))
+    }
+
     const makeButtons = () => {
 
         const makeBtn = () => {
-            if (location.pathname.includes('new')) return <Button disabled={!isCreatable()} size="sm">Create Consist</Button>
-            else if (location.pathname.includes('edit')) return <Button size="sm">Update Consist</Button>
+            if (location.pathname.includes('new')) return <Button disabled={!isCreatable()} size="sm" onClick={handleCreateConsist}>Create Consist</Button>
+            else if (location.pathname.includes('edit')) return <Button disabled={!isUpdatable()} size="sm">Update Consist</Button>
             else return 'ERROR'
         }
 
@@ -245,6 +263,16 @@ export default function EditConsist() {
         window.electron.ipcRenderer.invoke('getLocomotives')
             .then(res => setLocos(res))
             .catch(err => console.error(err))
+
+        if (location.pathname.includes('/edit')) {
+            console.log(consistID)
+            window.electron.ipcRenderer.invoke('getConsistByID', consistID)
+                .then(res => {
+                    setConsist(res)
+                    setOgConsist(res)
+                })
+                .catch(err => console.error(err))
+        }
     }, [])
 
     useEffect(() => console.log(consist), [consist])

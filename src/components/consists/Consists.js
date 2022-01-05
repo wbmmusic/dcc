@@ -17,7 +17,7 @@ export default function Consists() {
         >
             <Routes>
                 <Route path="/new" element={<EditConsist />} />
-                <Route path="/edit" element={<EditConsist />} />
+                <Route path="/edit/:consistID" element={<EditConsist />} />
                 <Route path="*" element={<ConsistsList />} />
             </Routes>
         </div>

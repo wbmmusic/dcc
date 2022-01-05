@@ -93,10 +93,23 @@ settings = readSettings()
 exports.config = config
 exports.settings = settings
 
+// CONSISTS
+exports.createConsist = (newConsist) => {
+    config.consists.push(newConsist)
+    saveConfig()
+    return 'created'
+}
+exports.getConsistById = (id) => {
+    const consistIDX = config.consists.findIndex(consist => consist._id === id)
+    if (consistIDX !== -1) return config.consists[consistIDX]
+    else return new Error("Couldn't Find Consist with this ID")
+}
+
 // DECODERS
 exports.newDecoder = decoder => {
     config.decoders.push(decoder)
     saveConfig()
+    return 'created'
 }
 exports.deleteDecoder = id => {
     config.decoders = config.decoders.filter(dcdr => dcdr._id !== id)

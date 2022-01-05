@@ -17,6 +17,21 @@ let locoObjects = []
 let switchObjects = []
 let accessoryObjects = []
 
+// SECOND INSTANCE
+const gotTheLock = app.requestSingleInstanceLock()
+if (!gotTheLock) {
+  app.quit()
+} else {
+  app.on('second-instance', () => {
+    // Someone tried to run a second instance, we should focus our window.
+    if (win) {
+      if (win.isMinimized()) win.restore()
+      win.focus()
+    }
+  })
+}
+// END SECOND INSTANCE
+
 
 const createWindow = () => {
   // Create the browser window.
@@ -92,13 +107,12 @@ app.on('ready', () => {
 
   // CONSISTS
   ipcMain.handle('getConsists', () => util.config.consists)
+  ipcMain.handle('createConsist', (e, newConsist) => util.createConsist(newConsist))
+  ipcMain.handle('getConsistByID', (e, id) => util.getConsistById(id))
 
   // DECODERS
   ipcMain.handle('getDecoders', () => util.config.decoders)
-  ipcMain.handle('createDecoder', (e, decoder) => {
-    util.newDecoder(decoder)
-    return "Created"
-  })
+  ipcMain.handle('createDecoder', (e, decoder) => util.newDecoder(decoder))
   ipcMain.handle('deleteDecoder', (e, decoderID) => util.deleteDecoder(decoderID))
   ipcMain.handle('getDecoderById', (e, id) => util.getDecoderByID(id))
   ipcMain.handle('updateDecoder', (e, updatedDecoder) => util.updateDecoder(updatedDecoder))
@@ -266,11 +280,11 @@ app.on('ready', () => {
 
 app.whenReady().then(() => {
   protocol.registerFileProtocol('loco', (request, callback) => {
-    callback({ path: normalize(`${util.pathToImages}/${request.url.substr(6)}`) })
+    callback({ path: normalize(`${util.pathToImages}/${request.url.substring(6)}`) })
   })
 
   protocol.registerFileProtocol('aimg', (request, callback) => {
-    callback({ path: normalize(`${util.pathToAppImages}/${request.url.substr(6)}`) })
+    callback({ path: normalize(`${util.pathToAppImages}/${request.url.substring(6)}`) })
   })
 
   // IMPORTANT /////////////////////////////////////////////////////////////////////////////////////////////////
