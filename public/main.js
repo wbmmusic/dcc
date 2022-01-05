@@ -291,6 +291,9 @@ app.whenReady().then(() => {
   util.config.locos.forEach(loco => locoObjects.push({ id: loco._id, loco: new Locomotive({ loco: loco }) }))
   util.config.switches.forEach(switchh => switchObjects.push({ id: switchh._id, switch: new Switch({ ...switchh }) }))
   util.config.accessories.forEach(acc => accessoryObjects.push({ id: acc._id, accessory: new Accessory({ ...acc }) }))
+
+
+  app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow() })
 })
 
 // Quit when all windows are closed.
@@ -300,5 +303,3 @@ app.on('window-all-closed', () => {
     app.quit()
   }
 })
-
-app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow() })
