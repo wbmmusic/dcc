@@ -51,9 +51,7 @@ export default function Updates() {
         window.electron.receive('updater', (a, b) => {
             if (a === 'checking-for-update') console.log("Checking For Update")
             else if (a === 'update-not-available') console.log("Up to date: v" + b.version)
-            else if (a === 'update-available') {
-                setDownloadSnack(old => ({ show: true, progress: 0 }))
-            }
+            else if (a === 'update-available') setDownloadSnack(old => ({ show: true, progress: 0 }))
             else if (a === 'download-progress') {
                 console.log("Downloading", Math.round(b.percent) + "%")
                 setDownloadSnack(old => ({ ...old, progress: Math.round(b.percent) }))
@@ -67,14 +65,7 @@ export default function Updates() {
             else console.log(a, b)
         })
 
-        window.electron.receive('app_version', (version) => {
-            window.electron.removeListener('app_version');
-            document.title = 'LED File Maker --- v' + version;
-        });
-
-        return () => {
-            window.electron.removeListener('updater')
-        }
+        return () => window.electron.removeListener('updater')
     }, [])
 
     return (

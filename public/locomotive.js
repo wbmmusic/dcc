@@ -100,14 +100,6 @@ class Locomotive {
             });
         }
 
-        /*
-                const startUrl = process.env.ELECTRON_START_URL + "#/modal/throttle" || url.format({
-                    pathname: join(__dirname, '/../build/index.html'),
-                    protocol: 'file:',
-                    slashes: true,
-                    hash: '#/modal/throttle'
-                });
-                */
         console.log("Start url=", startUrl)
         this.window.loadURL(startUrl);
 
@@ -118,7 +110,6 @@ class Locomotive {
                 window.webContents.send('throttleUpdate', idx)
                 lastRes = JSON.stringify(res)
             }
-
             return res
         })
 

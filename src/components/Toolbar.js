@@ -1,61 +1,50 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button, Dropdown } from 'react-bootstrap'
 import { useLocation, useNavigate } from 'react-router-dom'
 import USBstatus from './USBstatus';
 
-export default function Toolbar(props) {
+export default function Toolbar() {
     const navigate = useNavigate()
     const location = useLocation()
-
-    const estop = () => {
-        console.log('E Stop All')
-        for (var i = 0; i < props.locos.length; i++) {
-            var addressBytes = getAddressBytes(props.locos[i].address)
-            window.electron.send('send-serial', [0xA2, addressBytes[0], addressBytes[1], 5, 0])
-        }
-
-        props.setAllStopped()
-    }
-
-    const getAddressBytes = (tempAddress) => {
-        var address = tempAddress
-
-        console.log("Address = " + address)
-
-        var lowByte = address & 0xff
-        var highByte = (address >> 8) & 0xff
-        var highBytex = highByte | 0xC0
-
-        let output = [highBytex, lowByte]
-
-        return output
-    }
+    const [windowsAreOpen, setWindowsAreOpen] = useState(false)
 
     const makeHomeBtn = () => {
         if (location.pathname !== '/') return <Button style={{ marginLeft: '8px' }} size="sm" onClick={() => navigate('/')} >Home</Button>
     }
 
+    const makeCloseThrottlesBtn = () => {
+        if (windowsAreOpen) {
+            return (
+                <Button
+                    variant='warning'
+                    style={{ marginLeft: '8px' }}
+                    size="sm"
+                    onClick={() => window.electron.send('closeThrottles')}
+                >
+                    Close Throttles
+                </Button>
+            )
+        }
+    }
 
     useEffect(() => {
-        window.electron.receive('eStopAll', () => estop())
+        window.electron.receive('throttlesClosed', () => setWindowsAreOpen(false))
+        window.electron.receive('throttlesOpen', () => setWindowsAreOpen(true))
 
         return () => {
-            window.electron.removeListener('eStopAll')
+            window.electron.removeListener('throttlesClosed')
+            window.electron.removeListener('throttlesOpen')
         }
     }, [])
 
     return (
         <div style={barStyle}>
-            <div
-                style={{ display: 'inline-block', whiteSpace: 'nowrap' }}
-                onMouseDown={() => estop()}
-            >
-                <Button style={{ width: '150px' }} variant='danger' size="sm">E-STOP ALL</Button>
-            </div>
+
+            <Button style={{ width: '150px' }} variant='danger' size="sm">E-STOP ALL</Button>
             <USBstatus />
             <div style={{ textAlign: 'right', width: '100%', display: 'flex', justifyContent: 'right', alignItems: 'center' }}>
                 {makeHomeBtn()}
-                <Button variant='warning' style={{ marginLeft: '8px' }} size="sm" onClick={() => window.electron.send('closeThrottles')} >Close All</Button>
+                {makeCloseThrottlesBtn()}
                 <div style={{ display: 'inline-block' }}>
                     <Dropdown style={{ marginLeft: '8px' }}>
                         <Dropdown.Toggle size="sm" variant="primary" id="dropdown-basic">

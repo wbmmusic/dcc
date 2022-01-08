@@ -102,7 +102,7 @@ export default function EditLocomotive() {
 
         return (
             <div style={{ textAlign: 'right', marginTop: '10px' }}>
-                <Button size='sm' onClick={() => navigate(-1)} >Cancel</Button>
+                <Button variant="secondary" size='sm' onClick={() => navigate(-1)} >Close</Button>
                 <div style={{ display: 'inline-block', width: '8px' }} />
                 {makeSaveUpdate()}
             </div>

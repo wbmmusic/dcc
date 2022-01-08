@@ -1,10 +1,11 @@
 import React from 'react'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
-import { overlayDelay } from '../settings'
+import { overlayDelay } from '../../settings'
 import StopCircleTwoToneIcon from '@mui/icons-material/StopCircleTwoTone';
 import SettingsTwoToneIcon from '@mui/icons-material/SettingsTwoTone';
 import ArrowForwardIosTwoToneIcon from '@mui/icons-material/ArrowForwardIosTwoTone';
 import ArrowBackIosNewTwoToneIcon from '@mui/icons-material/ArrowBackIosNewTwoTone';
+import OpenInNewTwoToneIcon from '@mui/icons-material/OpenInNewTwoTone';
 import { useNavigate } from 'react-router-dom';
 const join = window.electron.join
 
@@ -14,16 +15,11 @@ export default function LocoIcon(props) {
 
     const getAddressBytes = () => {
         var address = props.loco.address
-
         console.log("Address = " + address)
-
         var lowByte = address & 0xff
         var highByte = (address >> 8) & 0xff
         var highBytex = highByte | 0xC0
-
-        let output = [highBytex, lowByte]
-
-        return output
+        return [highBytex, lowByte]
     }
 
     const settings = () => {
@@ -31,18 +27,9 @@ export default function LocoIcon(props) {
         navigate('/locomotives/edit/' + props.loco._id)
     }
 
-    const selectThisLoco = () => {
-        //console.log('SELECT idx:' + props.index + ' ' + props.loco.name + ' ' + props.loco.number)
-        props.selected(props.index)
-    }
-
-    const moveLeft = () => {
-        console.log('Move LocoIcon Left')
-    }
-
-    const moveRight = () => {
-        console.log('Move LocoIcon Right')
-    }
+    const selectThisLoco = () => props.selected(props.index)
+    const moveLeft = () => console.log('Move LocoIcon Left')
+    const moveRight = () => console.log('Move LocoIcon Right')
 
     const estop = () => {
         console.log('E-STOP')
@@ -54,10 +41,7 @@ export default function LocoIcon(props) {
 
     let leftButton = (
         <OverlayTrigger delay={overlayDelay} overlay={<Tooltip id="tooltip-disabled">Move left</Tooltip>}>
-            <div
-                style={iconDivStyle}
-                onMouseDown={moveLeft}
-            >
+            <div style={iconDivStyle} onMouseDown={moveLeft}>
                 <ArrowBackIosNewTwoToneIcon style={iconStyle} />
             </div>
         </OverlayTrigger>
@@ -65,10 +49,7 @@ export default function LocoIcon(props) {
 
     let rightButton = (
         <OverlayTrigger delay={overlayDelay} overlay={<Tooltip id="tooltip-disabled">Move right</Tooltip>}>
-            <div
-                style={iconDivStyle}
-                onMouseDown={moveRight}
-            >
+            <div style={iconDivStyle} onMouseDown={moveRight}>
                 <ArrowForwardIosTwoToneIcon style={iconStyle} />
             </div>
         </OverlayTrigger>
@@ -78,19 +59,15 @@ export default function LocoIcon(props) {
     if (props.index >= props.numberOfLocos) rightButton = ''
 
     return (
-        <div
-            style={iconContainerStyle}
-            onMouseDown={selectThisLoco}
-            onDoubleClick={() => openThrottle(props.loco._id)}
-        >
+        <div style={iconContainerStyle}>
             <div style={{ backgroundColor: props.color }}>
                 <table style={{ width: '100%' }} cellSpacing={0}>
                     <tbody>
                         <tr>
                             <td style={topBarCell}>
-                                <OverlayTrigger delay={overlayDelay} overlay={<Tooltip id="tooltip-disabled">E Stop</Tooltip>}>
-                                    <div style={{ ...iconDivStyle, color: 'red' }} onMouseDown={estop}>
-                                        <StopCircleTwoToneIcon style={iconStyle} />
+                                <OverlayTrigger delay={overlayDelay} overlay={<Tooltip id="tooltip-disabled">Open Throttle Window</Tooltip>}>
+                                    <div style={iconDivStyle} onMouseDown={() => openThrottle(props.loco._id)} >
+                                        <OpenInNewTwoToneIcon style={iconStyle} />
                                     </div>
                                 </OverlayTrigger>
                             </td>
@@ -107,7 +84,11 @@ export default function LocoIcon(props) {
                     </tbody>
                 </table>
             </div>
-            <div style={{ cursor: 'pointer', fontSize: '10px', textAlign: 'left' }}>
+            <div
+                style={{ cursor: 'pointer', fontSize: '10px', textAlign: 'left' }}
+                onMouseDown={selectThisLoco}
+                onDoubleClick={() => openThrottle(props.loco._id)}
+            >
                 <div style={{ padding: '0px 3px', overflow: 'hidden', }}>{props.loco.name}</div>
                 <div style={{ padding: '0px 3px', marginBottom: '3px', }}><b>{props.loco.number}</b></div>
                 <div

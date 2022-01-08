@@ -9,19 +9,17 @@ const { Switch } = require('./switches');
 const { Accessory } = require('./accessory');
 const { setCV, getProgrammingTrackStatus, enableProgrammingTrack, disableProgrammingTrack, readCvPrg } = require('./messenger')
 
-// Keep a global reference of the window object, if you don't, the window will
-// be closed automatically when the JavaScript object is garbage collected.
 let win
 let port
 let locoObjects = []
 let switchObjects = []
 let accessoryObjects = []
 
+
 // SECOND INSTANCE
 const gotTheLock = app.requestSingleInstanceLock()
-if (!gotTheLock) {
-  app.quit()
-} else {
+if (!gotTheLock) app.quit()
+else {
   app.on('second-instance', () => {
     // Someone tried to run a second instance, we should focus our window.
     if (win) {
@@ -41,7 +39,7 @@ const createWindow = () => {
     icon: __dirname + '/icon.ico',
     autoHideMenuBar: true,
     show: false,
-    title: 'Big D\'s Railroad --- v' + app.getVersion(),
+    title: 'Big D\'s Railroad v' + app.getVersion(),
     webPreferences: {
       preload: join(__dirname, 'preload.js')
     }
@@ -60,6 +58,17 @@ const createWindow = () => {
   win.on('ready-to-show', () => win.show())
 
   util.setWindow(win)
+}
+
+const checkIfAllThrottlesAreClosed = () => {
+  console.log("IN DIS")
+  let allAreClosed = true
+
+  locoObjects.forEach(loco => {
+    if (loco.window !== null) allAreClosed = false
+  })
+
+  if (!allAreClosed) win.webContents.send('throttlesClosed')
 }
 
 app.on('ready', () => {
@@ -87,8 +96,6 @@ app.on('ready', () => {
   })
 
   createWindow()
-
-  //console.log(port)
 
   const setSwitch = (id, action) => {
     const switchIDX = switchObjects.findIndex(swh => swh.id === id)
@@ -153,21 +160,27 @@ app.on('ready', () => {
   ipcMain.handle('updateLocomotive', (e, editedLoco) => util.updateLoco(editedLoco))
   ipcMain.handle('deleteLocomotive', (e, id) => util.deleteLoco(id))
   ipcMain.handle('getLocomotiveById', (e, id) => util.getLocoByID(id))
-  ipcMain.on('newThrottle', (e, id) => {
-    console.log("NEW THROTTLE")
-    const locoIdx = locoObjects.findIndex(loco => loco.id === id)
-    if (locoIdx >= 0) locoObjects[locoIdx].loco.showThrottle(win, locoIdx)
-    else return new Error("THROTTLE ERROR")
-  })
+
+  // THROTTLES
   ipcMain.handle('mainWindowThrottle', (e, locoIdx, action, data) => {
     const res = locoObjects[locoIdx].loco.handleThrottleCommand(action, data)
     if (locoObjects[locoIdx].loco.window !== null) locoObjects[locoIdx].loco.window.webContents.send('modalThrottleUpdate')
     return res
   })
+  ipcMain.on('newThrottle', (e, id) => {
+    console.log("NEW THROTTLE")
+    const locoIdx = locoObjects.findIndex(loco => loco.id === id)
+    if (locoIdx >= 0) {
+      locoObjects[locoIdx].loco.showThrottle(win, locoIdx)
+      win.webContents.send('throttlesOpen')
+    }
+    else return new Error("THROTTLE ERROR")
+  })
   ipcMain.on('closeThrottles', () => {
     locoObjects.forEach(obj => {
       if (obj.loco.window !== null) obj.loco.closeThrottle()
     })
+    checkIfAllThrottlesAreClosed()
   })
 
 
@@ -226,7 +239,6 @@ app.on('ready', () => {
   ipcMain.handle('createMacro', (e, newMacro) => util.createMacro(newMacro))
   ipcMain.handle('updateMacro', (e, editedMacro) => util.updateMacro(editedMacro))
   ipcMain.handle('getMacroByID', (e, id) => util.getMacroByID(id))
-
   ipcMain.handle('fireMacro', (e, macroNumber) => handleMacro(macroNumber)
   )
 
@@ -240,8 +252,6 @@ app.on('ready', () => {
     else return await disableProgrammingTrack()
   })
   ipcMain.handle('readCvPrg', async (e, cv) => await readCvPrg(cv))
-
-
 
 
   // ACCESSORIES
@@ -273,15 +283,9 @@ app.on('ready', () => {
 
   ipcMain.handle('toggleAcc', () => accessoryObjects[0].accessory.toggleFunction(5, 0))
 
+  ipcMain.handle('setSwitch', (e, id, action) => setSwitch(id, action))
 
-  ipcMain.handle('setSwitch', (e, id, action) => {
-    console.log("Set Switch", action)
-    return setSwitch(id, action)
-  })
 
-})
-
-app.whenReady().then(() => {
   protocol.registerFileProtocol('loco', (request, callback) => {
     callback({ path: normalize(`${util.pathToImages}/${request.url.substring(6)}`) })
   })
@@ -297,6 +301,7 @@ app.whenReady().then(() => {
 
 
   app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow() })
+
 })
 
 // Quit when all windows are closed.
