@@ -84,7 +84,7 @@ export default function LocoBar({ selectedLoco, selectLoco }) {
                         fontSize: '12px',
                         padding: '0px 10px',
                         cursor: 'context-menu',
-                        borderRadius: '5px'
+                        borderRadius: '5px',
                     }}
                         onMouseDown={handleToggleHidden}
                     >
@@ -100,7 +100,7 @@ export default function LocoBar({ selectedLoco, selectLoco }) {
     return (
         <div
             style={{
-                backgroundColor: '#7B7D7D',
+                //backgroundColor: '#7B7D7D',
                 maxWidth: '100%',
                 width: '100%',
                 height: '140px',
@@ -108,6 +108,8 @@ export default function LocoBar({ selectedLoco, selectLoco }) {
                 display: 'flex',
                 overflow: 'hidden',
                 overflowX: 'auto',
+                borderBottom: '1px solid darkGray',
+                alignItems: 'center',
             }}
         >
             {makeLocoIcons()}

@@ -205,7 +205,14 @@ export default function Layout() {
                 </g>
                 {makeTrack()}
             </svg>
-            <div style={{ textAlign: 'center', marginTop: '10px' }}>
+            <div
+                style={{
+                    textAlign: 'center',
+                    marginTop: '10px',
+                    borderTop: '1px solid darkGray',
+                    paddingTop: '6px'
+                }}
+            >
                 <div style={{ display: 'inline-block' }}>
                     <Button size="sm" variant={makeVariant(1)} style={{ marginRight: '5px' }} onClick={() => selectTrack(1)}>Track 1</Button>
                     <Button size="sm" variant={makeVariant(2)} style={{ marginRight: '5px' }} onClick={() => selectTrack(2)}>Track 2</Button>

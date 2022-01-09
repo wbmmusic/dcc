@@ -7,17 +7,34 @@
 
 @keyframes warning {
     from {
-      background-color: rgb(255, 0, 0);
+        background-color: rgb(255, 0, 0);
     }
-  
     to {
-      background-color: yellow;
+        background-color: yellow;
     }
-  }
+}
 
-  .usbError {
+.usbError {
     animation-duration: .5s;
     animation-name: warning;
     animation-iteration-count: infinite;
     animation-direction: alternate;
+}
+
+::-webkit-scrollbar {
+    width: .6em;
+    height: .6em;
+}
+
+::-webkit-scrollbar-track {
+    background: lightGrey;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgb(138, 138, 138);
+    border-radius: 100vw;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, .6);
 }

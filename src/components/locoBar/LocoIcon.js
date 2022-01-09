@@ -131,4 +131,6 @@ const iconContainerStyle = {
     textAlign: 'center',
     width: '104px',
     overflow: 'hidden',
+    boxShadow: '1px 1px 4px',
+    borderRadius: '2px'
 }
