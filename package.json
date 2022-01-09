@@ -1,91 +1,91 @@
 {
-  "name": "dcc",
-  "version": "0.2.11",
-  "author": "Marece Williams",
-  "description": "React and Electron Awesome App",
-  "homepage": "./",
-  "main": "public/main.js",
-  "private": true,
-  "icon": "icon.ico",
-  "dependencies": {
-    "@emotion/react": "^11.7.1",
-    "@emotion/styled": "^11.6.0",
-    "@mui/icons-material": "^5.2.5",
-    "@mui/material": "^5.2.7",
-    "@testing-library/jest-dom": "^5.16.1",
-    "@testing-library/react": "^12.1.2",
-    "@testing-library/user-event": "^13.5.0",
-    "adm-zip": "^0.5.9",
-    "archiver": "^5.3.0",
-    "bootstrap": "^5.1.3",
-    "electron-updater": "^4.6.1",
-    "rc-slider": "^9.7.5",
-    "react": "^17.0.2",
-    "react-bootstrap": "^2.1.0",
-    "react-dom": "^17.0.2",
-    "react-router-dom": "^6.2.1",
-    "react-scripts": "5.0.0",
-    "react-select": "^5.2.1",
-    "serialport": "^9.2.8",
-    "usb-detection": "^4.13.0",
-    "uuid": "^8.3.2"
-  },
-  "scripts": {
-    "dev": "nf start",
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "electron": "electron .",
-    "install": "electron-rebuild",
-    "rebuild": "electron-rebuild -f -w serialport",
-    "package": "electron-builder build -c.extraMetadata.main=build/main.js --publish never",
-    "deploy": "electron-builder build -c.extraMetadata.main=build/main.js --publish always",
-    "backup": "git add . && git commit -m %NPM_PACKAGE_VERSION% && git push origin master",
-    "upload": "yarn build && yarn backup && yarn deploy ",
-    "try": "yarn build && yarn package ",
-    "refresh": "yarn upgrade --latest && yarn rebuild"
-  },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
-  "devDependencies": {
-    "electron": "^16.0.6",
-    "electron-builder": "^22.14.5",
-    "electron-rebuild": "^3.2.5",
-    "foreman": "^3.0.1"
-  },
-  "build": {
-    "productName": "Big D's Railroad",
-    "appId": "com.wbm.dcc",
-    "copyright": "WBM Tek",
-    "extends": null,
-    "npmRebuild": false,
-    "files": [
-      "build/**/*",
-      "electron/*"
-    ],
-    "extraResources": [
-      "public/locos/*"
-    ],
-    "win": {
-      "icon": "public/icon.ico"
+    "name": "dcc",
+    "version": "0.2.12",
+    "author": "Marece Williams",
+    "description": "React and Electron Awesome App",
+    "homepage": "./",
+    "main": "public/main.js",
+    "private": true,
+    "icon": "icon.ico",
+    "dependencies": {
+        "@emotion/react": "^11.7.1",
+        "@emotion/styled": "^11.6.0",
+        "@mui/icons-material": "^5.2.5",
+        "@mui/material": "^5.2.7",
+        "@testing-library/jest-dom": "^5.16.1",
+        "@testing-library/react": "^12.1.2",
+        "@testing-library/user-event": "^13.5.0",
+        "adm-zip": "^0.5.9",
+        "archiver": "^5.3.0",
+        "bootstrap": "^5.1.3",
+        "electron-updater": "^4.6.1",
+        "rc-slider": "^9.7.5",
+        "react": "^17.0.2",
+        "react-bootstrap": "^2.1.0",
+        "react-dom": "^17.0.2",
+        "react-router-dom": "^6.2.1",
+        "react-scripts": "5.0.0",
+        "react-select": "^5.2.1",
+        "serialport": "^9.2.8",
+        "usb-detection": "^4.13.0",
+        "uuid": "^8.3.2"
+    },
+    "scripts": {
+        "dev": "nf start",
+        "start": "react-scripts start",
+        "build": "react-scripts build",
+        "test": "react-scripts test",
+        "eject": "react-scripts eject",
+        "electron": "electron .",
+        "install": "electron-rebuild",
+        "rebuild": "electron-rebuild -f -w serialport",
+        "package": "electron-builder build -c.extraMetadata.main=build/main.js --publish never",
+        "deploy": "electron-builder build -c.extraMetadata.main=build/main.js --publish always",
+        "backup": "git add . && git commit -m %NPM_PACKAGE_VERSION% && git push origin master",
+        "upload": "yarn build && yarn backup && yarn deploy ",
+        "try": "yarn build && yarn package ",
+        "refresh": "yarn upgrade --latest && yarn rebuild"
+    },
+    "eslintConfig": {
+        "extends": "react-app"
+    },
+    "browserslist": {
+        "production": [
+            ">0.2%",
+            "not dead",
+            "not op_mini all"
+        ],
+        "development": [
+            "last 1 chrome version",
+            "last 1 firefox version",
+            "last 1 safari version"
+        ]
+    },
+    "devDependencies": {
+        "electron": "^16.0.6",
+        "electron-builder": "^22.14.5",
+        "electron-rebuild": "^3.2.5",
+        "foreman": "^3.0.1"
+    },
+    "build": {
+        "productName": "Big D's Railroad",
+        "appId": "com.wbm.dcc",
+        "copyright": "WBM Tek",
+        "extends": null,
+        "npmRebuild": false,
+        "files": [
+            "build/**/*",
+            "electron/*"
+        ],
+        "extraResources": [
+            "public/locos/*"
+        ],
+        "win": {
+            "icon": "public/icon.ico"
+        }
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/wbmmusic/dcc.git"
     }
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/wbmmusic/dcc.git"
-  }
 }

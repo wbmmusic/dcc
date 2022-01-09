@@ -50,6 +50,7 @@ export default function LocoBar({ selectedLoco, selectLoco }) {
                             loco={locos[i]}
                             numberOfLocos={locos.length - 1}
                             index={i}
+                            selectedLoco={selectedLoco}
                             selected={selectLoco}
                             color={color}
                         />

@@ -15,52 +15,70 @@ export default function MacroList() {
             .catch(err => console.error(err))
     }, [])
 
-    return (
-        <div className='pageContainer'>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-                <b>Macro List</b>
-                <div style={{ color: 'green', display: 'inline-block', marginLeft: '10px', cursor: 'pointer' }}
-                    onClick={() => navigate('/macros/new')}
-                >
-                    <AddCircleTwoToneIcon />
-                </div>
-            </div>
-            <hr />
-            <div>
-                <div style={{ display: 'inline-block' }}>
-                    <Table>
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Edit</th>
-                                <th>Delete</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {
-                                macros.map((macro, idx) => (
-                                    <tr key={`maroRow${idx}`}>
-                                        <td>{macro.name}</td>
-                                        <td>
-                                            <div
-                                                style={{ display: 'inline-block', cursor: 'pointer' }}
-                                                onClick={() => navigate('/macros/edit/' + macro._id)}
-                                            >
-                                                <EditTwoToneIcon />
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div style={{ display: 'inline-block', cursor: 'pointer', color: 'red' }}>
-                                                <DeleteForeverTwoToneIcon />
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))
-                            }
-                        </tbody>
-                    </Table>
-                </div>
-            </div>
-        </div>
+    return ( <
+        div className = 'pageContainer' >
+        <
+        div style = {
+            { display: 'flex', alignItems: 'center' } } >
+        <
+        b > Macro List < /b> <
+        div style = {
+            { color: 'green', display: 'inline-block', marginLeft: '10px', cursor: 'pointer' } }
+        onClick = {
+            () => navigate('/macros/new') } >
+        <
+        AddCircleTwoToneIcon / >
+        <
+        /div> <
+        /div> <
+        div >
+        <
+        div style = {
+            { display: 'inline-block' } } >
+        <
+        Table >
+        <
+        thead >
+        <
+        tr >
+        <
+        th > Name < /th> <
+        th > Edit < /th> <
+        th > Delete < /th> <
+        /tr> <
+        /thead> <
+        tbody > {
+            macros.map((macro, idx) => ( <
+                tr key = { `maroRow${idx}` } >
+                <
+                td > { macro.name } < /td> <
+                td >
+                <
+                div style = {
+                    { display: 'inline-block', cursor: 'pointer' } }
+                onClick = {
+                    () => navigate('/macros/edit/' + macro._id) } >
+                <
+                EditTwoToneIcon / >
+                <
+                /div> <
+                /td> <
+                td >
+                <
+                div style = {
+                    { display: 'inline-block', cursor: 'pointer', color: 'red' } } >
+                <
+                DeleteForeverTwoToneIcon / >
+                <
+                /div> <
+                /td> <
+                /tr>
+            ))
+        } <
+        /tbody> <
+        /Table> <
+        /div> <
+        /div> <
+        /div>
     )
 }

@@ -1,7 +1,6 @@
 import React from 'react'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { overlayDelay } from '../../settings'
-import StopCircleTwoToneIcon from '@mui/icons-material/StopCircleTwoTone';
 import SettingsTwoToneIcon from '@mui/icons-material/SettingsTwoTone';
 import ArrowForwardIosTwoToneIcon from '@mui/icons-material/ArrowForwardIosTwoTone';
 import ArrowBackIosNewTwoToneIcon from '@mui/icons-material/ArrowBackIosNewTwoTone';
@@ -58,8 +57,10 @@ export default function LocoIcon(props) {
     if (props.index <= 0) leftButton = ''
     if (props.index >= props.numberOfLocos) rightButton = ''
 
+    console.log(props)
+
     return (
-        <div style={iconContainerStyle}>
+        <div style={{ ...iconContainerStyle, backgroundColor: props.selectedLoco === props.index ? 'aliceblue' : 'white' }}>
             <div style={{ backgroundColor: props.color }}>
                 <table style={{ width: '100%' }} cellSpacing={0}>
                     <tbody>
