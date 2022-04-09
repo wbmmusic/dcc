@@ -1,11 +1,10 @@
-import React from 'react';
-import { HashRouter, Route, Routes } from 'react-router-dom';
+import React from "react";
+import { HashRouter, Route, Routes } from "react-router-dom";
 
 import MainApp from "./MainApp";
-import ModalTop from './modals/ModalTop';
+import ModalTop from "./modals/ModalTop";
 
 function App() {
-
   return (
     <HashRouter>
       <Routes>
