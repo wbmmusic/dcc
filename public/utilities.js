@@ -4,7 +4,7 @@ const { join } = require('path')
 const archiver = require('archiver');
 var AdmZip = require("adm-zip");
 const SerialPort = require('serialport')
-var usbDetect = require('usb-detection');
+const { usb } = require('usb');
 const messenger = require('./messenger');
 const { locoObjects } = require('./main');
 
@@ -206,8 +206,7 @@ exports.updateMacro = editedMacro => {
         config.macros[macroIDX] = editedMacro
         saveConfig()
         return 'updated'
-    }
-    else return new Error('Error in updateMacro')
+    } else return new Error('Error in updateMacro')
 }
 exports.getMacroByID = id => {
     console.log(config.macros)
@@ -234,7 +233,7 @@ exports.getAccessoryByID = id => {
     else return new Error("Error in getAccessoryByID")
 }
 
-exports.backupConfig = async (outputPath) => {
+exports.backupConfig = async(outputPath) => {
     return new Promise((resolve, reject) => {
         // create a file to stream archive data to.
         const output = createWriteStream(outputPath);
@@ -244,7 +243,7 @@ exports.backupConfig = async (outputPath) => {
 
         // listen for all archive data to be written
         // 'close' event is fired only when a file descriptor is involved
-        output.on('close', function () {
+        output.on('close', function() {
             console.log(archive.pointer() + ' total bytes');
             console.log('archiver has been finalized and the output file descriptor has closed.');
             resolve('All Zipped Up')
@@ -253,12 +252,12 @@ exports.backupConfig = async (outputPath) => {
         // This event is fired when the data source is drained no matter what was the data source.
         // It is not part of this library but rather from the NodeJS Stream API.
         // @see: https://nodejs.org/api/stream.html#stream_event_end
-        output.on('end', function () {
+        output.on('end', function() {
             console.log('Data has been drained');
         });
 
         // good practice to catch warnings (ie stat failures and other non-blocking errors)
-        archive.on('warning', function (err) {
+        archive.on('warning', function(err) {
             if (err.code === 'ENOENT') {
                 // log warning
             } else {
@@ -268,7 +267,7 @@ exports.backupConfig = async (outputPath) => {
         });
 
         // good practice to catch this error explicitly
-        archive.on('error', function (err) {
+        archive.on('error', function(err) {
             reject(err)
         });
 
@@ -296,19 +295,19 @@ exports.backupConfig = async (outputPath) => {
 
 }
 
-exports.restoreConfig = async (pathToZip) => {
+exports.restoreConfig = async(pathToZip) => {
     // reading archives
     var zip = new AdmZip(pathToZip);
     var zipEntries = zip.getEntries(); // an array of ZipEntry records
 
-    zipEntries.forEach(function (zipEntry) {
+    zipEntries.forEach(function(zipEntry) {
         console.log(zipEntry.toString()); // outputs zip entries information
         if (zipEntry.entryName == "my_file.txt") {
             console.log(zipEntry.getData().toString("utf8"));
         }
     });
     // extracts everything
-    zip.extractAllTo(/*target path*/ pathToDataFolder, /*overwrite*/ true);
+    zip.extractAllTo( /*target path*/ pathToDataFolder, /*overwrite*/ true);
     app.relaunch()
     app.exit()
 }
@@ -325,8 +324,8 @@ exports.setUSBport = (port) => {
     return settings
 }
 
-const listPorts = async () => {
-    return new Promise(async (resolve, reject) => {
+const listPorts = async() => {
+    return new Promise(async(resolve, reject) => {
         SerialPort.list()
             .then(ports => resolve(ports))
             .catch(err => reject('Error listing ports', err))
@@ -340,8 +339,8 @@ const interfaceIsConfigured = () => {
     } else return true
 }
 
-const updatePorts = async () => {
-    return new Promise(async (resolve, reject) => {
+const updatePorts = async() => {
+    return new Promise(async(resolve, reject) => {
         const ports = await listPorts()
         if (JSON.stringify(this.serialPorts) !== JSON.stringify(ports)) {
             this.serialPorts = ports
@@ -365,7 +364,7 @@ const setConnectedStatus = (status) => {
     if (!status) messenger.dccInterface = null
 }
 
-const doWeCareAboutThisUSBdevice = async (device) => {
+const doWeCareAboutThisUSBdevice = async() => {
     if (await updatePorts()) {
         // if we are already connected all we need to do is send new ports to window
         if (this.usbConnected) return
@@ -375,14 +374,14 @@ const doWeCareAboutThisUSBdevice = async (device) => {
     }
 }
 
-const bootInterface = async () => {
+const bootInterface = async() => {
     await updatePorts()
     if (!interfaceIsConfigured()) return
     if (ourPortIsAvailable()) messenger.startInterface(settings.usbInterface, setConnectedStatus)
     else console.log("Didn't Find")
 }
 
-const handleRemove = async () => {
+const handleRemove = async() => {
     if (await updatePorts()) {
         if (!ourPortIsAvailable()) {
             setConnectedStatus(false)
@@ -392,8 +391,5 @@ const handleRemove = async () => {
 
 bootInterface()
 
-
-usbDetect.on('add', (device) => doWeCareAboutThisUSBdevice(device));
-usbDetect.on('remove', (device) => handleRemove());
-
-usbDetect.startMonitoring();
+usb.on('attach', () => doWeCareAboutThisUSBdevice())
+usb.on('detach', () => handleRemove())
