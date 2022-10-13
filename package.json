@@ -24,7 +24,7 @@
         "react-dom": "^18.2.0",
         "react-router-dom": "^6.4.2",
         "react-scripts": "5.0.1",
-        "react-select": "^5.4.0",
+        "react-select": "^5.5.0",
         "serialport": "^10.4.0",
         "usb": "^2.5.2",
         "uuid": "^9.0.0"
