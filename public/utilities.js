@@ -6,7 +6,7 @@ var AdmZip = require("adm-zip");
 const SerialPort = require('serialport')
 const { usb } = require('usb');
 const messenger = require('./messenger');
-const { locoObjects } = require('./main');
+const { locoObjects } = require('./main'); //
 
 // PATHS
 const pathToDataFolder = join(app.getPath('userData'), 'data')
