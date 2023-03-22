@@ -3,7 +3,7 @@ const port = process.env.PORT ? (process.env.PORT - 100) : 5000;
 
 process.env.ELECTRON_START_URL = `http://localhost:${port}`;
 
-const client = new net.Socket();
+const client = new net.Socket(); //
 
 let startedElectron = false;
 const tryConnection = () => client.connect({ port: port, host: '127.0.0.1' }, () => {
@@ -14,7 +14,7 @@ const tryConnection = () => client.connect({ port: port, host: '127.0.0.1' }, ()
         const exec = require('child_process').exec;
         var elctrn = exec('yarn run electron');
 
-        elctrn.stdout.on('data', function(data) {
+        elctrn.stdout.on('data', function (data) {
             console.log(data);
         });
     }
