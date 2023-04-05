@@ -10,8 +10,8 @@
     "dependencies": {
         "@emotion/react": "^11.10.6",
         "@emotion/styled": "^11.10.6",
-        "@mui/icons-material": "^5.11.11",
-        "@mui/material": "^5.11.15",
+        "@mui/icons-material": "^5.11.16",
+        "@mui/material": "^5.11.16",
         "@testing-library/jest-dom": "^5.16.5",
         "@testing-library/react": "^14.0.0",
         "@testing-library/user-event": "^14.4.3",
@@ -60,7 +60,7 @@
         ]
     },
     "devDependencies": {
-        "electron": "^23.2.1",
+        "electron": "^24.0.0",
         "electron-builder": "^23.6.0",
         "foreman": "^3.0.1"
     },
