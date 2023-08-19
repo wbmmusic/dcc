@@ -11,12 +11,12 @@
         "@emotion/react": "^11.11.1",
         "@emotion/styled": "^11.11.0",
         "@mui/icons-material": "^5.14.3",
-        "@mui/material": "^5.14.4",
-        "@testing-library/jest-dom": "^5.17.0",
+        "@mui/material": "^5.14.5",
+        "@testing-library/jest-dom": "^6.0.1",
         "@testing-library/react": "^14.0.0",
         "@testing-library/user-event": "^14.4.3",
         "adm-zip": "^0.5.10",
-        "archiver": "^5.3.1",
+        "archiver": "^6.0.0",
         "bootstrap": "^5.3.1",
         "electron-updater": "^6.1.1",
         "react": "^18.2.0",
@@ -60,7 +60,7 @@
         ]
     },
     "devDependencies": {
-        "electron": "^25.5.0",
+        "electron": "^26.0.0",
         "electron-builder": "^24.6.3",
         "foreman": "^3.0.1"
     },
