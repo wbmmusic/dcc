@@ -10,9 +10,9 @@
     "dependencies": {
         "@emotion/react": "^11.11.1",
         "@emotion/styled": "^11.11.0",
-        "@mui/icons-material": "^5.14.3",
-        "@mui/material": "^5.14.5",
-        "@testing-library/jest-dom": "^6.0.1",
+        "@mui/icons-material": "^5.14.6",
+        "@mui/material": "^5.14.6",
+        "@testing-library/jest-dom": "^6.1.2",
         "@testing-library/react": "^14.0.0",
         "@testing-library/user-event": "^14.4.3",
         "adm-zip": "^0.5.10",
@@ -26,7 +26,7 @@
         "react-scripts": "5.0.1",
         "react-select": "^5.7.4",
         "serialport": "^11.0.1",
-        "usb": "^2.9.0",
+        "usb": "^2.10.0",
         "uuid": "^9.0.0"
     },
     "scripts": {
@@ -60,7 +60,7 @@
         ]
     },
     "devDependencies": {
-        "electron": "^26.0.0",
+        "electron": "^26.1.0",
         "electron-builder": "^24.6.3",
         "foreman": "^3.0.1"
     },
