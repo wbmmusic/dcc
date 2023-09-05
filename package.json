@@ -16,9 +16,9 @@
         "@testing-library/react": "^14.0.0",
         "@testing-library/user-event": "^14.4.3",
         "adm-zip": "^0.5.10",
-        "archiver": "^6.0.0",
+        "archiver": "^6.0.1",
         "bootstrap": "^5.3.1",
-        "electron-updater": "^6.1.1",
+        "electron-updater": "^6.1.4",
         "react": "^18.2.0",
         "react-bootstrap": "^2.8.0",
         "react-dom": "^18.2.0",
@@ -61,7 +61,7 @@
     },
     "devDependencies": {
         "electron": "^26.1.0",
-        "electron-builder": "^24.6.3",
+        "electron-builder": "^24.6.4",
         "foreman": "^3.0.1"
     },
     "build": {
