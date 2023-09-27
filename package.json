@@ -60,7 +60,7 @@
         ]
     },
     "devDependencies": {
-        "electron": "^26.2.2",
+        "electron": "^26.2.3",
         "electron-builder": "^24.6.4",
         "foreman": "^3.0.1"
     },
