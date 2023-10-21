@@ -20,7 +20,7 @@
         "bootstrap": "^5.3.2",
         "electron-updater": "^6.1.4",
         "react": "^18.2.0",
-        "react-bootstrap": "^2.9.0",
+        "react-bootstrap": "^2.9.1",
         "react-dom": "^18.2.0",
         "react-router-dom": "^6.17.0",
         "react-scripts": "5.0.1",
@@ -60,7 +60,7 @@
         ]
     },
     "devDependencies": {
-        "electron": "^27.0.1",
+        "electron": "^27.0.2",
         "electron-builder": "^24.6.4",
         "foreman": "^3.0.1"
     },
