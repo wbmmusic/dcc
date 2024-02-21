@@ -15,7 +15,7 @@ export default function Decoders() {
 
     useEffect(() => {
         if (!location.pathname.includes('new') || !location.pathname.includes('edit')) {
-            window.electron.ipcRenderer.invoke('getDecoders')
+            window.electron.invoke('getDecoders')
                 .then(res => setDecoders(res))
                 .catch(err => console.log(err))
         }
@@ -26,7 +26,7 @@ export default function Decoders() {
         const handleClose = () => setDeleteModal(defaultDeleteModal)
 
         const handleDeleteDecoder = (id) => {
-            window.electron.ipcRenderer.invoke('deleteDecoder', id)
+            window.electron.invoke('deleteDecoder', id)
                 .then(res => {
                     setDecoders(res)
                     handleClose()

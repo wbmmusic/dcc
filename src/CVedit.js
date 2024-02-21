@@ -34,7 +34,7 @@ export default function CVedit() {
     }
 
     useEffect(() => {
-        window.electron.ipcRenderer.invoke('getLocomotives')
+        window.electron.invoke('getLocomotives')
             .then(res => setLocos(res))
             .catch(err => console.error(err))
     }, [])
@@ -93,7 +93,7 @@ export default function CVedit() {
                         size='sm'
                         disabled={!isProgrammable()}
                         onClick={() => {
-                            window.electron.ipcRenderer.invoke('setCV', getLocoAddress(), state.cv, state.value)
+                            window.electron.invoke('setCV', getLocoAddress(), state.cv, state.value)
                                 .then(res => console.log(res))
                                 .catch(err => console.error(err))
                         }}

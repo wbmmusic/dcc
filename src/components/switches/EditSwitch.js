@@ -15,7 +15,7 @@ export default function EditSwitch() {
         if (location.pathname.includes('new')) {
 
         } else if (location.pathname.includes('edit')) {
-            window.electron.ipcRenderer.invoke('getSwitchByID', theID)
+            window.electron.invoke('getSwitchByID', theID)
                 .then(res => {
                     setState(res)
                     setOgState(res)
@@ -37,7 +37,7 @@ export default function EditSwitch() {
     }
 
     const createSwitch = () => {
-        window.electron.ipcRenderer.invoke('createSwitch', {
+        window.electron.invoke('createSwitch', {
             _id: window.electron.uuid(),
             ...state
         })
@@ -46,7 +46,7 @@ export default function EditSwitch() {
     }
 
     const updateSwitch = () => {
-        window.electron.ipcRenderer.invoke('updateSwitch', state)
+        window.electron.invoke('updateSwitch', state)
             .then(() => navigate('/switches'))
             .catch(err => console.log(err))
     }

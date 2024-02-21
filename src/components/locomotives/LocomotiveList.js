@@ -12,13 +12,13 @@ export default function LocomotiveList() {
     const [deleteLocoModal, setDeleteLocoModal] = useState(defaultDeleteModal)
 
     useEffect(() => {
-        window.electron.ipcRenderer.invoke('getLocomotives')
+        window.electron.invoke('getLocomotives')
             .then(locos => setLocomotives(locos))
             .catch(err => console.log(err))
     }, [])
 
     const handleDeleteLoco = (id) => {
-        window.electron.ipcRenderer.invoke('deleteLocomotive', id)
+        window.electron.invoke('deleteLocomotive', id)
             .then(locos => {
                 console.log(locos)
                 setLocomotives(locos)

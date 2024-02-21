@@ -15,7 +15,7 @@ export default function ProgrammingTrack() {
                 variant='success'
                 onClick={() => {
                     setStatusModal({ show: true, action: 'Disabling Programming Track' })
-                    window.electron.ipcRenderer.invoke('setProgrammingTrack', false)
+                    window.electron.invoke('setProgrammingTrack', false)
                         .then(res => {
                             setProgrammingTrackStatus(res)
                             clearStatusModal()
@@ -29,7 +29,7 @@ export default function ProgrammingTrack() {
                 variant='danger'
                 onClick={() => {
                     setStatusModal({ show: true, action: 'Enabling Programming Track' })
-                    window.electron.ipcRenderer.invoke('setProgrammingTrack', true)
+                    window.electron.invoke('setProgrammingTrack', true)
                         .then(res => {
                             setProgrammingTrackStatus(res)
                             clearStatusModal()
@@ -62,12 +62,12 @@ export default function ProgrammingTrack() {
     }
 
     useEffect(() => {
-        window.electron.ipcRenderer.invoke('getProgrammingTrackStatus')
+        window.electron.invoke('getProgrammingTrackStatus')
             .then(res => setProgrammingTrackStatus(res))
             .catch(err => console.error(err))
 
         return () => {
-            window.electron.ipcRenderer.invoke('setProgrammingTrack', false)
+            window.electron.invoke('setProgrammingTrack', false)
                 .then(res => console.log("On exit Programming track is", res))
                 .catch(err => console.error(err))
         }
@@ -99,7 +99,7 @@ export default function ProgrammingTrack() {
                                                     <Button
                                                         size='sm'
                                                         onClick={() => {
-                                                            window.electron.ipcRenderer.invoke('readCvPrg', 63)
+                                                            window.electron.invoke('readCvPrg', 63)
                                                                 .then(res => console.log("HERE 63=", res))
                                                                 .catch(err => console.error(err))
                                                         }}

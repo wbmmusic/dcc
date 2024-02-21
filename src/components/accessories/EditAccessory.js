@@ -25,7 +25,7 @@ export default function EditAccessory() {
     }
 
     const createAccessory = () => {
-        window.electron.ipcRenderer.invoke('createAccessory', {
+        window.electron.invoke('createAccessory', {
             _id: window.electron.uuid(),
             ...state
         })
@@ -34,7 +34,7 @@ export default function EditAccessory() {
     }
 
     const updateAccessory = () => {
-        window.electron.ipcRenderer.invoke('updateAccessory', state)
+        window.electron.invoke('updateAccessory', state)
             .then(navigate('/accessories'))
             .catch(err => console.error(err))
     }
@@ -114,7 +114,7 @@ export default function EditAccessory() {
 
     useEffect(() => {
         if (location.pathname.includes('edit')) {
-            window.electron.ipcRenderer.invoke('getAccessoryByID', accID)
+            window.electron.invoke('getAccessoryByID', accID)
                 .then(res => {
                     setState(JSON.parse(JSON.stringify(res)))
                     setOgState(JSON.parse(JSON.stringify(res)))

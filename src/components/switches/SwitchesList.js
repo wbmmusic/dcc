@@ -10,7 +10,7 @@ export default function SwitchesList() {
     const [switches, setSwitches] = useState([])
 
     useEffect(() => {
-        window.electron.ipcRenderer.invoke('getSwitches')
+        window.electron.invoke('getSwitches')
             .then(res => {
                 console.log(res)
                 setSwitches(res)
@@ -49,7 +49,7 @@ export default function SwitchesList() {
                                         <button
                                             style={{ backgroundColor: switchh.state ? 'lightGreen' : '' }}
                                             onClick={() => {
-                                                window.electron.ipcRenderer.invoke('setSwitch', switchh._id, 'open')
+                                                window.electron.invoke('setSwitch', switchh._id, 'open')
                                                     .then(res => {
                                                         let tempSwitches = [...switches]
                                                         tempSwitches[idx].state = res
@@ -63,7 +63,7 @@ export default function SwitchesList() {
                                         <button
                                             style={{ backgroundColor: switchh.state ? '' : 'lightGreen' }}
                                             onClick={() => {
-                                                window.electron.ipcRenderer.invoke('setSwitch', switchh._id, 'close')
+                                                window.electron.invoke('setSwitch', switchh._id, 'close')
                                                     .then(res => {
                                                         let tempSwitches = [...switches]
                                                         tempSwitches[idx].state = res

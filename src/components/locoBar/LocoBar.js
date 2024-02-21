@@ -11,11 +11,11 @@ export default function LocoBar({ selectedLoco, selectLoco }) {
     const [showAll, setShowAll] = useState(false)
 
     useEffect(() => {
-        window.electron.ipcRenderer.invoke('getLocomotives')
+        window.electron.invoke('getLocomotives')
             .then(theLocos => setLocos(theLocos))
             .catch(err => console.log(err))
 
-        window.electron.ipcRenderer.invoke('getConsists')
+        window.electron.invoke('getConsists')
             .then(theConsists => setConsists(theConsists))
             .catch(err => console.log(err))
     }, [])

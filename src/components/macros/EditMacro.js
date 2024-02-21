@@ -14,13 +14,13 @@ export default function EditMacro() {
     const [actionModal, setActionModal] = useState(defaultActionModal)
 
     const createMacro = () => {
-        window.electron.ipcRenderer.invoke('createMacro', { _id: window.electron.uuid(), ...state })
+        window.electron.invoke('createMacro', { _id: window.electron.uuid(), ...state })
             .then(res => navigate('/macros'))
             .catch(err => console.error(err))
     }
 
     const updateMacro = () => {
-        window.electron.ipcRenderer.invoke('updateMacro', state)
+        window.electron.invoke('updateMacro', state)
             .then(res => navigate('/macros'))
             .catch(err => console.error(err))
     }
@@ -168,7 +168,7 @@ export default function EditMacro() {
 
     useEffect(() => {
         if (macroID) {
-            window.electron.ipcRenderer.invoke('getMacroByID', macroID)
+            window.electron.invoke('getMacroByID', macroID)
                 .then(res => {
                     console.log(res)
                     setState(res)
@@ -176,7 +176,7 @@ export default function EditMacro() {
                 .catch(err => console.error(err))
         }
 
-        window.electron.ipcRenderer.invoke('getSwitches')
+        window.electron.invoke('getSwitches')
             .then(res => setSwitches(res))
             .catch(err => console.error(err))
 

@@ -25,7 +25,7 @@ export default function EditDecoder() {
     const getDecoderByID = async (id) => {
         return new Promise(async (resolve, reject) => {
             try {
-                let decoder = window.electron.ipcRenderer.invoke('getDecoderById', id)
+                let decoder = window.electron.invoke('getDecoderById', id)
                 resolve(decoder)
             } catch (error) {
                 reject(error)
@@ -66,13 +66,13 @@ export default function EditDecoder() {
     }
 
     const handleCreate = () => {
-        window.electron.ipcRenderer.invoke('createDecoder', decoder)
+        window.electron.invoke('createDecoder', decoder)
             .then(navigate('/decoders'))
             .catch(err => console.log(err))
     }
 
     const handleSaveChanges = () => {
-        window.electron.ipcRenderer.invoke('updateDecoder', decoder)
+        window.electron.invoke('updateDecoder', decoder)
             .then(navigate('/decoders'))
             .catch(err => console.log(err))
     }

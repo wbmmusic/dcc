@@ -14,21 +14,21 @@ export default function LocoControl({ selectedLoco }) {
 
 
     useEffect(() => {
-        window.electron.ipcRenderer.invoke(...makeChannel(), "getThrottle")
+        window.electron.invoke(...makeChannel(), "getThrottle")
             .then(res => setState(res))
             .catch(err => console.log(err))
 
         if (!isModal) {
             window.electron.receive('throttleUpdate', idx => {
                 if (idx === selectedLoco) {
-                    window.electron.ipcRenderer.invoke(...makeChannel(), "getThrottle")
+                    window.electron.invoke(...makeChannel(), "getThrottle")
                         .then(res => setState(res))
                         .catch(err => console.log(err))
                 }
             })
         } else {
             window.electron.receive('modalThrottleUpdate', () => {
-                window.electron.ipcRenderer.invoke(...makeChannel(), "getThrottle")
+                window.electron.invoke(...makeChannel(), "getThrottle")
                     .then(res => setState(res))
                     .catch(err => console.log(err))
             })
@@ -55,31 +55,31 @@ export default function LocoControl({ selectedLoco }) {
     }
 
     const setDirection = (dir) => {
-        window.electron.ipcRenderer.invoke(...makeChannel(), 'setDirection', dir)
+        window.electron.invoke(...makeChannel(), 'setDirection', dir)
             .then(newDir => setState(old => ({ ...old, direction: newDir })))
             .catch(err => console.log(err))
     }
 
     const setSpeed = (speed) => {
-        window.electron.ipcRenderer.invoke(...makeChannel(), 'setSpeed', parseInt(speed))
+        window.electron.invoke(...makeChannel(), 'setSpeed', parseInt(speed))
             .then(newSpeed => setState(old => ({ ...old, speed: newSpeed })))
             .catch(err => console.log(err))
     }
 
     const sendEStop = () => {
-        window.electron.ipcRenderer.invoke(...makeChannel(), 'eStop')
+        window.electron.invoke(...makeChannel(), 'eStop')
             .then(res => setState(old => ({ ...old, speed: res })))
             .catch(err => console.log(err))
     }
 
     const sendEStopAll = () => {
-        window.electron.ipcRenderer.invoke(...makeChannel(), 'eStopAll')
+        window.electron.invoke(...makeChannel(), 'eStopAll')
             .then(res => console.log(res))
             .catch(err => console.log(err))
     }
 
     const handleFunctionPress = (func) => {
-        window.electron.ipcRenderer.invoke(...makeChannel(), 'setFunction', func)
+        window.electron.invoke(...makeChannel(), 'setFunction', func)
             .then(res => setState(old => ({ ...old, functions: res })))
             .catch(err => console.log(err))
     }

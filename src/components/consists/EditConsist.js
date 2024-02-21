@@ -36,7 +36,7 @@ export default function EditConsist() {
     }
 
     const handleCreateConsist = () => {
-        window.electron.ipcRenderer.invoke('createConsist', {
+        window.electron.invoke('createConsist', {
             _id: window.electron.uuid(),
             enabled: false,
             ...consist
@@ -46,7 +46,7 @@ export default function EditConsist() {
     }
 
     const handleUpdateConsist = () => {
-        window.electron.ipcRenderer.invoke('updateConsist', consist)
+        window.electron.invoke('updateConsist', consist)
             .then(res => {
                 setConsist(res)
                 setOgConsist(res)
@@ -270,13 +270,13 @@ export default function EditConsist() {
     }
 
     useEffect(() => {
-        window.electron.ipcRenderer.invoke('getLocomotives')
+        window.electron.invoke('getLocomotives')
             .then(res => setLocos(res))
             .catch(err => console.error(err))
 
         if (location.pathname.includes('/edit')) {
             console.log(consistID)
-            window.electron.ipcRenderer.invoke('getConsistByID', consistID)
+            window.electron.invoke('getConsistByID', consistID)
                 .then(res => {
                     setConsist(res)
                     setOgConsist(res)

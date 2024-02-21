@@ -13,7 +13,7 @@ export default function ConsistsList() {
     const [deleteModal, setDeleteModal] = useState(defaultDeleteModal)
 
     const toggleConsist = (id) => {
-        window.electron.ipcRenderer.invoke('toggleConsist', id)
+        window.electron.invoke('toggleConsist', id)
             .then(res => setConsists(res))
             .catch(err => console.error(err))
     }
@@ -83,7 +83,7 @@ export default function ConsistsList() {
     const handleClose = () => setDeleteModal(defaultDeleteModal)
 
     const deleteConsist = (id) => {
-        window.electron.ipcRenderer.invoke('deleteConsist', id)
+        window.electron.invoke('deleteConsist', id)
             .then(res => {
                 setConsists(res)
                 handleClose()
@@ -116,11 +116,11 @@ export default function ConsistsList() {
     }
 
     useEffect(() => {
-        window.electron.ipcRenderer.invoke('getConsists')
+        window.electron.invoke('getConsists')
             .then(res => setConsists(res))
             .catch(err => console.error(err))
 
-        window.electron.ipcRenderer.invoke('getLocomotives')
+        window.electron.invoke('getLocomotives')
             .then(res => setLocos(res))
             .catch(err => console.error(err))
     }, [])

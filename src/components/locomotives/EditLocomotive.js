@@ -34,12 +34,12 @@ export default function EditLocomotive() {
     }
 
     useEffect(() => {
-        window.electron.ipcRenderer.invoke('getDecoders')
+        window.electron.invoke('getDecoders')
             .then(res => setDecoders(res))
             .catch(err => console.log(err))
 
         if (locoID !== undefined) {
-            window.electron.ipcRenderer.invoke('getLocomotiveById', locoID)
+            window.electron.invoke('getLocomotiveById', locoID)
                 .then(theLoco => {
                     setLoco(theLoco)
                     setOgLoco(theLoco)
@@ -51,7 +51,7 @@ export default function EditLocomotive() {
     useEffect(() => console.log(loco), [loco])
 
     const handelCreateLoco = () => {
-        window.electron.ipcRenderer.invoke('createLoco', loco)
+        window.electron.invoke('createLoco', loco)
             .then(navigate('/locomotives'))
             .catch(err => console.log(err))
     }
@@ -85,7 +85,7 @@ export default function EditLocomotive() {
     }
 
     const handleUpdateLoco = () => {
-        window.electron.ipcRenderer.invoke('updateLocomotive', loco)
+        window.electron.invoke('updateLocomotive', loco)
             .then(theLoco => navigate('/locomotives'))
             .catch(err => console.log(err))
     }
@@ -229,7 +229,7 @@ export default function EditLocomotive() {
                     <Button
                         size='sm'
                         onClick={() => {
-                            window.electron.ipcRenderer.invoke('selectLocoImage')
+                            window.electron.invoke('selectLocoImage')
                                 .then(res => { if (res !== 'canceled') setLoco(old => ({ ...old, photo: res })) })
                                 .catch(err => console.log(err))
                         }}

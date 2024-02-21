@@ -23,13 +23,13 @@ export default function Settings() {
     }
 
     const handleIfaceSelect = (e) => {
-        window.electron.ipcRenderer.invoke('setUSBiface', e.value)
+        window.electron.invoke('setUSBiface', e.value)
             .then(res => setSettings(res))
             .catch(err => console.error(err))
     }
 
     const handlePortSelect = (e) => {
-        window.electron.ipcRenderer.invoke('setUSBport', e.value)
+        window.electron.invoke('setUSBport', e.value)
             .then(res => setSettings(res))
             .catch(err => console.error(err))
     }
@@ -81,11 +81,11 @@ export default function Settings() {
     }
 
     useEffect(() => {
-        window.electron.ipcRenderer.invoke('getSettings')
+        window.electron.invoke('getSettings')
             .then(res => setSettings(res))
             .catch(err => console.error(err))
 
-        window.electron.ipcRenderer.invoke('getSerialPorts')
+        window.electron.invoke('getSerialPorts')
             .then(res => setSerialPorts(res))
             .catch(err => console.error(err))
 

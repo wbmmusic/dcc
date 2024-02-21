@@ -10,7 +10,7 @@ export default function MacroList() {
     const [macros, setMacros] = useState([])
 
     useEffect(() => {
-        window.electron.ipcRenderer.invoke('getMacros')
+        window.electron.invoke('getMacros')
             .then(res => setMacros(res))
             .catch(err => console.error(err))
     }, [])

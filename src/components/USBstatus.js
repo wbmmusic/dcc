@@ -9,7 +9,7 @@ export default function USBstatus() {
     const [isConnected, setIsConnected] = useState(false)
 
     useEffect(() => {
-        window.electron.ipcRenderer.invoke('getUsbConnection')
+        window.electron.invoke('getUsbConnection')
             .then(res => setIsConnected(res))
             .catch(err => console.error(err))
 
@@ -43,7 +43,7 @@ export default function USBstatus() {
                 >
                     <div
                         className='usbError'
-                        style={{ ...usbStyle, cursor:'pointer' }}
+                        style={{ ...usbStyle, cursor: 'pointer' }}
                         onClick={() => navigate('/settings')}
                     >
                         <UsbOffIcon style={{ fontSize: '31px' }} />

@@ -10,7 +10,7 @@ export default function AccessoriesList() {
     const [accessories, setAccessories] = useState([])
 
     const deleteAccessory = (id) => {
-        window.electron.ipcRenderer.invoke('deleteAccessory', id)
+        window.electron.invoke('deleteAccessory', id)
             .then(res => setAccessories(res))
             .catch(err => console.error(err))
     }
@@ -45,7 +45,7 @@ export default function AccessoriesList() {
     }
 
     useEffect(() => {
-        window.electron.ipcRenderer.invoke('getAccessories')
+        window.electron.invoke('getAccessories')
             .then(res => setAccessories(res))
             .catch(err => console.error(err))
     }, [])

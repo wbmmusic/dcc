@@ -8,7 +8,7 @@ export default function Layout() {
     const [activeTrack, setActiveTrack] = useState(0)
 
     const selectTrack = (track) => {
-        window.electron.ipcRenderer.invoke('fireMacro', track)
+        window.electron.invoke('fireMacro', track)
             .then(res => setActiveTrack(track))
             .catch(err => console.error(err))
     }

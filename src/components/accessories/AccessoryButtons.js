@@ -5,7 +5,7 @@ export default function AccessoryButtons() {
     const [actions, setActions] = useState([])
 
     useEffect(() => {
-        window.electron.ipcRenderer.invoke('getAccessoryActions')
+        window.electron.invoke('getAccessoryActions')
             .then(res => setActions(res))
             .catch(err => console.error(err))
     }, [])
@@ -21,7 +21,7 @@ export default function AccessoryButtons() {
                             size='sm'
                             variant={act.state ? 'success' : 'outline-secondary'}
                             onClick={() => {
-                                window.electron.ipcRenderer.invoke('accessoryAction', {
+                                window.electron.invoke('accessoryAction', {
                                     id: act.action,
                                     idx: act.idx
                                 })
