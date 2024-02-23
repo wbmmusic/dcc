@@ -15,6 +15,8 @@ let locoObjects = []
 let switchObjects = []
 let accessoryObjects = []
 
+// Nothing
+
 
 // SECOND INSTANCE
 const gotTheLock = app.requestSingleInstanceLock()
@@ -142,7 +144,7 @@ app.on('ready', () => {
 
     // LOCOS
     ipcMain.handle('getLocomotives', () => util.config.locos)
-    ipcMain.handle('selectLocoImage', async() => {
+    ipcMain.handle('selectLocoImage', async () => {
         let file = await dialog.showOpenDialog(win, {
             filters: [{
                 name: 'Images',
@@ -193,7 +195,7 @@ app.on('ready', () => {
     ipcMain.handle('getUsbConnection', () => util.usbConnected)
 
     // CONFIG
-    ipcMain.on('backupConfig', async() => {
+    ipcMain.on('backupConfig', async () => {
         let file = await dialog.showSaveDialog(win, {
             title: 'Backup config to file',
             filters: [{
@@ -211,7 +213,7 @@ app.on('ready', () => {
             }
         } else return "canceled"
     })
-    ipcMain.on('restoreConfig', async() => {
+    ipcMain.on('restoreConfig', async () => {
         let file = await dialog.showOpenDialog(win, {
             title: 'Restore from file',
             filters: [{
@@ -238,13 +240,13 @@ app.on('ready', () => {
 
     // PROGRAMMING TRACK
     ipcMain.handle('getProgrammingTrackStatus', () => getProgrammingTrackStatus())
-    ipcMain.handle('setProgrammingTrack', async(e, state) => {
+    ipcMain.handle('setProgrammingTrack', async (e, state) => {
         if (!util.usbConnected) return false
         if (getProgrammingTrackStatus() === state) return state
         if (state) return await enableProgrammingTrack()
         else return await disableProgrammingTrack()
     })
-    ipcMain.handle('readCvPrg', async(e, cv) => await readCvPrg(cv))
+    ipcMain.handle('readCvPrg', async (e, cv) => await readCvPrg(cv))
 
 
     // ACCESSORIES
@@ -289,8 +291,8 @@ app.on('ready', () => {
 
     // IMPORTANT /////////////////////////////////////////////////////////////////////////////////////////////////
     util.config.locos.forEach(loco => locoObjects.push({ id: loco._id, loco: new Locomotive({ loco: loco }) }))
-    util.config.switches.forEach(switchh => switchObjects.push({ id: switchh._id, switch: new Switch({...switchh }) }))
-    util.config.accessories.forEach(acc => accessoryObjects.push({ id: acc._id, accessory: new Accessory({...acc }) }))
+    util.config.switches.forEach(switchh => switchObjects.push({ id: switchh._id, switch: new Switch({ ...switchh }) }))
+    util.config.accessories.forEach(acc => accessoryObjects.push({ id: acc._id, accessory: new Accessory({ ...acc }) }))
 
 
     app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow() })
