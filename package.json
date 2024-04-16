@@ -13,7 +13,7 @@
         "@mui/icons-material": "^5.15.15",
         "@mui/material": "^5.15.15",
         "@testing-library/jest-dom": "^6.4.2",
-        "@testing-library/react": "^14.3.0",
+        "@testing-library/react": "^15.0.2",
         "@testing-library/user-event": "^14.5.2",
         "adm-zip": "^0.5.12",
         "archiver": "^7.0.1",
@@ -60,7 +60,7 @@
         ]
     },
     "devDependencies": {
-        "electron": "^29.2.0",
+        "electron": "^30.0.0",
         "electron-builder": "^24.13.3",
         "foreman": "^3.0.1"
     },
