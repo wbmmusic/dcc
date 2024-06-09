@@ -12,9 +12,9 @@ const tryConnection = () => client.connect({ port: port, host: '127.0.0.1' }, ()
         console.log('starting electron');
         startedElectron = true;
         const exec = require('child_process').exec;
-        var elctrn = exec('yarn run electron');
+        var electron = exec('pnpm electron');
 
-        elctrn.stdout.on('data', function (data) {
+        electron.stdout.on('data', function (data) {
             console.log(data);
         });
     }

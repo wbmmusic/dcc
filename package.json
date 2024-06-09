@@ -15,12 +15,12 @@
         "@serialport/parser-byte-length": "^12.0.0",
         "@serialport/parser-inter-byte-timeout": "^12.0.0",
         "@testing-library/jest-dom": "^6.4.5",
-        "@testing-library/react": "^15.0.7",
+        "@testing-library/react": "^16.0.0",
         "@testing-library/user-event": "^14.5.2",
-        "adm-zip": "^0.5.13",
+        "adm-zip": "^0.5.14",
         "archiver": "^7.0.1",
         "bootstrap": "^5.3.3",
-        "electron-updater": "^6.1.8",
+        "electron-updater": "^6.2.1",
         "react": "^18.3.1",
         "react-bootstrap": "^2.10.2",
         "react-dom": "^18.3.1",
@@ -42,9 +42,9 @@
         "package": "electron-builder build -c.extraMetadata.main=build/main.js --publish never",
         "deploy": "electron-builder build -c.extraMetadata.main=build/main.js --publish always",
         "backup": "git add . && git commit -m %NPM_PACKAGE_VERSION% && git push origin master",
-        "upload": "yarn build && yarn backup && yarn deploy ",
-        "try": "yarn build && yarn package ",
-        "refresh": "yarn upgrade --latest"
+        "upload": "pnpm build && pnpm backup && pnpm deploy ",
+        "try": "pnpm build && pnpm package ",
+        "refresh": "pnpm upgrade --latest"
     },
     "eslintConfig": {
         "extends": "react-app"
@@ -62,7 +62,7 @@
         ]
     },
     "devDependencies": {
-        "electron": "^30.0.9",
+        "electron": "^30.1.0",
         "electron-builder": "^24.13.3",
         "foreman": "^3.0.1"
     },
@@ -87,5 +87,6 @@
     "repository": {
         "type": "git",
         "url": "https://github.com/wbmmusic/dcc.git"
-    }
+    },
+    "packageManager": "pnpm@9.2.0+sha512.98a80fd11c2e7096747762304106432b3ddc67dcf54b5a8c01c93f68a2cd5e05e6821849522a06fb76284d41a2660d5e334f2ee3bbf29183bf2e739b1dafa771"
 }
