@@ -10,8 +10,8 @@
     "dependencies": {
         "@emotion/react": "^11.11.4",
         "@emotion/styled": "^11.11.5",
-        "@mui/icons-material": "^5.16.0",
-        "@mui/material": "^5.16.0",
+        "@mui/icons-material": "^5.16.4",
+        "@mui/material": "^5.16.4",
         "@serialport/parser-byte-length": "^12.0.0",
         "@serialport/parser-inter-byte-timeout": "^12.0.0",
         "@testing-library/jest-dom": "^6.4.6",
@@ -24,7 +24,7 @@
         "react": "^18.3.1",
         "react-bootstrap": "^2.10.4",
         "react-dom": "^18.3.1",
-        "react-router-dom": "^6.24.1",
+        "react-router-dom": "^6.25.0",
         "react-scripts": "5.0.1",
         "react-select": "^5.8.0",
         "serialport": "^12.0.0",
@@ -62,7 +62,7 @@
         ]
     },
     "devDependencies": {
-        "electron": "^31.1.0",
+        "electron": "^31.2.1",
         "electron-builder": "^24.13.3",
         "foreman": "^3.0.1"
     },
