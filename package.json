@@ -29,7 +29,7 @@
         "react-select": "^5.8.2",
         "serialport": "^12.0.0",
         "usb": "^2.14.0",
-        "uuid": "^10.0.0"
+        "uuid": "^11.0.1"
     },
     "scripts": {
         "dev": "nf start",
