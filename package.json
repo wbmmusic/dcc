@@ -10,8 +10,8 @@
     "dependencies": {
         "@emotion/react": "^11.14.0",
         "@emotion/styled": "^11.14.0",
-        "@mui/icons-material": "^7.0.2",
-        "@mui/material": "^7.0.2",
+        "@mui/icons-material": "^7.1.0",
+        "@mui/material": "^7.1.0",
         "@serialport/parser-byte-length": "^13.0.0",
         "@serialport/parser-inter-byte-timeout": "^13.0.0",
         "@testing-library/jest-dom": "^6.6.3",
@@ -19,12 +19,12 @@
         "@testing-library/user-event": "^14.6.1",
         "adm-zip": "^0.5.16",
         "archiver": "^7.0.1",
-        "bootstrap": "^5.3.5",
+        "bootstrap": "^5.3.6",
         "electron-updater": "^6.6.2",
         "react": "^19.1.0",
         "react-bootstrap": "^2.10.9",
         "react-dom": "^19.1.0",
-        "react-router-dom": "^7.5.3",
+        "react-router-dom": "^7.6.0",
         "react-scripts": "5.0.1",
         "react-select": "^5.10.1",
         "serialport": "^13.0.0",
@@ -62,7 +62,7 @@
         ]
     },
     "devDependencies": {
-        "electron": "^36.1.0",
+        "electron": "^36.2.0",
         "electron-builder": "^26.0.12",
         "foreman": "^3.0.1"
     },
