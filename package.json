@@ -19,7 +19,7 @@
         "@testing-library/user-event": "^14.6.1",
         "adm-zip": "^0.5.16",
         "archiver": "^7.0.1",
-        "bootstrap": "^5.3.6",
+        "bootstrap": "^5.3.7",
         "electron-updater": "^6.6.2",
         "react": "^19.1.0",
         "react-bootstrap": "^2.10.10",
