@@ -9,7 +9,7 @@
     "icon": "icon.ico",
     "dependencies": {
         "@emotion/react": "^11.14.0",
-        "@emotion/styled": "^11.14.0",
+        "@emotion/styled": "^11.14.1",
         "@mui/icons-material": "^7.1.2",
         "@mui/material": "^7.1.2",
         "@serialport/parser-byte-length": "^13.0.0",
@@ -62,7 +62,7 @@
         ]
     },
     "devDependencies": {
-        "electron": "^36.5.0",
+        "electron": "^37.1.0",
         "electron-builder": "^26.0.12",
         "foreman": "^3.0.1"
     },
