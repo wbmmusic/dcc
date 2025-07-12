@@ -26,7 +26,7 @@
         "react-dom": "^19.1.0",
         "react-router-dom": "^7.6.3",
         "react-scripts": "5.0.1",
-        "react-select": "^5.10.1",
+        "react-select": "^5.10.2",
         "serialport": "^13.0.0",
         "usb": "^2.15.0",
         "uuid": "^11.1.0"
@@ -62,7 +62,7 @@
         ]
     },
     "devDependencies": {
-        "electron": "^37.2.0",
+        "electron": "^37.2.1",
         "electron-builder": "^26.0.12",
         "foreman": "^3.0.1"
     },
