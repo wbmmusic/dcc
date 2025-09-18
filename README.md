@@ -1,28 +1,33 @@
 # Big D's Railroad
 
-React + Electron desktop application for comprehensive DCC (Digital Command Control) model railroad layout management. This professional-grade control system provides complete locomotive control, decoder programming, and layout automation for serious model railroad enthusiasts.
+Custom DCC (Digital Command Control) application built for Dennis's N gauge model railroad. This Electron-based React app provides intuitive locomotive control, decoder programming, and layout automation through NCE PowerCab integration.
 
 ## Key Features
 
-- **Locomotive Control**: Individual throttle windows with speed, direction, and function control for multiple locomotives simultaneously
-- **DCC Programming**: Programming track support for reading/writing CVs (Configuration Variables) to decoders with comprehensive error handling
-- **NCE USB Interface**: Full integration with NCE PowerCab and USB interface for reliable DCC command station communication
-- **Switch Control**: Automated turnout and switch control with macro programming capabilities for complex route management
-- **Accessory Management**: Control of signals, lights, and other layout accessories with custom programmable actions
-- **Consist Management**: Multiple unit locomotive consists with synchronized control for realistic operations
-- **Decoder Database**: Comprehensive decoder definitions for various manufacturers (ESU LokSound, TCS, etc.) with CV mapping
-- **Macro System**: Programmable macros for complex layout operations and automated sequences
-- **Backup/Restore**: Complete layout configuration backup and restore functionality for data protection
-- **Multi-Window Interface**: Separate throttle windows for each locomotive with always-on-top capability for operational convenience
-- **Professional Features**: Auto-updater, configuration management, and comprehensive error handling for reliable operation
+- **Multi-Locomotive Control**: Simultaneous operation of up to 3 locomotives with separate always-on-top throttle windows
+- **NCE PowerCab Integration**: Auto-detecting USB interface with automatic reconnection handling
+- **Programming Track Support**: CV programming and decoder configuration on dedicated programming track
+- **Sound Decoder Functions**: Toggle and momentary function control for horns, bells, lights, and sound effects
+- **Layout Automation**: Macro system for controlling multiple switches and scenic elements simultaneously
+- **Visual Layout Interface**: Main window layout view for intuitive train operations
+- **Consist Management**: Multi-unit locomotive control with synchronized speed and direction
+- **Backup/Restore**: Configuration and locomotive roster backup with image preservation
+- **Auto-Updates**: Seamless software updates without manual intervention
+- **Customizable Decoders**: Built-in decoder definitions with user customization capabilities
 
-## Architecture
+## Hardware Requirements
 
-Electron application with React frontend, serial communication via NCE USB interface, and multi-window throttle system designed for professional model railroad control and automation.
+- NCE PowerCab DCC system
+- NCE USB interface for PowerCab
+- Windows computer with available USB port
 
-## Model Railroad Usage
+## Usage
 
-Designed for serious model railroad enthusiasts with complex DCC layouts requiring professional-grade locomotive control, decoder programming, and layout automation capabilities.
+Designed specifically for Dennis's N gauge layout operations, featuring occasional operating sessions with simple switch control and scenic automation. The app handles typical home layout scenarios with 3 concurrent locomotives and basic accessory control.
+
+## Technical Architecture
+
+Electron application with React frontend, SerialPort communication for NCE USB interface, multi-window throttle system, and automatic USB device detection with reconnection handling.
 
 ## Dependencies
 
@@ -32,3 +37,7 @@ Designed for serious model railroad enthusiasts with complex DCC layouts requiri
 - Material-UI
 - SerialPort
 - electron-updater
+
+## Development Notes
+
+Built as a fun programming challenge to create a custom DCC control system. The application is designed to be flexible and expandable for future layout modifications while currently serving Dennis's specific N gauge operations.
