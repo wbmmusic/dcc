@@ -44,7 +44,8 @@ const createWindow = () => {
         title: 'Big D\'s Railroad v' + app.getVersion(),
         webPreferences: {
             preload: join(__dirname, 'preload.js'),
-            sandbox: false
+            sandbox: false,
+            webSecurity: false
         }
     })
 
@@ -74,7 +75,18 @@ const checkIfAllThrottlesAreClosed = () => {
     if (!allAreClosed) win.webContents.send('throttlesClosed')
 }
 
-app.on('ready', () => {
+app.whenReady().then(() => {
+    // Register protocols before creating windows
+    protocol.registerFileProtocol('loco', (request, callback) => {
+        const fileName = request.url.replace('loco://', '')
+        const imagePath = normalize(`${util.pathToImages}/${fileName}`)
+        console.log('Protocol request:', request.url, '-> Path:', imagePath)
+        callback({ path: imagePath })
+    })
+
+    protocol.registerFileProtocol('aimg', (request, callback) => {
+        callback({ path: normalize(`${util.pathToAppImages}/${request.url.substring(7)}`) })
+    })
 
     ipcMain.on('reactIsReady', () => {
         //console.log('React Is Ready')
@@ -281,13 +293,7 @@ app.on('ready', () => {
     ipcMain.handle('setSwitch', (e, id, action) => setSwitch(id, action))
 
 
-    protocol.registerFileProtocol('loco', (request, callback) => {
-        callback({ path: normalize(`${util.pathToImages}/${request.url.substring(6)}`) })
-    })
 
-    protocol.registerFileProtocol('aimg', (request, callback) => {
-        callback({ path: normalize(`${util.pathToAppImages}/${request.url.substring(6)}`) })
-    })
 
     // IMPORTANT /////////////////////////////////////////////////////////////////////////////////////////////////
     util.config.locos.forEach(loco => locoObjects.push({ id: loco._id, loco: new Locomotive({ loco: loco }) }))

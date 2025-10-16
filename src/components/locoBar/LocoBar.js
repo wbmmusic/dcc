@@ -7,16 +7,11 @@ export default function LocoBar({ selectedLoco, selectLoco }) {
     const navigate = useNavigate();
 
     const [locos, setLocos] = useState([])
-    const [consists, setConsists] = useState([])
     const [showAll, setShowAll] = useState(false)
 
     useEffect(() => {
         window.electron.invoke('getLocomotives')
             .then(theLocos => setLocos(theLocos))
-            .catch(err => console.log(err))
-
-        window.electron.invoke('getConsists')
-            .then(theConsists => setConsists(theConsists))
             .catch(err => console.log(err))
     }, [])
 

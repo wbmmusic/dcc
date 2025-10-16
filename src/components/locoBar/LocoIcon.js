@@ -6,20 +6,12 @@ import ArrowForwardIosTwoToneIcon from '@mui/icons-material/ArrowForwardIosTwoTo
 import ArrowBackIosNewTwoToneIcon from '@mui/icons-material/ArrowBackIosNewTwoTone';
 import OpenInNewTwoToneIcon from '@mui/icons-material/OpenInNewTwoTone';
 import { useNavigate } from 'react-router-dom';
-const join = window.electron.join
 
 
 export default function LocoIcon(props) {
     const navigate = useNavigate()
 
-    const getAddressBytes = () => {
-        var address = props.loco.address
-        console.log("Address = " + address)
-        var lowByte = address & 0xff
-        var highByte = (address >> 8) & 0xff
-        var highBytex = highByte | 0xC0
-        return [highBytex, lowByte]
-    }
+
 
     const settings = () => {
         console.log('SETTINGS idx:' + props.index + ' ' + props.loco.name + ' ' + props.loco.number)
@@ -30,11 +22,7 @@ export default function LocoIcon(props) {
     const moveLeft = () => console.log('Move LocoIcon Left')
     const moveRight = () => console.log('Move LocoIcon Right')
 
-    const estop = () => {
-        console.log('E-STOP')
-        var addy = getAddressBytes()
-        window.electron.send('send-serial', [0xA2, addy[0], addy[1], 5, 0])
-    }
+
 
     const openThrottle = (id) => window.electron.send('newThrottle', id)
 
@@ -57,7 +45,7 @@ export default function LocoIcon(props) {
     if (props.index <= 0) leftButton = ''
     if (props.index >= props.numberOfLocos) rightButton = ''
 
-    console.log(props)
+
 
     return (
         <div style={{ ...iconContainerStyle, backgroundColor: props.selectedLoco === props.index ? 'aliceblue' : 'white' }}>
@@ -102,7 +90,12 @@ export default function LocoIcon(props) {
                         overflow: 'hidden'
                     }}
                 >
-                    <img alt="Locomotive" width='80%' src={join('loco://', props.loco.photo)} />
+                    <img 
+                        alt="Locomotive" 
+                        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                        src={`loco://${props.loco.photo || 'default.jpg'}`}
+
+                    />
                 </div>
 
                 <div style={{ height: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', }}>
