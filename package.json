@@ -4,7 +4,7 @@
   "author": "Marece Williams",
   "description": "React and Electron Awesome App",
   "homepage": "./",
-  "main": "public/main.js",
+  "main": ".vite/build/main.js",
   "private": true,
   "icon": "icon.ico",
   "dependencies": {
@@ -14,75 +14,40 @@
     "@mui/material": "^7.3.6",
     "@serialport/parser-byte-length": "^13.0.0",
     "@serialport/parser-inter-byte-timeout": "^13.0.0",
-    "@testing-library/jest-dom": "^6.9.0",
-    "@testing-library/react": "^16.3.0",
-    "@testing-library/user-event": "^14.6.1",
     "adm-zip": "^0.5.16",
     "archiver": "^7.0.1",
-    "bootstrap": "^5.3.8",
+    "electron-squirrel-startup": "^1.0.1",
     "electron-updater": "^6.6.2",
     "react": "^19.2.1",
-    "react-bootstrap": "^2.10.10",
     "react-dom": "^19.2.1",
     "react-router-dom": "^7.10.1",
-    "react-scripts": "5.0.1",
     "react-select": "^5.10.2",
     "serialport": "^13.0.0",
     "usb": "^2.16.0",
     "uuid": "^13.0.0"
   },
   "scripts": {
-    "dev": "nf start",
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "electron": "electron .",
-    "postinstall": "electron-builder install-app-deps",
-    "package": "electron-builder build -c.extraMetadata.main=build/main.js --publish never",
-    "deploy": "electron-builder build -c.extraMetadata.main=build/main.js --publish always",
+    "dev": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "publish": "electron-forge publish",
     "backup": "git add . && git commit -m %NPM_PACKAGE_VERSION% && git push origin master",
-    "upload": "pnpm build && pnpm backup && pnpm deploy ",
-    "try": "pnpm build && pnpm package ",
+    "upload": "pnpm package && pnpm backup && pnpm make",
+    "try": "pnpm package && pnpm make",
     "refresh": "pnpm upgrade --latest"
   },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
   "devDependencies": {
+    "@electron-forge/cli": "^7.10.0",
+    "@electron-forge/maker-squirrel": "^7.10.0",
+    "@electron-forge/maker-zip": "^7.10.0",
+    "@electron-forge/plugin-fuses": "^7.10.0",
+    "@electron-forge/plugin-vite": "^7.10.0",
+    "@electron/fuses": "^2.0.0",
+    "@types/node": "^24.10.2",
+    "@vitejs/plugin-react": "^5.1.2",
     "electron": "^39.2.6",
-    "electron-builder": "^26.0.12",
-    "foreman": "^3.0.1"
-  },
-  "build": {
-    "productName": "Big D's Railroad",
-    "appId": "com.wbm.dcc",
-    "copyright": "WBM Tek",
-    "extends": null,
-    "npmRebuild": false,
-    "files": [
-      "build/**/*",
-      "electron/*"
-    ],
-    "extraResources": [
-      "public/locos/*"
-    ],
-    "win": {
-      "icon": "public/icon.ico",
-      "certificateSubjectName": "WBM Tek (Mareci, William)"
-    }
+    "typescript": "^5.9.3",
+    "vite": "^7.2.7"
   },
   "repository": {
     "type": "git",

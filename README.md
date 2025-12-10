@@ -27,16 +27,34 @@ Designed specifically for Dennis's N gauge layout operations, featuring occasion
 
 ## Technical Architecture
 
-Electron application with React frontend, SerialPort communication for NCE USB interface, multi-window throttle system, and automatic USB device detection with reconnection handling.
+Electron Forge application with Vite build system, React frontend, TypeScript, SerialPort communication for NCE USB interface, multi-window throttle system, and automatic USB device detection with reconnection handling.
 
 ## Dependencies
 
-- React
-- Electron
+- React 19
+- Electron 39
+- Electron Forge + Vite
+- TypeScript
 - Bootstrap
 - Material-UI
 - SerialPort
 - electron-updater
+
+## Development
+
+```bash
+# Install dependencies
+pnpm install
+
+# Run in development mode
+pnpm dev
+
+# Package for distribution
+pnpm package
+
+# Create installer
+pnpm make
+```
 
 ## Development Notes
 

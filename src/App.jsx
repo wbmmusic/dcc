@@ -1,8 +1,8 @@
 import React from "react";
 import { HashRouter, Route, Routes } from "react-router-dom";
 
-import MainApp from "./MainApp";
-import ModalTop from "./modals/ModalTop";
+import MainApp from "./MainApp.jsx";
+import ModalTop from "./modals/ModalTop.jsx";
 
 function App() {
   return (

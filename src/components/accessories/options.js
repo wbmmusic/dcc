@@ -1,4 +1,4 @@
-exports.accessories = [
+export const accessories = [
     {
         _id: 'nce_illuminator',
         name: 'NCE Illuminator',

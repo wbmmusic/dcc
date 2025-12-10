@@ -1,40 +1,46 @@
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
 .pageContainer {
-    display: inline-block;
-    border: 1px solid black;
-    padding: 10px;
-    box-shadow: 2px 2px 4px lightgrey;
+  display: inline-block;
+  border: 1px solid black;
+  padding: 10px;
+  box-shadow: 0px 0px 2px lightgrey;
 }
 
 @keyframes warning {
-    from {
-        background-color: rgb(255, 0, 0);
-    }
-    to {
-        background-color: yellow;
-    }
+  from {
+    background-color: rgb(255, 0, 0);
+  }
+  to {
+    background-color: yellow;
+  }
 }
 
 .usbError {
-    animation-duration: .5s;
-    animation-name: warning;
-    animation-iteration-count: infinite;
-    animation-direction: alternate;
+  animation-duration: 0.5s;
+  animation-name: warning;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
 }
 
 ::-webkit-scrollbar {
-    width: .6em;
-    height: .6em;
+  width: 0.6em;
+  height: 0.6em;
 }
 
 ::-webkit-scrollbar-track {
-    background: lightGrey;
+  background: lightGrey;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: rgb(138, 138, 138);
-    border-radius: 100vw;
+  background: rgb(138, 138, 138);
+  border-radius: 100vw;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, .6);
+  background: rgba(0, 0, 0, 0.6);
 }
