@@ -207,6 +207,20 @@ export default function EditLocomotive() {
                                 />
                             </td>
                         </tr>
+                        <tr>
+                            <td style={labelStyle}>Hidden</td>
+                            <td>
+                                <input
+                                    type="checkbox"
+                                    checked={loco.hidden}
+                                    onChange={(e) => setLoco(old => ({ ...old, hidden: e.target.checked }))}
+                                    style={{ transform: 'scale(1.2)' }}
+                                />
+                                <span style={{ marginLeft: '8px', fontSize: theme.fontSize.sm, color: theme.colors.gray[300] }}>
+                                    Hide this locomotive from the main bar
+                                </span>
+                            </td>
+                        </tr>
                     </tbody>
                 </Table>
             </div>

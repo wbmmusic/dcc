@@ -88,6 +88,7 @@ export class IPCController {
         ipcMain.handle('updateLocomotive', (e, editedLoco) => util.updateLoco(editedLoco))
         ipcMain.handle('deleteLocomotive', (e, id) => util.deleteLoco(id))
         ipcMain.handle('getLocomotiveById', (e, id) => util.getLocoByID(id))
+        ipcMain.handle('moveLocomotive', (e, fromIndex, toIndex) => util.moveLocomotive(fromIndex, toIndex))
     }
 
     private registerThrottleHandlers(): void {

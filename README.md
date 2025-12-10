@@ -86,6 +86,9 @@ pnpm make
 
 ## Recent Updates
 
+- **Drag & Drop Reordering**: Replaced arrow buttons with intuitive drag handles for locomotive reordering
+- **Enhanced Locomotive Management**: Added search, show all/hide all functions, and card-based layout
+- **Improved UI/UX**: Dark-themed modals, better button organization, and locomotive visibility controls
 - **Fixed Button Colors**: Reorganized theme colors so only E-Stop and Delete buttons are red
 - **Throttle Window Sync**: Fixed bidirectional synchronization between main window and throttle windows
 - **Window Titles**: Throttle windows now show locomotive numbers, main window shows app version

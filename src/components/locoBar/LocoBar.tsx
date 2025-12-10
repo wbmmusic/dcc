@@ -9,6 +9,9 @@ import React, { useEffect, useState } from 'react'
 import { Button, useTheme } from '../../ui';
 import { useNavigate } from 'react-router-dom';
 import LocoIcon from './LocoIcon';
+import { DndContext, closestCenter, DragEndEvent, PointerSensor, useSensor, useSensors, DragOverlay } from '@dnd-kit/core';
+import { SortableContext, horizontalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
+import { createPortal } from 'react-dom';
 
 import { LocoBarProps } from '../../types/react';
 import { Locomotive } from '../../types';
@@ -36,7 +39,16 @@ export default function LocoBar({ selectedLoco, setSelectedLoco }: LocoBarProps)
     const navigate = useNavigate();
 
     const [locos, setLocos] = useState<Locomotive[]>([])
-    const [showAll, setShowAll] = useState(false)
+    const [activeId, setActiveId] = useState<string | null>(null)
+    
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 8,
+            },
+        })
+    )
+
 
     useEffect(() => {
         window.electron.invoke('getLocomotives')
@@ -44,83 +56,50 @@ export default function LocoBar({ selectedLoco, setSelectedLoco }: LocoBarProps)
             .catch((err: unknown) => console.log(err))
     }, [])
 
-    const handleToggleHidden = () => {
-        console.log('Toggle Hidden Locos')
-        if (showAll) setShowAll(false)
-        else setShowAll(true)
+
+
+    const visibleLocos = locos.filter(loco => !loco.hidden)
+
+    const handleDragStart = (event: any) => {
+        setActiveId(event.active.id)
     }
 
-    const makeLocoIcons = () => {
-        let locoIcons = []
-
-        if (locos.length <= 0) return (
-            <div style={{ width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                <div style={{ textAlign: 'center' }}><b>No Locomotives</b></div>
-                <div style={{ textAlign: 'center' }}><Button size='sm' onClick={() => navigate('/locomotives/new')}>Add Locomotive</Button></div>
-            </div>
-        )
-
-        for (var i = 0; i < locos.length; i++) {
-            var color = 'lightgrey'
-            if (locos[i]._id === selectedLoco) color = '#3498DB'
-            if (locos[i].hidden) color = '#D98880'
-
-            var tempKey = "LocoIcon" + i
-
-            if (!locos[i].hidden || showAll) {
-                locoIcons.push(
-                    <div key={tempKey} data-name="LocoSlot" style={{ display: 'inline-block' }}>
-                        <LocoIcon
-                            loco={locos[i]}
-                            numberOfLocos={locos.length}
-                            idx={i}
-                            selectedLoco={selectedLoco}
-                            setSelectedLoco={setSelectedLoco}
-                            color={color}
-                        />
-                    </div>
-                )
+    const handleDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event
+        setActiveId(null)
+        
+        if (active.id !== over?.id) {
+            const oldIndex = visibleLocos.findIndex(loco => loco._id === active.id)
+            const newIndex = visibleLocos.findIndex(loco => loco._id === over?.id)
+            
+            if (oldIndex !== -1 && newIndex !== -1) {
+                // Update local state immediately for smooth animation
+                const newVisibleLocos = arrayMove(visibleLocos, oldIndex, newIndex)
+                const newLocos = [...locos]
+                
+                // Update the full array maintaining hidden locomotives
+                let visibleIdx = 0
+                for (let i = 0; i < newLocos.length; i++) {
+                    if (!newLocos[i].hidden) {
+                        newLocos[i] = newVisibleLocos[visibleIdx]
+                        visibleIdx++
+                    }
+                }
+                
+                setLocos(newLocos)
+                
+                // Update backend in background
+                window.electron.invoke('moveLocomotive', oldIndex, newIndex)
             }
         }
-
-        let btnLbl
-
-        if (showAll) btnLbl = "Hide Locos"
-        else btnLbl = "Show All Locos"
-
-        var isOneHidden = false
-        for (var locoCnt = 0; locoCnt < locos.length; locoCnt++) {
-            if (locos[locoCnt].hidden) {
-                isOneHidden = true
-                break
-            }
-        }
-
-        if (isOneHidden) {
-            locoIcons.push(
-                <div key="Show/HideButton" data-name="showHideBtn" style={{ display: 'inline-block' }}>
-                    <div style={{
-                        backgroundColor: theme.colors.light,
-                        height: '118px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        textAlign: 'center',
-                        fontSize: theme.fontSize.sm,
-                        padding: `0 ${theme.spacing.sm}`,
-                        cursor: 'context-menu',
-                        borderRadius: theme.borderRadius.md,
-                    }}
-                        onMouseDown={handleToggleHidden}
-                    >
-                        <div>{btnLbl}</div>
-                    </div>
-                </div>
-            )
-        }
-
-        return locoIcons
     }
+
+    if (locos.length <= 0) return (
+        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+            <div style={{ textAlign: 'center' }}><b>No Locomotives</b></div>
+            <div style={{ textAlign: 'center' }}><Button size='sm' onClick={() => navigate('/locomotives/new')}>Add Locomotive</Button></div>
+        </div>
+    )
 
     return (
         <div
@@ -139,7 +118,45 @@ export default function LocoBar({ selectedLoco, setSelectedLoco }: LocoBarProps)
                 padding: `${theme.spacing.xs} 0`
             }}
         >
-            {makeLocoIcons()}
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+                <SortableContext items={visibleLocos.map(loco => loco._id)} strategy={horizontalListSortingStrategy}>
+                    {visibleLocos.map((loco, i) => {
+                        const color = loco._id === selectedLoco ? '#3498DB' : 'lightgrey'
+                        return (
+                            <LocoIcon
+                                key={loco._id}
+                                loco={loco}
+                                numberOfLocos={locos.length}
+                                idx={i}
+                                selectedLoco={selectedLoco}
+                                setSelectedLoco={setSelectedLoco}
+                                color={color}
+                            />
+                        )
+                    })}
+                </SortableContext>
+                <DragOverlay>
+                    {activeId ? (
+                        <div style={{ opacity: 0.8 }}>
+                            {(() => {
+                                const draggedLoco = visibleLocos.find(loco => loco._id === activeId)
+                                if (!draggedLoco) return null
+                                const color = draggedLoco._id === selectedLoco ? '#3498DB' : 'lightgrey'
+                                return (
+                                    <LocoIcon
+                                        loco={draggedLoco}
+                                        numberOfLocos={locos.length}
+                                        idx={0}
+                                        selectedLoco={selectedLoco}
+                                        setSelectedLoco={setSelectedLoco}
+                                        color={color}
+                                    />
+                                )
+                            })()} 
+                        </div>
+                    ) : null}
+                </DragOverlay>
+            </DndContext>
         </div>
     )
 }

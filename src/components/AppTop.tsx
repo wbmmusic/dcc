@@ -97,6 +97,12 @@ export default function AppTop(): React.JSX.Element {
          * @param {KeyboardEvent} e - Keyboard event from user input
          */
         const handleKeyPress = (e: KeyboardEvent) => {
+            // Don't trigger shortcuts when typing in input fields
+            const target = e.target as HTMLElement
+            if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+                return
+            }
+            
             // Emergency stop - highest priority for safety
             if (e.key === ' ' || e.key === 'Escape') {
                 e.preventDefault()

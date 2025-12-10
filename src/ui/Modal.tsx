@@ -33,11 +33,13 @@ export const Modal = ({ show, onHide, onClose, title, footer, children }: ModalP
     >
       <div
         style={{
-          backgroundColor: '#fff',
+          backgroundColor: theme.colors.background.light,
+          color: theme.colors.light,
           borderRadius: theme.borderRadius.md,
           minWidth: '400px',
           maxWidth: '90%',
-          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.5)',
+          border: `1px solid ${theme.colors.gray[600]}`,
         }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -56,7 +58,8 @@ Modal.Header = ({ children }: { children: ReactNode }): React.JSX.Element => {
     <div
       style={{
         padding: theme.spacing.md,
-        borderBottom: `1px solid ${theme.colors.gray[300]}`,
+        borderBottom: `1px solid ${theme.colors.gray[600]}`,
+        color: theme.colors.light,
         fontWeight: 'bold',
         fontSize: theme.fontSize.lg,
       }}
@@ -83,7 +86,7 @@ Modal.Footer = ({ children }: { children: ReactNode }): React.JSX.Element => {
     <div
       style={{
         padding: theme.spacing.md,
-        borderTop: `1px solid ${theme.colors.gray[300]}`,
+        borderTop: `1px solid ${theme.colors.gray[600]}`,
         display: 'flex',
         justifyContent: 'flex-end',
         gap: theme.spacing.sm,

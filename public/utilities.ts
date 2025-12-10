@@ -198,6 +198,15 @@ export const updateLoco = (editedLoco: any) => {
     }
     return new Error('Locomotive not found')
 }
+export const moveLocomotive = (fromIndex: number, toIndex: number) => {
+    if (fromIndex < 0 || fromIndex >= config.locos.length || toIndex < 0 || toIndex >= config.locos.length) {
+        return new Error('Invalid index')
+    }
+    const [movedLoco] = config.locos.splice(fromIndex, 1)
+    config.locos.splice(toIndex, 0, movedLoco)
+    saveConfig()
+    return config.locos
+}
 
 // SWITCH MANAGEMENT
 /** Get all configured switches */

@@ -3,13 +3,16 @@ import { Locomotive, DeleteModalState } from '../../types'
 import AddCircleTwoToneIcon from '@mui/icons-material/AddCircleTwoTone';
 import DeleteForeverTwoToneIcon from '@mui/icons-material/DeleteForeverTwoTone';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
-import { Button, Table, Modal, useTheme } from '../../ui'
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import { Button, Modal, useTheme } from '../../ui'
 import { useNavigate } from 'react-router-dom';
 
 export default function LocomotiveList() {
     const theme = useTheme()
     const navigate = useNavigate()
     const [locomotives, setLocomotives] = useState<Locomotive[]>([])
+    const [searchTerm, setSearchTerm] = useState('')
     const defaultDeleteModal: DeleteModalState<Locomotive> = { show: false, id: '' }
     const [deleteLocoModal, setDeleteLocoModal] = useState<DeleteModalState<Locomotive>>(defaultDeleteModal)
 
@@ -31,6 +34,24 @@ export default function LocomotiveList() {
 
     const handleClose = () => setDeleteLocoModal(defaultDeleteModal)
 
+    const handleShowAll = () => {
+        const updatedLocos = locomotives.map(loco => ({ ...loco, hidden: false }))
+        Promise.all(updatedLocos.map(loco => window.electron.invoke('updateLocomotive', loco)))
+            .then(() => setLocomotives(updatedLocos))
+    }
+
+    const handleHideAll = () => {
+        const updatedLocos = locomotives.map(loco => ({ ...loco, hidden: true }))
+        Promise.all(updatedLocos.map(loco => window.electron.invoke('updateLocomotive', loco)))
+            .then(() => setLocomotives(updatedLocos))
+    }
+
+    const filteredLocomotives = locomotives.filter(loco => 
+        loco.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        loco.number.toString().includes(searchTerm) ||
+        loco.model.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+
     return (
         <div className='pageContainer'>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: theme.spacing.md }}>
@@ -40,88 +61,150 @@ export default function LocomotiveList() {
                     Add Locomotive
                 </Button>
             </div>
+            
+            <div style={{ display: 'flex', gap: theme.spacing.md, marginBottom: theme.spacing.md, alignItems: 'center' }}>
+                <input
+                    type="text"
+                    placeholder="Search locomotives..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    style={{
+                        flex: 1,
+                        padding: '8px 12px',
+                        fontSize: theme.fontSize.sm,
+                        border: `1px solid ${theme.colors.gray[600]}`,
+                        borderRadius: theme.borderRadius.sm,
+                        backgroundColor: theme.colors.gray[800],
+                        color: theme.colors.light
+                    }}
+                />
+                {locomotives.some(loco => loco.hidden) && (
+                    <Button variant='secondary' size='sm' onClick={handleShowAll}>Show All</Button>
+                )}
+                {locomotives.some(loco => !loco.hidden) && (
+                    <Button variant='secondary' size='sm' onClick={handleHideAll}>Hide All</Button>
+                )}
+            </div>
 
-            <div style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.3)', borderRadius: theme.borderRadius.md, overflow: 'hidden' }}>
-                <Table>
-                    <thead>
-                        <tr>
-                            <th style={{ width: '80px' }}>Photo</th>
-                            <th>Name</th>
-                            <th style={{ width: '100px' }}>#</th>
-                            <th>Model</th>
-                            <th style={{ textAlign: 'center', width: '100px' }}>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {
-                            locomotives.map((loco, i) => (
-                                <tr 
-                                    key={loco._id + i}
-                                    style={{ cursor: 'pointer', transition: 'background-color 0.2s ease' }}
-                                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = theme.colors.gray[700]}
-                                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                                    onClick={() => navigate('/system/locomotives/edit/' + loco._id)}
-                                >
-                                    <td>
-                                        <img 
-                                            src={`loco://${loco.photo || 'default.jpg'}`} 
-                                            alt={loco.name}
-                                            style={{ 
-                                                width: '60px', 
-                                                height: '40px', 
-                                                objectFit: 'contain',
-                                                border: `1px solid ${theme.colors.gray[600]}`,
-                                                borderRadius: theme.borderRadius.sm,
-                                                backgroundColor: theme.colors.gray[900],
-                                                padding: theme.spacing.xs
-                                            }}
-                                        />
-                                    </td>
-                                    <td>{loco.name}</td>
-                                    <td style={{ fontSize: theme.fontSize.lg, fontWeight: 'bold', color: theme.colors.warning }}>{loco.number}</td>
-                                    <td>{loco.model}</td>
-                                    <td style={{ textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
-                                        <span
-                                            style={{
-                                                cursor: 'pointer',
-                                                marginLeft: theme.spacing.xs,
-                                                marginRight: theme.spacing.xs,
-                                                display: 'inline-flex',
-                                                alignItems: 'center',
-                                                padding: '4px',
-                                                borderRadius: theme.borderRadius.sm,
-                                                transition: 'transform 0.2s ease'
-                                            }}
-                                            onClick={() => navigate('/system/locomotives/edit/' + loco._id)}
-                                            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.2)'}
-                                            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                                        >
-                                            <EditTwoToneIcon style={{ fontSize: '20px' }} />
-                                        </span>
-                                        <span
-                                            style={{
-                                                cursor: 'pointer',
-                                                marginLeft: theme.spacing.xs,
-                                                marginRight: theme.spacing.xs,
-                                                display: 'inline-flex',
-                                                alignItems: 'center',
-                                                padding: '4px',
-                                                borderRadius: theme.borderRadius.sm,
-                                                color: theme.colors.danger,
-                                                transition: 'transform 0.2s ease'
-                                            }}
-                                            onClick={() => setDeleteLocoModal({ show: true, id: loco._id })}
-                                            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.2)'}
-                                            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                                        >
-                                            <DeleteForeverTwoToneIcon style={{ fontSize: '20px' }} />
-                                        </span>
-                                    </td>
-                                </tr>
-                            ))
-                        }
-                    </tbody>
-                </Table>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: theme.spacing.md }}>
+                {
+                    filteredLocomotives.map((loco, i) => (
+                        <div 
+                            key={loco._id + i}
+                            style={{
+                                backgroundColor: theme.colors.gray[800],
+                                border: `1px solid ${theme.colors.gray[600]}`,
+                                borderRadius: theme.borderRadius.md,
+                                padding: theme.spacing.md,
+                                boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                                transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                                cursor: 'pointer'
+                            }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.transform = 'translateY(-2px)'
+                                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.4)'
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.transform = 'translateY(0)'
+                                e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)'
+                            }}
+                            onClick={() => navigate('/system/locomotives/edit/' + loco._id)}
+                        >
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: theme.spacing.md }}>
+                                <div style={{ fontSize: theme.fontSize.lg, fontWeight: 'bold' }}>{loco.name}</div>
+                                <div style={{ fontSize: theme.fontSize.xl, fontWeight: 'bold', color: theme.colors.warning }}>{loco.number}</div>
+                            </div>
+                            <div style={{ 
+                                width: '100%', 
+                                height: '120px', 
+                                marginBottom: theme.spacing.md,
+                                border: `2px solid ${theme.colors.gray[600]}`,
+                                borderRadius: theme.borderRadius.md,
+                                backgroundColor: theme.colors.gray[900],
+                                overflow: 'hidden',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                            }}>
+                                <img 
+                                    src={`loco://${loco.photo || 'default.jpg'}`} 
+                                    alt={loco.name}
+                                    style={{ 
+                                        maxWidth: '100%', 
+                                        maxHeight: '100%', 
+                                        objectFit: 'contain'
+                                    }}
+                                />
+                            </div>
+                            <div style={{ marginBottom: theme.spacing.md, color: theme.colors.gray[300] }}>
+                                <strong>Model:</strong> {loco.model}
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} onClick={(e) => e.stopPropagation()}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: theme.spacing.sm }}>
+                                    <span
+                                        style={{
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            padding: '6px',
+                                            borderRadius: theme.borderRadius.sm,
+                                            color: loco.hidden ? theme.colors.gray[500] : theme.colors.success,
+                                            transition: 'transform 0.2s ease'
+                                        }}
+                                        onClick={() => {
+                                            const updatedLoco = { ...loco, hidden: !loco.hidden }
+                                            window.electron.invoke('updateLocomotive', updatedLoco)
+                                                .then(() => {
+                                                    setLocomotives(prev => prev.map(l => l._id === loco._id ? updatedLoco : l))
+                                                })
+                                                .catch(err => console.log(err))
+                                        }}
+                                        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.2)'}
+                                        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                                        title={loco.hidden ? 'Show locomotive' : 'Hide locomotive'}
+                                    >
+                                        {loco.hidden ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                                    </span>
+                                </div>
+                                <div style={{ display: 'flex', gap: theme.spacing.sm }}>
+                                    <span
+                                        style={{
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            padding: '6px',
+                                            borderRadius: theme.borderRadius.sm,
+                                            transition: 'transform 0.2s ease'
+                                        }}
+                                        onClick={() => navigate('/system/locomotives/edit/' + loco._id)}
+                                        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.2)'}
+                                        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                                        title="Edit locomotive"
+                                    >
+                                        <EditTwoToneIcon style={{ fontSize: '20px' }} />
+                                    </span>
+                                    <span
+                                        style={{
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            padding: '6px',
+                                            borderRadius: theme.borderRadius.sm,
+                                            color: theme.colors.danger,
+                                            transition: 'transform 0.2s ease'
+                                        }}
+                                        onClick={() => setDeleteLocoModal({ show: true, id: loco._id })}
+                                        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.2)'}
+                                        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                                        title="Delete locomotive"
+                                    >
+                                        <DeleteForeverTwoToneIcon style={{ fontSize: '20px' }} />
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    ))
+                }
             </div>
 
             <Modal
@@ -135,7 +218,26 @@ export default function LocomotiveList() {
                     </>
                 }
             >
-                Are you sure you want to delete this locomotive?
+                {(() => {
+                    const loco = locomotives.find(l => l._id === deleteLocoModal.id)
+                    return loco ? (
+                        <div>
+                            <p>Are you sure you want to delete this locomotive?</p>
+                            <div style={{ 
+                                backgroundColor: theme.colors.gray[700], 
+                                padding: theme.spacing.md, 
+                                borderRadius: theme.borderRadius.sm,
+                                marginTop: theme.spacing.md,
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center'
+                            }}>
+                                <strong>{loco.name}</strong>
+                                <span style={{ color: theme.colors.warning, fontWeight: 'bold' }}>{loco.number}</span>
+                            </div>
+                        </div>
+                    ) : 'Are you sure you want to delete this locomotive?'
+                })()} 
             </Modal>
         </div>
     )
