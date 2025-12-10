@@ -76,14 +76,14 @@ module.exports = {
   },
   makers: [
     {
-      name: '@electron-forge/maker-wix',
+      name: '@electron-forge/maker-squirrel',
       config: {
-        name: 'Big Ds Railroad',
-        manufacturer: 'WBM Tek',
-        description: 'Big D\'s Railroad - DCC Control System',
-        exe: 'Big Ds Railroad.exe',
-        icon: 'public/icon.ico',
-        upgradeCode: 'a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d'
+        name: 'dcc',
+        authors: 'Marece Williams',
+        description: 'Big D\'s Railroad - Custom DCC Control',
+        iconUrl: 'https://raw.githubusercontent.com/wbmmusic/dcc/master/public/icon.ico',
+        setupIcon: 'public/icon.ico',
+        certificateSubjectName: 'WBM Tek (Mareci, William)',
       },
     },
     {

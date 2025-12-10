@@ -33,7 +33,7 @@
     "dev": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
-    "publish": "electron-forge publish",
+    "publish": "set PATH=C:\\Program Files\\7-Zip;%PATH% && electron-forge publish",
     "backup": "git add . && git commit -m %NPM_PACKAGE_VERSION% && git push origin master",
     "upload": "pnpm backup && pnpm make",
     "try": "pnpm package && pnpm make",
