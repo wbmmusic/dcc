@@ -144,7 +144,7 @@ export class DCCApplication {
         if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
             this.mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL)
         } else {
-            this.mainWindow.loadFile(join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`))
+            this.mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
         }
 
         this.mainWindow.on('closed', () => app.quit())

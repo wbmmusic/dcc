@@ -164,7 +164,7 @@ export class Locomotive {
             if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
                 startUrl = MAIN_WINDOW_VITE_DEV_SERVER_URL + "#/modal/throttle"
             } else {
-                startUrl = `file://${join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`)}#/modal/throttle`
+                startUrl = `file://${join(__dirname, `../renderer/index.html`)}#/modal/throttle`
             }
 
             console.log("Start url=", startUrl)

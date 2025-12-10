@@ -35,7 +35,7 @@
     "make": "electron-forge make",
     "publish": "electron-forge publish",
     "backup": "git add . && git commit -m %NPM_PACKAGE_VERSION% && git push origin master",
-    "upload": "pnpm package && pnpm backup && pnpm make",
+    "upload": "pnpm backup && pnpm make",
     "try": "pnpm package && pnpm make",
     "refresh": "pnpm upgrade --latest"
   },
@@ -45,6 +45,7 @@
     "@electron-forge/maker-zip": "^7.10.0",
     "@electron-forge/plugin-fuses": "^7.10.0",
     "@electron-forge/plugin-vite": "^7.10.0",
+    "@electron-forge/publisher-github": "^7.10.2",
     "@electron/fuses": "^2.0.0",
     "@types/adm-zip": "^0.5.7",
     "@types/archiver": "^7.0.0",
@@ -54,6 +55,8 @@
     "@types/uuid": "^11.0.0",
     "@vitejs/plugin-react": "^5.1.2",
     "electron": "^39.2.6",
+    "electron-rebuild": "^3.2.9",
+    "fs-extra": "^11.3.2",
     "typescript": "^5.9.3",
     "vite": "^7.2.7"
   },
@@ -61,5 +64,5 @@
     "type": "git",
     "url": "https://github.com/wbmmusic/dcc.git"
   },
-  "packageManager": "pnpm@9.2.0+sha512.98a80fd11c2e7096747762304106432b3ddc67dcf54b5a8c01c93f68a2cd5e05e6821849522a06fb76284d41a2660d5e334f2ee3bbf29183bf2e739b1dafa771"
+  "packageManager": "pnpm@10.19.0+sha512.c9fc7236e92adf5c8af42fd5bf1612df99c2ceb62f27047032f4720b33f8eacdde311865e91c411f2774f618d82f320808ecb51718bfa82c060c4ba7c76a32b8"
 }

@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite';
+import { builtinModules } from 'module';
 
 export default defineConfig({
   resolve: {
@@ -7,17 +8,27 @@ export default defineConfig({
     mainFields: ['module', 'jsnext:main', 'jsnext']
   },
   build: {
+    sourcemap: true,
     rollupOptions: {
       external: [
+        'electron',
+        // Native modules must be external - they'll be loaded from node_modules at runtime
         'serialport',
+        'usb',
+        '@serialport/bindings-cpp',
         '@serialport/parser-byte-length',
         '@serialport/parser-inter-byte-timeout',
-        'usb',
-        'electron',
+        '@serialport/parser-readline',
+        '@serialport/stream',
+        'bindings',
         'electron-updater',
-        'archiver',
-        'adm-zip',
+        // All Node.js built-ins
+        ...builtinModules,
+        ...builtinModules.map((m) => `node:${m}`),
       ],
+      output: {
+        format: 'cjs',
+      }
     },
   },
 });
