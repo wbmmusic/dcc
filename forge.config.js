@@ -76,19 +76,8 @@ module.exports = {
   },
   makers: [
     {
-      name: '@electron-forge/maker-squirrel',
-      config: {
-        name: 'dcc',
-        authors: 'Marece Williams',
-        description: 'Big D\'s Railroad - Custom DCC Control',
-        iconUrl: 'https://raw.githubusercontent.com/wbmmusic/dcc/master/public/icon.ico',
-        setupIcon: 'public/icon.ico',
-        certificateSubjectName: 'WBM Tek (Mareci, William)',
-      },
-    },
-    {
       name: '@electron-forge/maker-zip',
-      platforms: ['darwin'],
+      platforms: ['win32', 'darwin', 'linux'],
     },
   ],
   publishers: [
