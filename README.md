@@ -74,7 +74,12 @@ pnpm package
 
 # Create installer
 pnpm make
+
+# Build and publish to GitHub releases (draft)
+pnpm publish
 ```
+
+**Releases**: Automated GitHub releases with Windows Squirrel installer. Requires `GITHUB_TOKEN` environment variable. Draft releases are created automatically at https://github.com/wbmmusic/dcc/releases
 
 ## Architecture Benefits
 
