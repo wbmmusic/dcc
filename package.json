@@ -46,7 +46,7 @@
     "@types/node": "^24.10.2",
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",
-    "@types/uuid": "^10.0.0",
+    "@types/uuid": "^11.0.0",
     "@vitejs/plugin-react": "^5.1.2",
     "electron": "^39.2.6",
     "typescript": "^5.9.3",
