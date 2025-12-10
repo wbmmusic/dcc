@@ -2,7 +2,7 @@
   "name": "dcc",
   "version": "0.2.20",
   "author": "Marece Williams",
-  "description": "React and Electron Awesome App",
+  "description": "Professional DCC Railroad Control System with Service-Oriented Architecture",
   "homepage": "./",
   "main": ".vite/build/main.js",
   "private": true,

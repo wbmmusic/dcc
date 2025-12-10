@@ -25,3 +25,19 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .eslintcache
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+Thumbs.db
+
+# TypeScript
+*.tsbuildinfo
+
+# Logs
+logs/
+*.log

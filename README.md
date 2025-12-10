@@ -27,7 +27,27 @@ Designed specifically for Dennis's N gauge layout operations, featuring occasion
 
 ## Technical Architecture
 
-Electron Forge application with Vite build system, React frontend, TypeScript, SerialPort communication for NCE USB interface, multi-window throttle system, and automatic USB device detection with reconnection handling.
+**Service-Oriented Architecture** with clean separation of concerns:
+
+- **Main Process**: Service-oriented design with dependency injection
+  - `DCCService`: Hardware communication (NCE USB protocol)
+  - `StateService`: Centralized state management with event system
+  - `WindowService`: Multi-window throttle management
+  - `LocomotiveController`: Business logic coordination
+  - `IPCController`: Message routing between processes
+
+- **Renderer Process**: React frontend with TypeScript
+  - Component-based UI with Material-UI
+  - Real-time locomotive control interfaces
+  - Configuration and programming dialogs
+
+- **Communication**: 
+  - SerialPort for NCE USB interface
+  - IPC for main/renderer coordination
+  - Event-driven state updates
+  - Automatic USB device detection with reconnection
+
+- **Build System**: Electron Forge + Vite with TypeScript compilation
 
 ## Dependencies
 
@@ -56,6 +76,14 @@ pnpm package
 pnpm make
 ```
 
+## Architecture Benefits
+
+- **Maintainable**: Each service has single responsibility
+- **Testable**: Services can be unit tested independently  
+- **Scalable**: Easy to add new DCC features or support multiple systems
+- **Type-Safe**: Full TypeScript coverage with shared type definitions
+- **Professional**: Enterprise-grade patterns with dependency injection
+
 ## Development Notes
 
-Built as a fun programming challenge to create a custom DCC control system. The application is designed to be flexible and expandable for future layout modifications while currently serving Dennis's specific N gauge operations.
+Built as a programming challenge to create a custom DCC control system using modern software architecture patterns. The service-oriented design makes it flexible and expandable for future layout modifications while currently serving Dennis's specific N gauge operations.
