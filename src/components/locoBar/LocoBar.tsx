@@ -31,7 +31,7 @@ import { Locomotive } from '../../types';
  * @param {LocoBarProps} props - Component props
  * @returns {React.JSX.Element} The locomotive selection bar
  */
-export default function LocoBar({ selectedLoco, selectLoco }: LocoBarProps) {
+export default function LocoBar({ selectedLoco, setSelectedLoco }: LocoBarProps) {
     const theme = useTheme()
     const navigate = useNavigate();
 
@@ -40,8 +40,8 @@ export default function LocoBar({ selectedLoco, selectLoco }: LocoBarProps) {
 
     useEffect(() => {
         window.electron.invoke('getLocomotives')
-            .then(theLocos => setLocos(theLocos))
-            .catch(err => console.log(err))
+            .then((theLocos: unknown) => setLocos(theLocos as Locomotive[]))
+            .catch((err: unknown) => console.log(err))
     }, [])
 
     const handleToggleHidden = () => {
@@ -62,20 +62,20 @@ export default function LocoBar({ selectedLoco, selectLoco }: LocoBarProps) {
 
         for (var i = 0; i < locos.length; i++) {
             var color = 'lightgrey'
-            if (i === selectedLoco) color = '#3498DB'
+            if (locos[i]._id === selectedLoco) color = '#3498DB'
             if (locos[i].hidden) color = '#D98880'
 
             var tempKey = "LocoIcon" + i
 
             if (!locos[i].hidden || showAll) {
                 locoIcons.push(
-                    <div key={tempKey} name="LocoSlot" style={{ display: 'inline-block' }}>
+                    <div key={tempKey} data-name="LocoSlot" style={{ display: 'inline-block' }}>
                         <LocoIcon
                             loco={locos[i]}
-                            numberOfLocos={locos.length - 1}
-                            index={i}
+                            numberOfLocos={locos.length}
+                            idx={i}
                             selectedLoco={selectedLoco}
-                            selected={selectLoco}
+                            setSelectedLoco={setSelectedLoco}
                             color={color}
                         />
                     </div>
@@ -98,7 +98,7 @@ export default function LocoBar({ selectedLoco, selectLoco }: LocoBarProps) {
 
         if (isOneHidden) {
             locoIcons.push(
-                <div key="Show/HideButton" name="showHideBtn" style={{ display: 'inline-block' }}>
+                <div key="Show/HideButton" data-name="showHideBtn" style={{ display: 'inline-block' }}>
                     <div style={{
                         backgroundColor: theme.colors.light,
                         height: '118px',

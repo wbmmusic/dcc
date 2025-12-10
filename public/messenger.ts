@@ -20,14 +20,19 @@ export let dccInterface: any = null;
  * @returns {boolean} True if interface started successfully
  */
 export const startInterface = (iface: any, status: any) => {
-    switch (iface.type) {
-        case 'nceUsb':
-            // Initialize NCE PowerCab USB interface
-            dccInterface = new NceUSB({ comPort: iface.port, status: status })
-            return true
+    try {
+        switch (iface.type) {
+            case 'nceUsb':
+                // Initialize NCE PowerCab USB interface
+                dccInterface = new NceUSB({ comPort: iface.port, status: status })
+                return true
 
-        default:
-            return false
+            default:
+                return false
+        }
+    } catch (error) {
+        console.error('Failed to start DCC interface:', error)
+        return false
     }
 }
 
@@ -41,7 +46,7 @@ export const startInterface = (iface: any, status: any) => {
  * @param {boolean} useC0 - Whether to set the C0 bit for locomotive addressing
  * @returns {number[]} Array of [highByte, lowByte]
  */
-const getAddressBytes = (address, useC0) => {
+const getAddressBytes = (address: number, useC0: boolean) => {
     var lowByte = address & 0xff        // Extract low 8 bits
     var highByte = (address >> 8) & 0xff // Extract high 8 bits
     if (useC0) return [highByte | 0xC0, lowByte]  // Set C0 bit for loco addressing
@@ -56,22 +61,27 @@ const getAddressBytes = (address, useC0) => {
  * @param {string} direction - 'forward' or 'reverse'
  */
 export const setSpeedAndDir = (address: number, speed: number, direction: string) => {
-    console.log(`Address: ${address} | Speed: ${speed} | Direction: ${direction}`)
+    console.log(`Address: ${Number(address)} | Speed: ${Number(speed)} | Direction: ${String(direction).replace(/[\r\n\x00-\x1f\x7f-\x9f]/g, '')}`)
     if (!util.usbConnected) return
 
-    const makeDirection = (direction, speed) => {
-        let out = [direction, speed]
-        if (direction === 'forward') out[0] = 4
-        else if (direction === 'reverse') out[0] = 3
-        else out = [4, 0]
+    try {
+        const makeDirection = (direction: string, speed: number) => {
+            let out = [direction, speed]
+            if (direction === 'forward') out[0] = 4
+            else if (direction === 'reverse') out[0] = 3
+            else out = [4, 0]
 
-        return out
+            return out
+        }
+
+        dccInterface.sendMSG({
+            type: 'locoCtrlCmd',
+            data: [...getAddressBytes(address, true), ...makeDirection(direction, speed)]
+        })
+    } catch (error) {
+        console.error('Failed to send speed/direction command:', error)
+        throw error
     }
-
-    dccInterface.sendMSG({
-        type: 'locoCtrlCmd',
-        data: [...getAddressBytes(address, true), ...makeDirection(direction, speed)]
-    })
 }
 
 export const sendEStop = (address: number, direction: string) => {
@@ -161,15 +171,21 @@ export const setFunction = (address: number, funcNum: number, functionStates: an
     }
 
     if (!util.usbConnected) return
-    dccInterface.sendMSG({
-        type: 'locoCtrlCmd',
-        data: [...getAddressBytes(address, true), ...makeOP()]
-    })
+    
+    try {
+        dccInterface.sendMSG({
+            type: 'locoCtrlCmd',
+            data: [...getAddressBytes(address, true), ...makeOP()]
+        })
+    } catch (error) {
+        console.error(`Failed to send function command for address ${address}, function ${funcNum}:`, error)
+        throw error
+    }
 
 }
 
 export const sendAsyncSignal = (address: number, op: number, data: number) => {
-    console.log("Seting Switch", address)
+    console.log("Setting Switch", Number(address))
     if (!util.usbConnected) return
     dccInterface.sendMSG({
         type: 'asyncSignal',
@@ -234,13 +250,21 @@ export const getProgrammingTrackStatus = () => dccInterface.programmingTrackEnab
 
 export const readCvPrg = async (cv: number) => {
     return new Promise((resolve, reject) => {
-        const cvVal = (state) => resolve(state)
+        try {
+            const cvVal = (state: any) => resolve(state)
 
-        dccInterface.sendMSG({
-            type: 'readCvPrg',
-            data: [...getAddressBytes(cv, true)],
-            callback: cvVal
-        })
+            if (!dccInterface) {
+                reject(new Error('DCC Interface not available'))
+                return
+            }
 
+            dccInterface.sendMSG({
+                type: 'readCvPrg',
+                data: [...getAddressBytes(cv, true)],
+                callback: cvVal
+            })
+        } catch (error) {
+            reject(error)
+        }
     })
 }

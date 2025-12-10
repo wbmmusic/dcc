@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Button, Table, useTheme } from '../../ui'
-
+import { Decoder, DecoderFunction } from '../../types'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 
 export default function EditDecoder() {
@@ -9,14 +9,14 @@ export default function EditDecoder() {
     const location = useLocation()
     const navigate = useNavigate()
 
-    const makeFunctions = () => {
-        let out = []
+    const makeFunctions = (): DecoderFunction[] => {
+        let out: DecoderFunction[] = []
         for (let i = 0; i < 32; i++) {
             out.push({ name: '', action: 'toggle' })
         }
         return out
     }
-    const defaultDecoder = {
+    const defaultDecoder: Decoder = {
         _id: window.electron.uuid(),
         name: '',
         model: '',
@@ -24,29 +24,24 @@ export default function EditDecoder() {
         functions: makeFunctions()
     }
 
-    const getDecoderByID = async (id) => {
-        return new Promise(async (resolve, reject) => {
-            try {
-                let decoder = window.electron.invoke('getDecoderById', id)
-                resolve(decoder)
-            } catch (error) {
-                reject(error)
-            }
-        })
-
-
+    const getDecoderByID = async (id: string): Promise<Decoder> => {
+        return window.electron.invoke('getDecoderById', id) as any
     }
 
     const makeState = async () => {
         if (decoderID !== undefined) {
-            let theDecoder = await getDecoderByID(decoderID)
-            setDecoder(JSON.parse(JSON.stringify(theDecoder)))
-            setOgDecoder(JSON.parse(JSON.stringify(theDecoder)))
+            try {
+                let theDecoder = await getDecoderByID(decoderID)
+                setDecoder(JSON.parse(JSON.stringify(theDecoder)))
+                setOgDecoder(JSON.parse(JSON.stringify(theDecoder)))
+            } catch (err) {
+                console.error(err)
+            }
         }
     }
 
     const [decoder, setDecoder] = useState<Decoder>(defaultDecoder)
-    const [ogDecoder, setOgDecoder] = useState(null)
+    const [ogDecoder, setOgDecoder] = useState<Decoder | null>(null)
 
     useEffect(() => {
         makeState()
@@ -56,31 +51,31 @@ export default function EditDecoder() {
         //console.log(decoder)
     }, [decoder])
 
-    const readyToCreate = () => {
+    const readyToCreate = (): boolean => {
         if (decoder.name !== '' && decoder.model !== '' && decoder.manufacturer !== '') return true
         else return false
     }
 
-    const readyToSave = () => {
+    const readyToSave = (): boolean => {
         if (!readyToCreate()) return false
         if (JSON.stringify(ogDecoder) === JSON.stringify(decoder)) return false
         else return true
     }
 
     const handleCreate = () => {
-        window.electron.invoke('createDecoder', decoder)
-            .then(navigate('/decoders'))
-            .catch(err => console.log(err))
+        window.electron.invoke('createDecoder', decoder as any)
+            .then(() => navigate('/decoders'))
+            .catch((err: unknown) => console.log(err))
     }
 
     const handleSaveChanges = () => {
-        window.electron.invoke('updateDecoder', decoder)
-            .then(navigate('/decoders'))
-            .catch(err => console.log(err))
+        window.electron.invoke('updateDecoder', decoder as any)
+            .then(() => navigate('/decoders'))
+            .catch((err: unknown) => console.log(err))
     }
 
     const makeButtons = () => {
-        const createOrUpdate = () => {
+        const createOrUpdate = (): React.ReactElement | undefined => {
             if (location.pathname.includes('new')) {
                 return (
                     <Button size="sm" disabled={!readyToCreate()} onClick={handleCreate}>Create Decoder</Button>
@@ -90,6 +85,7 @@ export default function EditDecoder() {
                     <Button size="sm" disabled={!readyToSave()} onClick={handleSaveChanges}>Save Changes</Button>
                 )
             }
+            return undefined
         }
 
         return (
@@ -101,9 +97,9 @@ export default function EditDecoder() {
         )
     }
 
-    const makeChannels = () => {
-        let out = []
-        decoder.functions.forEach((func, i) => {
+    const makeChannels = (): React.ReactElement[] => {
+        let out: React.ReactElement[] = []
+        decoder.functions.forEach((func: DecoderFunction, i: number) => {
             out.push(
                 <tr key={`functionChannel${i}`}>
                     <td><b>{i}</b></td>
@@ -113,7 +109,7 @@ export default function EditDecoder() {
                             placeholder='Enter Function Name'
                             value={func.name}
                             onChange={(e) => {
-                                setDecoder(old => {
+                                setDecoder((old: Decoder) => {
                                     let tempFuncs = [...old.functions]
                                     tempFuncs[i].name = e.target.value
                                     return { ...old, functions: tempFuncs }
@@ -134,7 +130,7 @@ export default function EditDecoder() {
                             <Button
                                 size="sm"
                                 variant={func.action === 'toggle' ? 'primary' : 'secondary'}
-                                onClick={() => setDecoder(old => {
+                                onClick={() => setDecoder((old: Decoder) => {
                                     let tempFuncs = [...old.functions]
                                     tempFuncs[i].action = 'toggle'
                                     return { ...old, functions: tempFuncs }
@@ -144,7 +140,7 @@ export default function EditDecoder() {
                             <Button
                                 size="sm"
                                 variant={func.action === 'momentary' ? 'primary' : 'secondary'}
-                                onClick={() => setDecoder(old => {
+                                onClick={() => setDecoder((old: Decoder) => {
                                     let tempFuncs = [...old.functions]
                                     tempFuncs[i].action = 'momentary'
                                     return { ...old, functions: tempFuncs }
@@ -159,12 +155,13 @@ export default function EditDecoder() {
         return out
     }
 
-    const makeLabel = () => {
+    const makeLabel = (): React.ReactElement | undefined => {
         if (location.pathname.includes('edit')) {
             return <div style={{ fontSize: theme.fontSize.lg, fontWeight: 'bold' }}>Edit Decoder</div>
         } else if (location.pathname.includes('new')) {
             return <div style={{ fontSize: theme.fontSize.lg, fontWeight: 'bold' }}>New Decoder</div>
         }
+        return undefined
     }
 
     return (
@@ -190,7 +187,7 @@ export default function EditDecoder() {
                                             }}
                                             placeholder='Decoder Name'
                                             value={decoder.name}
-                                            onChange={(e) => setDecoder(old => ({ ...old, name: e.target.value }))}
+                                            onChange={(e) => setDecoder((old: Decoder) => ({ ...old, name: e.target.value }))}
                                         /></td>
                                     </tr>
                                     <tr>
@@ -206,7 +203,7 @@ export default function EditDecoder() {
                                             }}
                                             placeholder='Decoder Model'
                                             value={decoder.model}
-                                            onChange={(e) => setDecoder(old => ({ ...old, model: e.target.value }))}
+                                            onChange={(e) => setDecoder((old: Decoder) => ({ ...old, model: e.target.value }))}
                                         /></td>
                                     </tr>
                                     <tr>
@@ -222,7 +219,7 @@ export default function EditDecoder() {
                                             }}
                                             placeholder='Decoder Manufacturer'
                                             value={decoder.manufacturer}
-                                            onChange={(e) => setDecoder(old => ({ ...old, manufacturer: e.target.value }))}
+                                            onChange={(e) => setDecoder((old: Decoder) => ({ ...old, manufacturer: e.target.value }))}
                                         /></td>
                                     </tr>
                                 </tbody>

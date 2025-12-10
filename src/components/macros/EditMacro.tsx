@@ -3,6 +3,13 @@ import { Button, Table, Modal } from '../../ui'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import Select from 'react-select'
 import { selectStyle } from '../../styles'
+import { Macro, Switch, MacroAction } from '../../types'
+
+interface ActionModal {
+    show: boolean;
+    handle: string;
+    action: MacroAction;
+}
 
 export default function EditMacro() {
     const location = useLocation()
@@ -10,27 +17,33 @@ export default function EditMacro() {
     const macroID = useParams().macroID
     const [state, setState] = useState<Partial<Macro>>({ name: '', actions: [] })
     const [switches, setSwitches] = useState<Switch[]>([])
-    const defaultActionModal = { show: false, handle: '', action: { switch: '', state: 'open' } }
-    const [actionModal, setActionModal] = useState(defaultActionModal)
+    const defaultActionModal: ActionModal = { show: false, handle: '', action: { switch: '', state: 'open' } }
+    const [actionModal, setActionModal] = useState<ActionModal>(defaultActionModal)
 
     const createMacro = () => {
-        window.electron.invoke('createMacro', { _id: window.electron.uuid(), ...state })
-            .then(res => navigate('/macros'))
-            .catch(err => console.error(err))
+        const macroData: Macro = {
+            _id: window.electron.uuid(),
+            name: state.name || '',
+            actions: state.actions || []
+        }
+        window.electron.invoke('createMacro', macroData as any)
+            .then(() => navigate('/macros'))
+            .catch((err: unknown) => console.error(err))
     }
 
     const updateMacro = () => {
         window.electron.invoke('updateMacro', state)
-            .then(res => navigate('/macros'))
-            .catch(err => console.error(err))
+            .then(() => navigate('/macros'))
+            .catch((err: unknown) => console.error(err))
     }
 
-    const makeTitle = () => {
+    const makeTitle = (): string => {
         if (location.pathname.includes('new')) {
             return "Create"
         } else if (location.pathname.includes('edit')) {
             return "Edit"
-        } else return "ERROR"
+        }
+        return "ERROR"
     }
 
     const makeButtons = () => {
@@ -52,7 +65,7 @@ export default function EditMacro() {
     }
 
     const addAction = () => {
-        setState(old => ({ ...old, actions: [...old.actions, actionModal.action] }))
+        setState(old => ({ ...old, actions: [...(old.actions || []), actionModal.action] }))
         setActionModal(defaultActionModal)
     }
 
@@ -60,7 +73,7 @@ export default function EditMacro() {
 
     }
 
-    const getSwitchName = (id) => {
+    const getSwitchName = (id: string): string => {
         const switchID = switches.findIndex(sw => sw._id === id)
         if (switchID >= 0) return switches[switchID].name
         else return "ERROR"
@@ -68,16 +81,17 @@ export default function EditMacro() {
 
     const closeActionModal = () => setActionModal(defaultActionModal)
 
-    const constMakeActionModal = () => {
+    const makeActionModal = (): React.ReactElement | undefined => {
         if (actionModal.show) {
 
-            const makeButton = () => {
+            const makeButton = (): React.ReactElement | undefined => {
                 if (actionModal.handle === 'Add') return <Button variant="primary" onClick={addAction}>Add</Button>
                 else if (actionModal.handle === 'Edit') return <Button variant="primary" onClick={updateAction}>Update</Button>
+                return undefined
             }
 
             const makeSwitchOptions = () => {
-                let out = []
+                let out: { label: string; value: string }[] = []
                 switches.forEach(swch => out.push({ label: swch.name, value: swch._id }))
                 return out
             }
@@ -85,10 +99,10 @@ export default function EditMacro() {
             const makeSwitchValue = () => {
                 if (actionModal.action.switch === '') return null
                 let theSwitch = switches.find(sw => sw._id === actionModal.action.switch)
-                return { label: theSwitch.name, value: theSwitch._id }
+                return theSwitch ? { label: theSwitch.name, value: theSwitch._id } : null
             }
 
-            const showUnderSwitch = () => {
+            const showUnderSwitch = (): React.ReactElement | undefined => {
                 if (actionModal.action.switch !== '') {
                     return (
                         <tr>
@@ -112,6 +126,7 @@ export default function EditMacro() {
                         </tr>
                     )
                 }
+                return undefined
             }
 
             return (
@@ -137,7 +152,11 @@ export default function EditMacro() {
                                                 styles={selectStyle}
                                                 options={makeSwitchOptions()}
                                                 value={makeSwitchValue()}
-                                                onChange={(e) => setActionModal(old => ({ ...old, action: { ...old.action, switch: e.value } }))}
+                                                onChange={(e: any) => {
+                                                    if (e) {
+                                                        setActionModal(old => ({ ...old, action: { ...old.action, switch: e.value || '' } }))
+                                                    }
+                                                }}
                                             />
                                         </td>
                                     </tr>
@@ -149,12 +168,13 @@ export default function EditMacro() {
                 </Modal>
             )
         }
+        return undefined
     }
 
-    const makeActions = () => {
-        let out = []
+    const makeActions = (): React.ReactElement[] => {
+        let out: React.ReactElement[] = []
 
-        state.actions.forEach((act, i) => {
+        (state.actions || []).forEach((act: MacroAction, i: number) => {
             out.push(
                 <tr key={`actionRow${i}`}>
                     <td>{getSwitchName(act.switch)}</td>
@@ -169,16 +189,16 @@ export default function EditMacro() {
     useEffect(() => {
         if (macroID) {
             window.electron.invoke('getMacroByID', macroID)
-                .then(res => {
+                .then((res: unknown) => {
                     console.log(res)
-                    setState(res)
+                    setState(res as Macro)
                 })
-                .catch(err => console.error(err))
+                .catch((err: unknown) => console.error(err))
         }
 
         window.electron.invoke('getSwitches')
-            .then(res => setSwitches(res))
-            .catch(err => console.error(err))
+            .then((res: unknown) => setSwitches(res as Switch[]))
+            .catch((err: unknown) => console.error(err))
 
     }, [])
 
@@ -198,7 +218,7 @@ export default function EditMacro() {
                                         type="text"
                                         placeholder='Macro Name'
                                         value={state.name}
-                                        onChange={(e) => setState(old => ({ ...old, name: e.target.value }))}
+                                        onChange={(e) => setState((old: Partial<Macro>) => ({ ...old, name: e.target.value }))}
                                     />
                                 </td>
                             </tr>
@@ -224,7 +244,7 @@ export default function EditMacro() {
             </div>
             <hr />
             {makeButtons()}
-            {constMakeActionModal()}
+            {makeActionModal()}
         </div>
     )
 }

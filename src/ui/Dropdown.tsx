@@ -15,11 +15,11 @@ interface DropdownProps {
 export default function Dropdown({ label, items, variant = 'primary' }: DropdownProps): React.JSX.Element {
   const theme = useTheme()
   const [show, setShow] = useState(false)
-  const dropdownRef = useRef(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && e.target && !dropdownRef.current.contains(e.target as Node)) {
         setShow(false)
       }
     }
@@ -75,8 +75,8 @@ export default function Dropdown({ label, items, variant = 'primary' }: Dropdown
                 fontSize: theme.fontSize.md,
                 borderBottom: i < items.length - 1 ? `1px solid ${theme.colors.gray[600]}` : 'none'
               }}
-              onMouseEnter={(e) => e.target.style.backgroundColor = theme.colors.gray[700]}
-              onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+              onMouseEnter={(e) => (e.target as HTMLElement).style.backgroundColor = theme.colors.gray[700]}
+              onMouseLeave={(e) => (e.target as HTMLElement).style.backgroundColor = 'transparent'}
             >
               {item.label}
             </div>

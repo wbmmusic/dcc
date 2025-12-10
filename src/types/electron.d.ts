@@ -44,6 +44,13 @@ interface ElectronAPI {
    * @returns A unique UUID string
    */
   uuid: () => string;
+  
+  /**
+   * Get the unique window ID for throttle windows
+   * Used to identify which locomotive a throttle window controls
+   * @returns Window ID or null if not a throttle window
+   */
+  getWindowID: () => string | null;
 }
 
 declare global {

@@ -12,23 +12,21 @@ export default function SwitchesList() {
 
     useEffect(() => {
         window.electron.invoke('getSwitches')
-            .then(res => {
+            .then((res: unknown) => {
                 console.log(res)
-                setSwitches(res)
+                setSwitches(res as Switch[])
             })
-            .catch(err => console.log(err))
+            .catch((err: unknown) => console.log(err))
     }, [])
 
     return (
         <div className='pageContainer'>
             <div style={{ display: 'flex', alignItems: 'center' }}>
                 <b>Switches</b>
-                <div
-                    style={{ color: 'green', display: 'inline-block', cursor: 'pointer', marginLeft: '10px' }}
-                    onClick={() => navigate('/system/switches/new')}
-                >
-                    <AddCircleTwoToneIcon />
-                </div>
+                <Button variant='secondary' size='sm' onClick={() => navigate('/system/switches/new')}>
+                    <AddCircleTwoToneIcon style={{ fontSize: '18px', marginRight: '4px' }} />
+                    Add Switch
+                </Button>
             </div>
             <div style={{ display: 'inline-block' }} >
                 <Table>
@@ -52,12 +50,12 @@ export default function SwitchesList() {
                                             variant={switchh.state ? 'success' : 'secondary'}
                                             onClick={() => {
                                                 window.electron.invoke('setSwitch', switchh._id, 'open')
-                                                    .then(res => {
+                                                    .then((res: unknown) => {
                                                         let tempSwitches = [...switches]
-                                                        tempSwitches[idx].state = res
+                                                        tempSwitches[idx].state = res as boolean
                                                         setSwitches(tempSwitches)
                                                     })
-                                                    .catch(err => console.log(err))
+                                                    .catch((err: unknown) => console.log(err))
                                             }}
                                         >Open</Button>
                                     </td>
@@ -67,12 +65,12 @@ export default function SwitchesList() {
                                             variant={switchh.state ? 'secondary' : 'success'}
                                             onClick={() => {
                                                 window.electron.invoke('setSwitch', switchh._id, 'close')
-                                                    .then(res => {
+                                                    .then((res: unknown) => {
                                                         let tempSwitches = [...switches]
-                                                        tempSwitches[idx].state = res
+                                                        tempSwitches[idx].state = res as boolean
                                                         setSwitches(tempSwitches)
                                                     })
-                                                    .catch(err => console.log(err))
+                                                    .catch((err: unknown) => console.log(err))
                                             }}
                                         >Close</Button>
                                     </td>

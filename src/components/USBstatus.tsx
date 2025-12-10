@@ -11,12 +11,12 @@ export default function USBstatus() {
 
     useEffect(() => {
         window.electron.invoke('getUsbConnection')
-            .then(res => setIsConnected(res))
-            .catch(err => console.error(err))
+            .then((res: unknown) => setIsConnected(res as boolean))
+            .catch((err: unknown) => console.error(err))
 
-        window.electron.receive('usbConnection', (connection) => {
+        window.electron.receive('usbConnection', (connection: unknown) => {
             console.log(connection)
-            setIsConnected(connection)
+            setIsConnected(connection as boolean)
         })
 
         return () => window.electron.removeListener('usbConnection')

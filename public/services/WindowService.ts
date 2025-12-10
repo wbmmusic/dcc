@@ -34,78 +34,109 @@ export class WindowService {
      * Create throttle window for locomotive
      */
     async createThrottleWindow(locomotiveId: string, locomotiveData: any): Promise<BrowserWindow> {
-        // Close existing window if open
-        if (this.throttleWindows.has(locomotiveId)) {
-            const existingWindow = this.throttleWindows.get(locomotiveId)!
-            existingWindow.focus()
-            return existingWindow
-        }
-
-        const windowArg = `--windowID:${locomotiveId}`
-        
-        const throttleWindow = new BrowserWindow({
-            width: 300,
-            height: 650,
-            icon: join(__dirname, '/throttle.ico'),
-            autoHideMenuBar: true,
-            show: false,
-            title: `${locomotiveData.name} ${locomotiveData.number}`,
-            alwaysOnTop: true,
-            webPreferences: {
-                preload: join(__dirname, 'preload.js'),
-                sandbox: false,
-                nodeIntegration: false,
-                contextIsolation: true,
-                webSecurity: true,
-                additionalArguments: [windowArg]
+        try {
+            // Close existing window if open
+            if (this.throttleWindows.has(locomotiveId)) {
+                const existingWindow = this.throttleWindows.get(locomotiveId)!
+                existingWindow.focus()
+                return existingWindow
             }
-        })
 
-        // Load throttle UI
-        let startUrl: string
-        if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-            startUrl = MAIN_WINDOW_VITE_DEV_SERVER_URL + "#/modal/throttle"
-        } else {
-            startUrl = `file://${join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`)}#/modal/throttle`
-        }
+            // Validate locomotive ID to prevent injection
+            if (!locomotiveId || typeof locomotiveId !== 'string' || locomotiveId.includes('..')) {
+                throw new Error('Invalid locomotive ID')
+            }
 
-        throttleWindow.loadURL(startUrl)
-
-        // Setup IPC handler for this locomotive
-        ipcMain.handle(locomotiveId, (e, action, data) => {
-            // Delegate to locomotive controller via events
-            return new Promise((resolve) => {
-                this.stateService.emit('throttleCommand', {
-                    locomotiveId,
-                    action,
-                    data,
-                    callback: resolve
-                })
+            const windowArg = `--windowID:${locomotiveId}`
+            
+            console.log('Creating throttle window for locomotive:', locomotiveData)
+            console.log('Locomotive number:', locomotiveData.number)
+            
+            const throttleWindow = new BrowserWindow({
+                width: 300,
+                height: 650,
+                icon: join(__dirname, 'throttle.ico'),
+                autoHideMenuBar: true,
+                show: true,
+                title: `${locomotiveData.number}`,
+                alwaysOnTop: true,
+                webPreferences: {
+                    preload: join(__dirname, 'preload.js'),
+                    sandbox: false,
+                    nodeIntegration: false,
+                    contextIsolation: true,
+                    webSecurity: true,
+                    additionalArguments: [windowArg]
+                }
             })
-        })
 
-        // Handle window events
-        throttleWindow.on('closed', () => {
-            ipcMain.removeHandler(locomotiveId)
-            this.throttleWindows.delete(locomotiveId)
-            this.notifyMainWindow('checkThrottles')
-        })
+            // Load throttle UI
+            let startUrl: string
+            if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
+                startUrl = MAIN_WINDOW_VITE_DEV_SERVER_URL + "#/modal/throttle"
+            } else {
+                startUrl = `file://${join(__dirname, '..', 'renderer', MAIN_WINDOW_VITE_NAME, 'index.html')}#/modal/throttle`
+            }
 
-        throttleWindow.on('ready-to-show', () => {
-            throttleWindow.show()
-        })
+            // Setup IPC handler for this locomotive BEFORE loading URL
+            ipcMain.handle(locomotiveId, async (e, action, data) => {
+                try {
+                    // Delegate to locomotive controller via events
+                    return new Promise((resolve, reject) => {
+                        this.stateService.emit('throttleCommand', {
+                            locomotiveId,
+                            action,
+                            data,
+                            callback: (result: any) => {
+                                if (result && result.error) reject(new Error(result.error))
+                                else resolve(result)
+                            }
+                        })
+                    })
+                } catch (error) {
+                    console.error('Failed to handle throttle command:', error)
+                    return { error: 'Command failed', details: error instanceof Error ? error.message : 'Unknown error' }
+                }
+            })
 
-        this.throttleWindows.set(locomotiveId, throttleWindow)
-        return throttleWindow
+            await throttleWindow.loadURL(startUrl)
+
+            // Handle window events
+            throttleWindow.on('closed', () => {
+                try {
+                    ipcMain.removeHandler(locomotiveId)
+                    this.throttleWindows.delete(locomotiveId)
+                    this.notifyMainWindow('checkThrottles')
+                } catch (error) {
+                    console.error('Error cleaning up throttle window:', error)
+                }
+            })
+
+
+
+            throttleWindow.on('ready-to-show', () => {
+                throttleWindow.show()
+            })
+
+            this.throttleWindows.set(locomotiveId, throttleWindow)
+            return throttleWindow
+        } catch (error) {
+            console.error('Failed to create throttle window:', error)
+            throw error
+        }
     }
 
     /**
      * Close throttle window
      */
     closeThrottleWindow(locomotiveId: string): void {
-        const window = this.throttleWindows.get(locomotiveId)
-        if (window) {
-            window.close()
+        try {
+            const window = this.throttleWindows.get(locomotiveId)
+            if (window) {
+                window.close()
+            }
+        } catch (error) {
+            console.error('Failed to close throttle window:', error)
         }
     }
 
@@ -113,18 +144,32 @@ export class WindowService {
      * Close all throttle windows
      */
     closeAllThrottles(): void {
-        this.throttleWindows.forEach(window => window.close())
-        this.throttleWindows.clear()
+        try {
+            this.throttleWindows.forEach(window => {
+                try {
+                    window.close()
+                } catch (error) {
+                    console.error('Failed to close individual throttle window:', error)
+                }
+            })
+            this.throttleWindows.clear()
+        } catch (error) {
+            console.error('Failed to close all throttle windows:', error)
+        }
     }
 
     /**
      * Focus throttle window
      */
     focusThrottle(locomotiveId: string): void {
-        const window = this.throttleWindows.get(locomotiveId)
-        if (window) {
-            if (window.isMinimized()) window.restore()
-            window.focus()
+        try {
+            const window = this.throttleWindows.get(locomotiveId)
+            if (window) {
+                if (window.isMinimized()) window.restore()
+                window.focus()
+            }
+        } catch (error) {
+            console.error('Failed to focus throttle window:', error)
         }
     }
 
@@ -139,8 +184,12 @@ export class WindowService {
      * Send message to main window
      */
     private notifyMainWindow(channel: string, ...args: any[]): void {
-        if (this.mainWindow) {
-            this.mainWindow.webContents.send(channel, ...args)
+        try {
+            if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+                this.mainWindow.webContents.send(channel, ...args)
+            }
+        } catch (error) {
+            console.error('Failed to notify main window:', error)
         }
     }
 

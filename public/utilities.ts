@@ -1,25 +1,49 @@
+/**
+ * Utilities Module
+ * 
+ * Core utility functions for DCC application including:
+ * - Configuration file management (locomotives, decoders, switches, etc.)
+ * - Settings persistence and USB interface configuration
+ * - Serial port detection and management
+ * - Backup/restore functionality with image preservation
+ * - Database operations for all DCC entities
+ * - USB device monitoring and auto-reconnection
+ */
+
 import { app } from 'electron';
 import { existsSync, writeFileSync, mkdirSync, cpSync, createWriteStream, readFileSync } from 'fs';
-import { join } from 'path';
+import { join, normalize } from 'path';
 import archiver from 'archiver';
 import AdmZip from 'adm-zip';
 import { SerialPort } from 'serialport';
 import { usb } from 'usb';
 import * as messenger from './messenger.js';
-import type { Config, Settings, SerialPort as SerialPortType } from '../shared/types.js';
+import type { Config, Settings, SerialPort as SerialPortType } from '../src/shared/types.js';
 
-// PATHS
+// APPLICATION PATHS
+/** Main data directory in user's app data folder */
 const pathToDataFolder = join(app.getPath('userData'), 'data')
+/** Configuration file containing locomotives, decoders, switches, etc. */
 const pathToConfigFile = join(pathToDataFolder, 'config.json')
+/** Settings file containing USB interface and user preferences */
 const pathToSettingsFile = join(pathToDataFolder, 'settings.json')
+/** Directory for locomotive images uploaded by user */
 const pathToImages = join(pathToDataFolder, 'images')
+/** Directory for application-provided images and icons */
 const pathToAppImages = join(pathToDataFolder, 'appImages')
+/** Default locomotive image for new entries */
 const pathToDefaultLocoImage = join(pathToImages, 'default.jpg')
 export { pathToImages, pathToAppImages };
 
 const defaultConfig: Config = { locos: [], decoders: [], switches: [], consists: [], accessories: [], macros: [] }
 const defaultSettings: Settings = { usbInterface: { type: '', port: '' } }
 
+/**
+ * Initialize application directory structure and default files
+ * 
+ * Creates necessary directories and default configuration files if they don't exist.
+ * Copies default images from application bundle to user data directory.
+ */
 const checkForFilesAndFolders = () => {
     if (!existsSync(pathToDataFolder)) {
         mkdirSync(pathToDataFolder)
@@ -50,7 +74,7 @@ const checkForFilesAndFolders = () => {
         try {
             cpSync(join(__dirname, 'default.jpg'), pathToDefaultLocoImage)
         } catch (error) {
-            console.log(error)
+            console.error('Failed to copy default image:', error instanceof Error ? error.message : 'Unknown error')
         }
 
         console.log("Created Default Loco Image")
@@ -60,7 +84,7 @@ const checkForFilesAndFolders = () => {
         try {
             cpSync(join(__dirname, 'locoSideProfile.png'), join(pathToAppImages, 'locoSideProfile.png'))
         } catch (error) {
-            console.log(error)
+            console.error('Failed to copy side profile image:', error instanceof Error ? error.message : 'Unknown error')
         }
 
         console.log("Created Side Profile Loco Image")
@@ -76,13 +100,13 @@ export let usbConnected = false;
 let window: Electron.BrowserWindow | null = null;
 export const setWindow = (win: Electron.BrowserWindow) => window = win;
 
-const readConfig = () => JSON.parse(readFileSync(pathToConfigFile))
+const readConfig = () => JSON.parse(readFileSync(pathToConfigFile, 'utf8'))
 const saveConfig = () => {
     writeFileSync(pathToConfigFile, JSON.stringify(config, null, '\t'))
     readConfig()
 }
 
-const readSettings = () => JSON.parse(readFileSync(pathToSettingsFile))
+const readSettings = () => JSON.parse(readFileSync(pathToSettingsFile, 'utf8'))
 const saveSettings = () => {
     writeFileSync(pathToSettingsFile, JSON.stringify(settings, null, '\t'))
     readConfig()
@@ -92,7 +116,8 @@ config = readConfig()
 settings = readSettings()
 export { config, settings };
 
-// CONSISTS
+// CONSIST MANAGEMENT
+/** Create a new locomotive consist (multiple units operating together) */
 export const createConsist = (newConsist: any) => {
     config.consists.push(newConsist)
     saveConfig()
@@ -128,29 +153,31 @@ export const toggleConsist = (id: string) => {
     } else return new Error("Couldn't Toggle Consist with this ID")
 }
 
-// DECODERS
+// DECODER MANAGEMENT
+/** Add a new decoder definition with function mappings */
 export const newDecoder = (decoder: any) => {
     config.decoders.push(decoder)
     saveConfig()
     return 'created'
 }
 export const deleteDecoder = (id: string) => {
-    config.decoders = config.decoders.filter(dcdr => dcdr._id !== id)
+    config.decoders = config.decoders.filter(decoder => decoder._id !== id)
     saveConfig()
     return config.decoders
 }
 export const getDecoderByID = (id: string) => {
-    return config.decoders.find(dcdr => dcdr._id === id)
+    return config.decoders.find(decoder => decoder._id === id)
 }
 export const updateDecoder = (updatedDecoder: any) => {
-    let decoderIdx = config.decoders.findIndex(dcdr => dcdr._id === updatedDecoder._id)
-    console.log("DCDR IDX", decoderIdx)
+    let decoderIdx = config.decoders.findIndex(decoder => decoder._id === updatedDecoder._id)
+    console.log("Decoder IDX", typeof decoderIdx === 'number' ? decoderIdx : 'Invalid')
     config.decoders[decoderIdx] = updatedDecoder
     saveConfig()
     return 'Updated'
 }
 
-// LOCOMOTIVES
+// LOCOMOTIVE MANAGEMENT
+/** Add a new locomotive to the roster */
 export const newLoco = (loco: any) => {
     config.locos.push(loco)
     saveConfig()
@@ -169,9 +196,11 @@ export const updateLoco = (editedLoco: any) => {
         saveConfig()
         return config.locos[locoIdx]
     }
+    return new Error('Locomotive not found')
 }
 
-// SWITCHES
+// SWITCH MANAGEMENT
+/** Get all configured switches */
 export const getSwitches = () => config.switches;
 export const createSwitch = (newSwitch: any) => {
     config.switches.push(newSwitch)
@@ -192,14 +221,15 @@ export const updateSwitch = (editedSwitch: any) => {
     } else return new Error("Error in update switch")
 }
 
-// MACROS
+// MACRO MANAGEMENT
+/** Create a new macro for automated switch sequences */
 export const createMacro = (newMacro: any) => {
     config.macros.push(newMacro)
     saveConfig()
     return 'created'
 }
 export const updateMacro = (editedMacro: any) => {
-    let macroIDX = config.macros.findIndex(mcro => mcro._id === editedMacro._id)
+    let macroIDX = config.macros.findIndex(macro => macro._id === editedMacro._id)
     if (macroIDX >= 0) {
         config.macros[macroIDX] = editedMacro
         saveConfig()
@@ -207,14 +237,15 @@ export const updateMacro = (editedMacro: any) => {
     } else return new Error('Error in updateMacro')
 }
 export const getMacroByID = (id: string) => {
-    console.log(config.macros)
-    console.log(id)
-    let theMacroIDX = config.macros.findIndex(mcro => mcro._id === id)
+    console.log("Macro count:", config.macros.length)
+    console.log("Searching for ID:", String(id).replace(/[\r\n\x00-\x1f\x7f-\x9f]/g, ''))
+    let theMacroIDX = config.macros.findIndex(macro => macro._id === id)
     if (theMacroIDX >= 0) return config.macros[theMacroIDX]
     else return new Error('Error in getMacroByID')
 }
 
-// ACCESSORIES
+// ACCESSORY MANAGEMENT
+/** Create a new DCC accessory (signals, lights, etc.) */
 export const createAccessory = (newAcc: any) => {
     config.accessories.push(newAcc)
     saveConfig()
@@ -222,8 +253,12 @@ export const createAccessory = (newAcc: any) => {
 }
 export const updateAccessory = (editedAcc: any) => {
     let accIdx = config.accessories.findIndex(acc => acc._id === editedAcc._id)
-    if (accIdx >= 0) config.accessories[accIdx] = editedAcc
-    else return new Error("Error in UpdateAccessory")
+    if (accIdx >= 0) {
+        config.accessories[accIdx] = editedAcc
+        saveConfig()
+        return 'updated'
+    }
+    return new Error("Error in UpdateAccessory")
 }
 export const getAccessoryByID = (id: string) => {
     let accIdx = config.accessories.findIndex(acc => acc._id === id)
@@ -232,9 +267,18 @@ export const getAccessoryByID = (id: string) => {
 }
 
 export const backupConfig = async (outputPath: string) => {
+    // Validate and sanitize output path to prevent path traversal
+    const normalizedPath = normalize(join(outputPath))
+    const userDataPath = normalize(app.getPath('userData'))
+    const downloadsPath = normalize(app.getPath('downloads'))
+    
+    if (!normalizedPath.startsWith(userDataPath) && !normalizedPath.startsWith(downloadsPath)) {
+        throw new Error('Invalid backup path - must be in user data or downloads directory')
+    }
+    
     return new Promise((resolve, reject) => {
         // create a file to stream archive data to.
-        const output = createWriteStream(outputPath);
+        const output = createWriteStream(normalizedPath);
         const archive = archiver('zip', {
             zlib: { level: 9 } // Sets the compression level.
         });
@@ -294,16 +338,25 @@ export const backupConfig = async (outputPath: string) => {
 }
 
 export const restoreConfig = async (pathToZip: string) => {
+    // Validate and sanitize zip path to prevent path traversal
+    const normalizedPath = normalize(join(pathToZip))
+    const userDataPath = normalize(app.getPath('userData'))
+    const downloadsPath = normalize(app.getPath('downloads'))
+    
+    if (!normalizedPath.startsWith(userDataPath) && !normalizedPath.startsWith(downloadsPath)) {
+        throw new Error('Invalid restore path - must be in user data or downloads directory')
+    }
+    
     // reading archives
-    var zip = new AdmZip(pathToZip);
+    var zip = new AdmZip(normalizedPath);
     var zipEntries = zip.getEntries(); // an array of ZipEntry records
 
     zipEntries.forEach(function(zipEntry) {
-        console.log(zipEntry.toString()); // outputs zip entries information
+        console.log('Processing zip entry'); // outputs zip entries information
         if (zipEntry.entryName == "my_file.txt") {
             const data = zipEntry.getData()
             if (data) {
-                console.log(Buffer.from(data).toString("utf8"));
+                console.log('File data extracted successfully');
             }
         }
     });
@@ -313,14 +366,27 @@ export const restoreConfig = async (pathToZip: string) => {
     app.exit()
 }
 
-// SETTINGS
+// SETTINGS MANAGEMENT
+/** Set the USB interface type (nceUsb, etc.) */
 export const setUSBiface = (iface: string) => {
-    settings.usbInterface.type = iface
+    settings = {
+        ...settings,
+        usbInterface: {
+            ...settings.usbInterface,
+            type: iface
+        }
+    }
     saveSettings()
     return settings
 }
 export const setUSBport = (port: string) => {
-    settings.usbInterface.port = port
+    settings = {
+        ...settings,
+        usbInterface: {
+            ...settings.usbInterface,
+            port: port
+        }
+    }
     saveSettings()
     return settings
 }
@@ -333,7 +399,7 @@ const listPorts = async(): Promise<SerialPortType[]> => {
             serialNumber: port.serialNumber || ''
         }))
     } catch (err) {
-        console.error('Error listing ports:', err)
+        console.error('Error listing ports:', err instanceof Error ? err.message : 'Unknown error')
         return []
     }
 }
@@ -346,15 +412,18 @@ const interfaceIsConfigured = () => {
 }
 
 const updatePorts = async() => {
-    return new Promise(async(resolve, reject) => {
+    try {
         const ports = await listPorts()
         if (JSON.stringify(serialPorts) !== JSON.stringify(ports)) {
             serialPorts = ports
             if (window) window.webContents.send('serialPorts', serialPorts)
-            resolve(true)
-        } else resolve(false)
-    })
-
+            return true
+        }
+        return false
+    } catch (error) {
+        console.error('Failed to update ports:', error instanceof Error ? error.message : 'Unknown error')
+        return false
+    }
 }
 
 const ourPortIsAvailable = () => {
@@ -364,7 +433,7 @@ const ourPortIsAvailable = () => {
 }
 
 const setConnectedStatus = (status: boolean) => {
-    console.log("In Send Status", status)
+    console.log("Setting connection status:", Boolean(status))
     usbConnected = status
     if (window) window.webContents.send('usbConnection', status)
     if (!status) {
@@ -374,27 +443,53 @@ const setConnectedStatus = (status: boolean) => {
 }
 
 const doWeCareAboutThisUSBdevice = async() => {
-    if (await updatePorts()) {
-        // if we are already connected all we need to do is send new ports to window
-        if (usbConnected) return
-        console.log("USB not already connected")
-        if (ourPortIsAvailable()) messenger.startInterface(settings.usbInterface, setConnectedStatus)
-        else console.log("Didn't Find")
+    try {
+        if (await updatePorts()) {
+            // if we are already connected all we need to do is send new ports to window
+            if (usbConnected) return
+            console.log("USB not already connected")
+            if (ourPortIsAvailable()) {
+                try {
+                    messenger.startInterface(settings.usbInterface, setConnectedStatus)
+                } catch (error) {
+                    console.error('Failed to start interface:', error instanceof Error ? error.message : 'Unknown error')
+                }
+            } else {
+                console.log("Port not available")
+            }
+        }
+    } catch (error) {
+        console.error('Error checking USB device:', error instanceof Error ? error.message : 'Unknown error')
     }
 }
 
 const bootInterface = async() => {
-    await updatePorts()
-    if (!interfaceIsConfigured()) return
-    if (ourPortIsAvailable()) messenger.startInterface(settings.usbInterface, setConnectedStatus)
-    else console.log("Didn't Find")
+    try {
+        await updatePorts()
+        if (!interfaceIsConfigured()) return
+        if (ourPortIsAvailable()) {
+            try {
+                messenger.startInterface(settings.usbInterface, setConnectedStatus)
+            } catch (error) {
+                console.error('Failed to start interface on boot:', error instanceof Error ? error.message : 'Unknown error')
+            }
+        } else {
+            console.log("Port not available")
+        }
+    } catch (error) {
+        console.error('Error during interface boot:', error instanceof Error ? error.message : 'Unknown error')
+    }
 }
 
 const handleRemove = async() => {
-    if (await updatePorts()) {
-        if (!ourPortIsAvailable()) {
-            setConnectedStatus(false)
+    try {
+        if (await updatePorts()) {
+            if (!ourPortIsAvailable()) {
+                setConnectedStatus(false)
+            }
         }
+    } catch (error) {
+        console.error('Error handling USB removal:', error instanceof Error ? error.message : 'Unknown error')
     }
 }
 

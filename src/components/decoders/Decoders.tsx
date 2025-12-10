@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { Decoder } from '../../types'
+import { Decoder, DeleteModalState } from '../../types'
 import { Button, Table, Modal, useTheme } from '../../ui'
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
-import EditDecoder from './EditDecoder.jsx'
+import EditDecoder from './EditDecoder'
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import DeleteForeverTwoToneIcon from '@mui/icons-material/DeleteForeverTwoTone';
 import AddCircleTwoToneIcon from '@mui/icons-material/AddCircleTwoTone';
@@ -12,14 +12,14 @@ export default function Decoders() {
     const navigate = useNavigate()
     const location = useLocation()
     const [decoders, setDecoders] = useState<Decoder[]>([])
-    const defaultDeleteModal = { show: false, dcdr: {} }
-    const [deleteModal, setDeleteModal] = useState(defaultDeleteModal)
+    const defaultDeleteModal: DeleteModalState<Decoder> = { show: false, id: '' }
+    const [deleteModal, setDeleteModal] = useState<DeleteModalState<Decoder>>(defaultDeleteModal)
 
     useEffect(() => {
         if (!location.pathname.includes('new') || !location.pathname.includes('edit')) {
             window.electron.invoke('getDecoders')
-                .then(res => setDecoders(res))
-                .catch(err => console.log(err))
+                .then((res: unknown) => setDecoders(res as Decoder[]))
+                .catch((err: unknown) => console.log(err))
         }
     }, [location])
 
@@ -27,13 +27,13 @@ export default function Decoders() {
 
         const handleClose = () => setDeleteModal(defaultDeleteModal)
 
-        const handleDeleteDecoder = (id) => {
+        const handleDeleteDecoder = (id: string) => {
             window.electron.invoke('deleteDecoder', id)
-                .then(res => {
-                    setDecoders(res)
+                .then((res: unknown) => {
+                    setDecoders(res as Decoder[])
                     handleClose()
                 })
-                .catch(err => console.log(err))
+                .catch((err: unknown) => console.log(err))
         }
 
         const makeDeleteModal = () => {
@@ -45,7 +45,7 @@ export default function Decoders() {
                     footer={
                         <>
                             <Button variant="secondary" size="sm" onClick={handleClose}>Cancel</Button>
-                            <Button variant="danger" size="sm" onClick={() => handleDeleteDecoder(deleteModal.dcdr._id)}>Delete</Button>
+                            <Button variant="danger" size="sm" onClick={() => deleteModal.entity && handleDeleteDecoder(deleteModal.entity._id)}>Delete</Button>
                         </>
                     }
                 >
@@ -58,7 +58,7 @@ export default function Decoders() {
             <div className='pageContainer' >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: theme.spacing.md }}>
                     <div style={{ fontSize: theme.fontSize.lg, fontWeight: 'bold' }}>Decoders</div>
-                    <Button size='sm' onClick={() => navigate('/system/decoders/new')}>
+                    <Button variant='secondary' size='sm' onClick={() => navigate('/system/decoders/new')}>
                         <AddCircleTwoToneIcon style={{ fontSize: '18px', marginRight: '4px' }} />
                         Add Decoder
                     </Button>
@@ -117,7 +117,7 @@ export default function Decoders() {
                                                     color: theme.colors.danger,
                                                     transition: 'transform 0.2s ease'
                                                 }}
-                                                onClick={() => setDeleteModal({ show: true, dcdr: dcdr })}
+                                                onClick={() => setDeleteModal({ show: true, id: dcdr._id, entity: dcdr })}
                                                 onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.2)'}
                                                 onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                                             >

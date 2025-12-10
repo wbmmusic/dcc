@@ -26,11 +26,11 @@ export default function ProgrammingTrack() {
                 onClick={() => {
                     setStatusModal({ show: true, action: 'Disabling Programming Track' })
                     window.electron.invoke('setProgrammingTrack', false)
-                        .then(res => {
-                            setProgrammingTrackStatus(res)
+                        .then((res: unknown) => {
+                            setProgrammingTrackStatus(res as boolean)
                             clearStatusModal()
                         })
-                        .catch(err => console.error(err))
+                        .catch((err: unknown) => console.error(err))
                 }}
             >Disable Programming Track</Button>
         } else {
@@ -40,18 +40,18 @@ export default function ProgrammingTrack() {
                 onClick={() => {
                     setStatusModal({ show: true, action: 'Enabling Programming Track' })
                     window.electron.invoke('setProgrammingTrack', true)
-                        .then(res => {
-                            setProgrammingTrackStatus(res)
+                        .then((res: unknown) => {
+                            setProgrammingTrackStatus(res as boolean)
                             clearStatusModal()
                         })
-                        .catch(err => console.error(err))
+                        .catch((err: unknown) => console.error(err))
                 }}
             >Enable Programming Track</Button>
         }
 
     }
 
-    const makeStatusModal = () => {
+    const makeStatusModal = (): React.ReactElement | undefined => {
         if (statusModal.show) {
             return (
                 <Modal
@@ -65,17 +65,18 @@ export default function ProgrammingTrack() {
                 </Modal>
             )
         }
+        return undefined
     }
 
     useEffect(() => {
         window.electron.invoke('getProgrammingTrackStatus')
-            .then(res => setProgrammingTrackStatus(res))
-            .catch(err => console.error(err))
+            .then((res: unknown) => setProgrammingTrackStatus(res as boolean))
+            .catch((err: unknown) => console.error(err))
 
         return () => {
             window.electron.invoke('setProgrammingTrack', false)
-                .then(res => console.log("On exit Programming track is", res))
-                .catch(err => console.error(err))
+                .then((res: unknown) => console.log("On exit Programming track is", res))
+                .catch((err: unknown) => console.error(err))
         }
     }, [])
 
@@ -106,8 +107,8 @@ export default function ProgrammingTrack() {
                                                         size='sm'
                                                         onClick={() => {
                                                             window.electron.invoke('readCvPrg', 63)
-                                                                .then(res => console.log("HERE 63=", res))
-                                                                .catch(err => console.error(err))
+                                                                .then((res: unknown) => console.log("HERE 63=", res))
+                                                                .catch((err: unknown) => console.error(err))
                                                         }}
                                                     >Read CV</Button>
                                                 </td>

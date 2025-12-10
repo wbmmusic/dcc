@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Button, Dropdown, useTheme } from '../ui'
 import { useLocation, useNavigate } from 'react-router-dom'
-import USBstatus from './USBstatus.jsx';
+import USBstatus from './USBstatus';
 
 export default function Toolbar() {
     const theme = useTheme()
@@ -9,11 +9,12 @@ export default function Toolbar() {
     const location = useLocation()
     const [windowsAreOpen, setWindowsAreOpen] = useState(false)
 
-    const makeHomeBtn = () => {
+    const makeHomeBtn = (): React.ReactElement | undefined => {
         if (location.pathname !== '/') return <Button style={{ marginLeft: theme.spacing.md }} size="sm" onClick={() => navigate('/')} >Home</Button>
+        return undefined
     }
 
-    const makeCloseThrottlesBtn = () => {
+    const makeCloseThrottlesBtn = (): React.ReactElement | undefined => {
         if (windowsAreOpen) {
             return (
                 <Button
@@ -26,6 +27,7 @@ export default function Toolbar() {
                 </Button>
             )
         }
+        return undefined
     }
 
     useEffect(() => {
@@ -50,7 +52,20 @@ export default function Toolbar() {
             boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
         }}>
 
-            <Button style={{ width: '150px' }} variant='danger' size="sm">E-STOP ALL</Button>
+            <Button 
+                style={{ width: '150px' }} 
+                variant='danger' 
+                size="sm"
+                onClick={() => {
+                    try {
+                        window.electron.send('eStopAll')
+                    } catch (error) {
+                        console.error('Failed to send emergency stop command:', error)
+                    }
+                }}
+            >
+                E-STOP ALL
+            </Button>
             <USBstatus />
             <div style={{ textAlign: 'right', width: '100%', display: 'flex', justifyContent: 'right', alignItems: 'center' }}>
                 {makeHomeBtn()}

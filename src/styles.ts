@@ -1,5 +1,5 @@
 export const selectStyle = {
-    control: base => ({
+    control: (base: any) => ({
         ...base,
         fontSize: '12px',
         minHeight: '15px',
@@ -7,27 +7,27 @@ export const selectStyle = {
         borderColor: '#424242',
         color: '#e8e8e8'
     }),
-    menu: base => ({
+    menu: (base: any) => ({
         ...base,
         fontSize: '12px',
         backgroundColor: '#212121',
         borderColor: '#424242'
     }),
-    option: (base, state) => ({
+    option: (base: any, state: any) => ({
         ...base,
         backgroundColor: state.isFocused ? '#303030' : '#212121',
         color: '#e8e8e8',
         cursor: 'pointer'
     }),
-    multiValue: base => ({
+    multiValue: (base: any) => ({
         ...base,
         backgroundColor: '#424242'
     }),
-    multiValueLabel: base => ({
+    multiValueLabel: (base: any) => ({
         ...base,
         color: '#e8e8e8'
     }),
-    multiValueRemove: base => ({
+    multiValueRemove: (base: any) => ({
         ...base,
         color: '#e8e8e8',
         ':hover': {
@@ -35,24 +35,24 @@ export const selectStyle = {
             color: '#e8e8e8'
         }
     }),
-    singleValue: base => ({
+    singleValue: (base: any) => ({
         ...base,
         color: '#e8e8e8'
     }),
-    input: base => ({
+    input: (base: any) => ({
         ...base,
         color: '#e8e8e8'
     }),
-    dropdownIndicator: base => ({
+    dropdownIndicator: (base: any) => ({
         ...base,
         padding: '0px 8px',
         color: '#9e9e9e'
     }),
-    clearIndicator: base => ({
+    clearIndicator: (base: any) => ({
         ...base,
         color: '#9e9e9e'
     }),
-    valueContainer: base => ({
+    valueContainer: (base: any) => ({
         ...base,
         padding: '0px 8px'
     })

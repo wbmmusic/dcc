@@ -3,11 +3,14 @@ import { useTheme } from './ThemeProvider'
 
 interface ModalProps {
   show: boolean;
-  onHide: () => void;
+  onHide?: () => void;
+  onClose?: () => void;
+  title?: string;
+  footer?: ReactNode;
   children: ReactNode;
 }
 
-export const Modal = ({ show, onHide, children }: ModalProps): React.JSX.Element | null => {
+export const Modal = ({ show, onHide, onClose, title, footer, children }: ModalProps): React.JSX.Element | null => {
   const theme = useTheme()
   
   if (!show) return null
@@ -26,7 +29,7 @@ export const Modal = ({ show, onHide, children }: ModalProps): React.JSX.Element
         justifyContent: 'center',
         zIndex: 1050,
       }}
-      onClick={onHide}
+      onClick={onHide || onClose}
     >
       <div
         style={{
@@ -38,7 +41,9 @@ export const Modal = ({ show, onHide, children }: ModalProps): React.JSX.Element
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {children}
+        {title && <Modal.Header>{title}</Modal.Header>}
+        <Modal.Body>{children}</Modal.Body>
+        {footer && <Modal.Footer>{footer}</Modal.Footer>}
       </div>
     </div>
   )

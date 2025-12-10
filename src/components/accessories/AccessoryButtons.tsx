@@ -1,13 +1,18 @@
 import React, { useEffect, useState } from 'react'
 import { Button } from '../../ui'
+import { AccessoryAction } from '../../types'
+
+interface AccessoryButtonState extends AccessoryAction {
+    state: boolean;
+}
 
 export default function AccessoryButtons() {
-    const [actions, setActions] = useState([])
+    const [actions, setActions] = useState<AccessoryButtonState[]>([])
 
     useEffect(() => {
         window.electron.invoke('getAccessoryActions')
-            .then(res => setActions(res))
-            .catch(err => console.error(err))
+            .then((res: unknown) => setActions(res as AccessoryButtonState[]))
+            .catch((err: unknown) => console.error(err))
     }, [])
 
     return (
@@ -25,8 +30,8 @@ export default function AccessoryButtons() {
                                     id: act.action,
                                     idx: act.idx
                                 })
-                                    .then(res => setActions(res))
-                                    .catch(err => console.error(err))
+                                    .then((res: unknown) => setActions(res as AccessoryButtonState[]))
+                                    .catch((err: unknown) => console.error(err))
                             }}
                         >
                             {act.name}

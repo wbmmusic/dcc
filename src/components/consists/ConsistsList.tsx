@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Consist } from '../../types'
+import { Consist, Locomotive, ConsistLoco, DeleteModalState } from '../../types'
 import AddCircleTwoToneIcon from '@mui/icons-material/AddCircleTwoTone';
 import { useNavigate } from 'react-router-dom';
 import { Button, Table, Modal } from '../../ui'
@@ -10,26 +10,26 @@ import DeleteForeverTwoToneIcon from '@mui/icons-material/DeleteForeverTwoTone';
 export default function ConsistsList() {
     const navigate = useNavigate()
     const [consists, setConsists] = useState<Consist[]>([])
-    const [locos, setLocos] = useState([])
-    const defaultDeleteModal = { show: false, id: '' }
-    const [deleteModal, setDeleteModal] = useState(defaultDeleteModal)
+    const [locos, setLocos] = useState<Locomotive[]>([])
+    const defaultDeleteModal: DeleteModalState<Consist> = { show: false, id: '' }
+    const [deleteModal, setDeleteModal] = useState<DeleteModalState<Consist>>(defaultDeleteModal)
 
-    const toggleConsist = (id) => {
+    const toggleConsist = (id: string) => {
         window.electron.invoke('toggleConsist', id)
-            .then(res => setConsists(res))
-            .catch(err => console.error(err))
+            .then((res: unknown) => setConsists(res as Consist[]))
+            .catch((err: unknown) => console.error(err))
     }
 
-    const getLocoName = (id) => {
+    const getLocoName = (id: string): string => {
         const locoIDX = locos.findIndex(loco => loco._id === id)
         if (locoIDX !== -1) {
             return `${locos[locoIDX].name} ${locos[locoIDX].number}`
         } else return 'ERROR'
     }
 
-    const makeLocoNames = (theLocos) => {
-        let out = []
-        theLocos.forEach((loco, i) => {
+    const makeLocoNames = (theLocos: ConsistLoco[]): React.ReactElement[] => {
+        let out: React.ReactElement[] = []
+        theLocos.forEach((loco: ConsistLoco, i: number) => {
             out.push(
                 <div key={`locoInTbl${i}`}>
                     {getLocoName(loco._id)}
@@ -39,8 +39,8 @@ export default function ConsistsList() {
         return out
     }
 
-    const makeConsists = () => {
-        let out = []
+    const makeConsists = (): React.ReactElement[] => {
+        let out: React.ReactElement[] = []
 
         consists.forEach((consist, i) => {
             out.push(
@@ -70,7 +70,7 @@ export default function ConsistsList() {
                     <td>
                         <div
                             style={{ display: 'inline-block', cursor: 'pointer', color: 'red' }}
-                            onClick={() => setDeleteModal({ show: true, consist: consist })}
+                            onClick={() => setDeleteModal({ show: true, id: consist._id, entity: consist })}
                         >
                             <DeleteForeverTwoToneIcon />
                         </div>
@@ -84,17 +84,17 @@ export default function ConsistsList() {
 
     const handleClose = () => setDeleteModal(defaultDeleteModal)
 
-    const deleteConsist = (id) => {
+    const deleteConsist = (id: string) => {
         window.electron.invoke('deleteConsist', id)
-            .then(res => {
-                setConsists(res)
+            .then((res: unknown) => {
+                setConsists(res as Consist[])
                 handleClose()
             })
-            .catch(err => console.error(err))
+            .catch((err: unknown) => console.error(err))
     }
 
-    const makeDeleteModal = () => {
-        if (deleteModal.show) {
+    const makeDeleteModal = (): React.ReactElement | undefined => {
+        if (deleteModal.show && deleteModal.entity) {
             return (
                 <Modal
                     show={deleteModal.show}
@@ -102,37 +102,36 @@ export default function ConsistsList() {
                     title="Delete Consist"
                     footer={
                         <>
-                            <Button variant="success" onClick={handleClose}>Cancel</Button>
-                            <Button variant="danger" onClick={() => deleteConsist(deleteModal.consist._id)}>Delete Consist</Button>
+                            <Button variant="secondary" onClick={handleClose}>Cancel</Button>
+                            <Button variant="danger" onClick={() => deleteModal.entity && deleteConsist(deleteModal.entity._id)}>Delete Consist</Button>
                         </>
                     }
                 >
-                    Are you sure you want to delete consist <b>{deleteModal.consist.name}</b>?
+                    Are you sure you want to delete consist <b>{deleteModal.entity?.name}</b>?
                 </Modal>
             )
         }
+        return undefined
     }
 
     useEffect(() => {
         window.electron.invoke('getConsists')
-            .then(res => setConsists(res))
-            .catch(err => console.error(err))
+            .then((res: unknown) => setConsists(res as Consist[]))
+            .catch((err: unknown) => console.error(err))
 
         window.electron.invoke('getLocomotives')
-            .then(res => setLocos(res))
-            .catch(err => console.error(err))
+            .then((res: unknown) => setLocos(res as Locomotive[]))
+            .catch((err: unknown) => console.error(err))
     }, [])
 
     return (
         <div className='pageContainer'>
             <div style={{ display: 'flex', alignItems: 'center' }}>
                 <b>Consists</b>
-                <div
-                    style={{ display: 'inline-block', color: 'green', cursor: 'pointer', marginLeft: '10px' }}
-                    onClick={() => navigate('/consists/new')}
-                >
-                    <AddCircleTwoToneIcon />
-                </div>
+                <Button variant='secondary' size='sm' onClick={() => navigate('/consists/new')}>
+                    <AddCircleTwoToneIcon style={{ fontSize: '18px', marginRight: '4px' }} />
+                    Add Consist
+                </Button>
             </div>
             <div>
                 <Table>

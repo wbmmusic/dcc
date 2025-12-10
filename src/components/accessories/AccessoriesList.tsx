@@ -10,14 +10,14 @@ export default function AccessoriesList() {
     const navigate = useNavigate()
     const [accessories, setAccessories] = useState<Accessory[]>([])
 
-    const deleteAccessory = (id) => {
+    const deleteAccessory = (id: string) => {
         window.electron.invoke('deleteAccessory', id)
-            .then(res => setAccessories(res))
-            .catch(err => console.error(err))
+            .then((res: unknown) => setAccessories(res as Accessory[]))
+            .catch((err: unknown) => console.error(err))
     }
 
-    const makeAccessories = () => {
-        let out = []
+    const makeAccessories = (): React.ReactElement[] => {
+        let out: React.ReactElement[] = []
         accessories.forEach((acc, i) => {
             out.push(
                 <tr key={`accRow${i}`}>
@@ -47,8 +47,8 @@ export default function AccessoriesList() {
 
     useEffect(() => {
         window.electron.invoke('getAccessories')
-            .then(res => setAccessories(res))
-            .catch(err => console.error(err))
+            .then((res: unknown) => setAccessories(res as Accessory[]))
+            .catch((err: unknown) => console.error(err))
     }, [])
 
     return (

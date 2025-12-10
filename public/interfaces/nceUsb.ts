@@ -32,11 +32,11 @@ export class NceUSB {
     /** Programming track power state */
     programmingTrackEnabled: boolean;
     /** COM port path (e.g., "COM3", "/dev/ttyUSB0") */
-    comPort: string;
+    comPort!: string;
     /** SerialPort instance for USB communication */
-    port: SerialPort;
+    port!: SerialPort;
     /** Status callback function for connection state changes */
-    status: (connected: boolean) => void;
+    status!: (connected: boolean) => void;
 
     /**
      * Initialize NCE USB Interface
@@ -84,7 +84,7 @@ export class NceUSB {
             case 'enableProgrammingTrack':
                 try {
                     const trackStateEn = await this.enableProgrammingTrack()
-                    console.log("Track State is", trackStateEn)
+                    console.log("Track State is", String(trackStateEn).replace(/[\r\n\x00-\x1f\x7f-\x9f]/g, ''))
                     cmd.callback(this.programmingTrackEnabled)
                 } catch (error) {
                     console.log(error)
@@ -94,7 +94,7 @@ export class NceUSB {
             case 'disableProgrammingTrack':
                 try {
                     const trackState = await this.disableProgrammingTrack()
-                    console.log("Track State is", trackState)
+                    console.log("Track State is", String(trackState).replace(/[\r\n\x00-\x1f\x7f-\x9f]/g, ''))
                     cmd.callback(this.programmingTrackEnabled)
                 } catch (error) {
                     console.log(error)
@@ -104,7 +104,7 @@ export class NceUSB {
             case 'readCvPrg':
                 try {
                     const cvVal = await this.readCvPrg(cmd.data)
-                    console.log("CV val =", cvVal)
+                    console.log("CV val =", String(cvVal).replace(/[\r\n\x00-\x1f\x7f-\x9f]/g, ''))
                     cmd.callback(cvVal)
                 } catch (error) {
                     console.log(error)
@@ -123,7 +123,7 @@ export class NceUSB {
      * @param msg - Command message to send
      */
     sendMSG = (msg: any) => {
-        console.log("Send Message", msg)
+        console.log("Send Message", typeof msg === 'object' ? '[Object]' : String(msg).replace(/[\r\n\x00-\x1f\x7f-\x9f]/g, ''))
         this.outBuffer.push(msg)
         if (!this.sending) {
             this.sending = true

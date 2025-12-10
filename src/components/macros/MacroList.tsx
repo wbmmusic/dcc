@@ -12,19 +12,18 @@ export default function MacroList() {
 
     useEffect(() => {
         window.electron.invoke('getMacros')
-            .then(res => setMacros(res))
-            .catch(err => console.error(err))
+            .then((res: unknown) => setMacros(res as Macro[]))
+            .catch((err: unknown) => console.error(err))
     }, [])
 
     return (
         <div className='pageContainer'>
             <div style={{ display: 'flex', alignItems: 'center' }}>
                 <b>Macro List</b>
-                <div style={{ color: 'green', display: 'inline-block', marginLeft: '10px', cursor: 'pointer' }}
-                    onClick={() => navigate('/system/macros/new')}
-                >
-                    <AddCircleTwoToneIcon />
-                </div>
+                <Button variant='secondary' size='sm' onClick={() => navigate('/system/macros/new')}>
+                    <AddCircleTwoToneIcon style={{ fontSize: '18px', marginRight: '4px' }} />
+                    Add Macro
+                </Button>
             </div>
             <div>
                 <div style={{ display: 'inline-block' }}>

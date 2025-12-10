@@ -5,7 +5,7 @@
  * selection, serial port configuration, and backup/restore functionality.
  */
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo, useCallback } from 'react'
 import { Settings as SettingsType, SerialPort } from '../types'
 import { Button, useTheme } from '../ui'
 import { Modal } from '../ui'
@@ -51,40 +51,47 @@ export default function Settings() {
         return null
     }
 
-    const handleIfaceSelect = (e) => {
-        window.electron.invoke('setUSBiface', e.value)
-            .then(res => setSettings(res))
-            .catch(err => console.error(err))
+    const handleIfaceSelect = async (e: any) => {
+        try {
+            const res = await window.electron.invoke('setUSBiface', e.value)
+            setSettings(res as SettingsType)
+        } catch (error) {
+            console.error('Failed to set USB interface:', error)
+        }
     }
 
-    const handlePortSelect = (e) => {
-        window.electron.invoke('setUSBport', e.value)
-            .then(res => setSettings(res))
-            .catch(err => console.error(err))
+    const handlePortSelect = async (e: any) => {
+        try {
+            const res = await window.electron.invoke('setUSBport', e.value)
+            setSettings(res as SettingsType)
+        } catch (error) {
+            console.error('Failed to set USB port:', error)
+        }
     }
 
-    const makePortOptions = () => {
-        let out = []
-        serialPorts.forEach(port => out.push({ label: `${port.path} | SN:${port.serialNumber}`, value: port.path }))
-        return out
-    }
+    const portOptions = useMemo(() => {
+        return serialPorts.map(port => ({
+            label: `${port.path} | SN:${port.serialNumber}`,
+            value: port.path
+        }))
+    }, [serialPorts])
 
-    const makePortValue = () => {
-        if (settings === null || serialPorts.length <= 0) return null
-        if (settings.usbInterface.port === '') return null
-        const portIDX = serialPorts.findIndex(prt => prt.path === settings.usbInterface.port)
-        if (portIDX >= 0) {
-            const port = serialPorts[portIDX]
+    const selectedPort = useMemo(() => {
+        if (!settings || serialPorts.length <= 0 || !settings.usbInterface.port) return null
+        
+        const port = serialPorts.find(prt => prt.path === settings.usbInterface.port)
+        if (port) {
             return { label: `${port.path} | SN:${port.serialNumber}`, value: port.path }
-        } else return { label: `! ${settings.usbInterface.port} NOT FOUND !`, value: 'xxx' }
-    }
+        }
+        return { label: `! ${settings.usbInterface.port} NOT FOUND !`, value: 'xxx' }
+    }, [settings, serialPorts])
 
-    const makeRestoreModal = () => {
+    const makeRestoreModal = (): React.ReactElement | undefined => {
         if (restoreModal) {
             return (
                 <Modal
                     show={restoreModal}
-                    onHide={() => setRestoreModal(false)}
+                    onClose={() => setRestoreModal(false)}
                     title="Restore Warning"
                     footer={
                         <>
@@ -103,18 +110,25 @@ export default function Settings() {
                 </Modal>
             )
         }
+        return undefined
     }
 
     useEffect(() => {
-        window.electron.invoke('getSettings')
-            .then(res => setSettings(res))
-            .catch(err => console.error(err))
-
-        window.electron.invoke('getSerialPorts')
-            .then(res => setSerialPorts(res))
-            .catch(err => console.error(err))
-
-        window.electron.receive('serialPorts', (ports) => setSerialPorts(ports))
+        const loadSettings = async () => {
+            try {
+                const [settingsData, portsData] = await Promise.all([
+                    window.electron.invoke('getSettings'),
+                    window.electron.invoke('getSerialPorts')
+                ])
+                setSettings(settingsData as SettingsType)
+                setSerialPorts(portsData as SerialPort[])
+            } catch (error) {
+                console.error('Failed to load settings:', error)
+            }
+        }
+        
+        loadSettings()
+        window.electron.receive('serialPorts', (ports: unknown) => setSerialPorts(ports as SerialPort[]))
 
         return () => window.electron.removeListener('serialPorts')
     }, [])
@@ -148,9 +162,9 @@ export default function Settings() {
                                     <td>
                                         <Select
                                             styles={selectStyle}
-                                            options={makePortOptions()}
+                                            options={portOptions}
                                             onChange={handlePortSelect}
-                                            value={makePortValue()}
+                                            value={selectedPort}
                                         />
                                     </td>
                                 </tr>

@@ -24,11 +24,11 @@ import System from './System';
  * Application state interface for tracking user selections
  * 
  * @interface AppState
- * @property {number} selectedLoco - Index of currently selected locomotive (0-2)
+ * @property {string} selectedLoco - ID of currently selected locomotive
  * @property {number} activeTrack - Currently selected track for routing (0=Loop, 1-3=Tracks)
  */
 interface AppState {
-    selectedLoco: number;
+    selectedLoco: string;
     activeTrack: number;
 }
 
@@ -57,7 +57,17 @@ interface AppState {
  */
 export default function AppTop(): React.JSX.Element {
     const theme = useTheme()
-    const [state, setState] = useState<AppState>({ selectedLoco: 0, activeTrack: 0 })
+    const [state, setState] = useState<AppState>({ selectedLoco: '', activeTrack: 0 })
+
+    // Initialize with first locomotive ID
+    useEffect(() => {
+        window.electron.invoke('getLocomotives')
+            .then((locos: any[]) => {
+                if (locos.length > 0 && state.selectedLoco === '') {
+                    setState(old => ({ ...old, selectedLoco: locos[0]._id }))
+                }
+            })
+    }, [state.selectedLoco])
 
     /**
      * Updates the active track selection for layout routing
@@ -69,9 +79,9 @@ export default function AppTop(): React.JSX.Element {
     /**
      * Selects a locomotive for control operations
      * This determines which locomotive responds to throttle commands
-     * @param {number} locoIndex - Index of locomotive to select (0-2)
+     * @param {string} locomotiveId - ID of locomotive to select
      */
-    const selectLoco = (locoIndex: number) => setState(old => ({ ...old, selectedLoco: locoIndex }))
+    const selectLoco = (locomotiveId: string) => setState(old => ({ ...old, selectedLoco: locomotiveId }))
 
     // Set up keyboard shortcuts for emergency stops and track selection
     useEffect(() => {
@@ -91,7 +101,13 @@ export default function AppTop(): React.JSX.Element {
             if (e.key === ' ' || e.key === 'Escape') {
                 e.preventDefault()
                 // Send emergency stop command to all locomotives via selected loco's throttle
-                window.electron.invoke('mainWindowThrottle', state.selectedLoco, 'eStopAll')
+                // Use first available locomotive ID for emergency stop all
+                window.electron.invoke('getLocomotives')
+                    .then((locos: any[]) => {
+                        if (locos.length > 0) {
+                            window.electron.invoke('mainWindowThrottle', locos[0]._id, 'eStopAll')
+                        }
+                    })
             } 
             // Track selection shortcuts for quick routing changes
             else if (e.key >= '1' && e.key <= '3') {
@@ -120,7 +136,7 @@ export default function AppTop(): React.JSX.Element {
                             <Route path="/theme-demo" element={<ThemeDemo />} />
                             <Route path="*" element={
                                 <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-                                    <LocoBar selectedLoco={state.selectedLoco} selectLoco={selectLoco} />
+                                    <LocoBar selectedLoco={state.selectedLoco} setSelectedLoco={selectLoco} />
                                     <div style={{
                                         height: '100%', width: '100%', maxWidth: '100%', display: 'flex',
                                         flexDirection: 'column', overflow: 'hidden', backgroundColor: theme.colors.background.dark

@@ -8,12 +8,8 @@
 import { EventEmitter } from 'events'
 import { NceUSB } from '../interfaces/nceUsb.js'
 import type { StateService } from './StateService.js'
-
-export interface DCCCommand {
-    type: 'locoCtrlCmd' | 'asyncSignal' | 'opsProgramming' | 'enableProgrammingTrack' | 'disableProgrammingTrack' | 'readCvPrg'
-    data?: any
-    callback?: (result: any) => void
-}
+import type { DCCCommand } from '../../src/shared/types.js'
+import { logger } from '../Logger.js'
 
 export class DCCService extends EventEmitter {
     private nceInterface: NceUSB | null = null
@@ -28,7 +24,7 @@ export class DCCService extends EventEmitter {
      * Initialize DCC interface
      */
     async initialize(settings: { usbInterface: { port: string; type: string } }): Promise<void> {
-        if (!settings.usbInterface.port) {
+        if (!settings?.usbInterface?.port) {
             throw new Error('No USB port configured')
         }
 
@@ -36,11 +32,17 @@ export class DCCService extends EventEmitter {
             this.nceInterface = new NceUSB({
                 comPort: settings.usbInterface.port,
                 status: (connected: boolean) => {
-                    this.stateService.setConnection(connected, settings.usbInterface.port)
-                    this.emit('connectionChanged', connected)
+                    try {
+                        this.stateService.setConnection(connected, settings.usbInterface.port)
+                        this.emit('connectionChanged', connected)
+                        logger.usb('Connection status changed', { connected, port: settings.usbInterface.port })
+                    } catch (error) {
+                        logger.error('Failed to update connection status', error)
+                    }
                 }
             })
         } catch (error) {
+            logger.error('Failed to initialize DCC interface', error)
             this.emit('error', error)
             throw error
         }
@@ -52,12 +54,17 @@ export class DCCService extends EventEmitter {
     async setLocomotiveSpeed(address: number, speed: number, direction: 'forward' | 'reverse'): Promise<void> {
         if (!this.nceInterface) throw new Error('DCC interface not initialized')
 
-        const command: DCCCommand = {
-            type: 'locoCtrlCmd',
-            data: this.buildSpeedCommand(address, speed, direction)
-        }
+        try {
+            const command: DCCCommand = {
+                type: 'locoCtrlCmd',
+                data: this.buildSpeedCommand(address, speed, direction)
+            }
 
-        this.nceInterface.sendMSG(command)
+            this.nceInterface.sendMSG(command)
+        } catch (error) {
+            logger.error(`Failed to set locomotive speed for address ${address}`, error)
+            throw error
+        }
     }
 
     /**
@@ -66,12 +73,17 @@ export class DCCService extends EventEmitter {
     async setLocomotiveFunction(address: number, functionNum: number, functions: any[]): Promise<void> {
         if (!this.nceInterface) throw new Error('DCC interface not initialized')
 
-        const command: DCCCommand = {
-            type: 'locoCtrlCmd',
-            data: this.buildFunctionCommand(address, functionNum, functions)
-        }
+        try {
+            const command: DCCCommand = {
+                type: 'locoCtrlCmd',
+                data: this.buildFunctionCommand(address, functionNum, functions)
+            }
 
-        this.nceInterface.sendMSG(command)
+            this.nceInterface.sendMSG(command)
+        } catch (error) {
+            logger.error(`Failed to set locomotive function ${functionNum} for address ${address}`, error)
+            throw error
+        }
     }
 
     /**
@@ -87,12 +99,17 @@ export class DCCService extends EventEmitter {
     async setSwitch(address: number, state: boolean): Promise<void> {
         if (!this.nceInterface) throw new Error('DCC interface not initialized')
 
-        const command: DCCCommand = {
-            type: 'asyncSignal',
-            data: this.buildSwitchCommand(address, state)
-        }
+        try {
+            const command: DCCCommand = {
+                type: 'asyncSignal',
+                data: this.buildSwitchCommand(address, state)
+            }
 
-        this.nceInterface.sendMSG(command)
+            this.nceInterface.sendMSG(command)
+        } catch (error) {
+            logger.error(`Failed to set switch ${address} to ${state}`, error)
+            throw error
+        }
     }
 
     /**
@@ -102,14 +119,26 @@ export class DCCService extends EventEmitter {
         if (!this.nceInterface) throw new Error('DCC interface not initialized')
 
         return new Promise((resolve, reject) => {
-            const command: DCCCommand = {
-                type: 'enableProgrammingTrack',
-                callback: (result: boolean) => {
-                    this.stateService.setProgrammingTrack(result)
-                    resolve(result)
+            try {
+                const command: DCCCommand = {
+                    type: 'enableProgrammingTrack',
+                    callback: (result: boolean, error?: Error) => {
+                        try {
+                            if (error) {
+                                reject(error)
+                                return
+                            }
+                            this.stateService.setProgrammingTrack(result)
+                            resolve(result)
+                        } catch (err) {
+                            reject(err)
+                        }
+                    }
                 }
+                this.nceInterface!.sendMSG(command)
+            } catch (error) {
+                reject(error)
             }
-            this.nceInterface!.sendMSG(command)
         })
     }
 
@@ -120,14 +149,26 @@ export class DCCService extends EventEmitter {
         if (!this.nceInterface) throw new Error('DCC interface not initialized')
 
         return new Promise((resolve, reject) => {
-            const command: DCCCommand = {
-                type: 'disableProgrammingTrack',
-                callback: (result: boolean) => {
-                    this.stateService.setProgrammingTrack(!result)
-                    resolve(!result)
+            try {
+                const command: DCCCommand = {
+                    type: 'disableProgrammingTrack',
+                    callback: (result: boolean, error?: Error) => {
+                        try {
+                            if (error) {
+                                reject(error)
+                                return
+                            }
+                            this.stateService.setProgrammingTrack(!result)
+                            resolve(!result)
+                        } catch (err) {
+                            reject(err)
+                        }
+                    }
                 }
+                this.nceInterface!.sendMSG(command)
+            } catch (error) {
+                reject(error)
             }
-            this.nceInterface!.sendMSG(command)
         })
     }
 
@@ -138,12 +179,22 @@ export class DCCService extends EventEmitter {
         if (!this.nceInterface) throw new Error('DCC interface not initialized')
 
         return new Promise((resolve, reject) => {
-            const command: DCCCommand = {
-                type: 'readCvPrg',
-                data: this.buildCVCommand(cv),
-                callback: (result: number) => resolve(result)
+            try {
+                const command: DCCCommand = {
+                    type: 'readCvPrg',
+                    data: this.buildCVCommand(cv),
+                    callback: (result: number, error?: Error) => {
+                        if (error) {
+                            reject(error)
+                        } else {
+                            resolve(result)
+                        }
+                    }
+                }
+                this.nceInterface!.sendMSG(command)
+            } catch (error) {
+                reject(error)
             }
-            this.nceInterface!.sendMSG(command)
         })
     }
 

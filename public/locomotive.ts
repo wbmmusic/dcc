@@ -9,7 +9,7 @@ import { BrowserWindow, ipcMain } from 'electron';
 import { join } from 'path';
 import { setSpeedAndDir, sendEStop, setFunction } from './messenger.js';
 import { config } from './utilities.js';
-import type { Config, Decoder } from './types.js';
+import type { Config, Decoder } from '../src/shared/types.js';
 
 // Vite build configuration
 declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string;
@@ -25,18 +25,23 @@ declare const MAIN_WINDOW_VITE_NAME: string;
  * @returns {Array} Array of function objects with name, action, and state properties
  */
 const makeFunctionState = (decoderID: string) => {
-    // Find the decoder configuration for this locomotive
-    const theDecoder = config.decoders.find(dcdr => dcdr._id === decoderID)
-    if (!theDecoder) {
-        throw new Error(`Decoder ${decoderID} not found`)
-    }
+    try {
+        // Find the decoder configuration for this locomotive
+        const decoder = config.decoders.find(d => d._id === decoderID)
+        if (!decoder) {
+            throw new Error(`Decoder ${decoderID} not found`)
+        }
 
-    // Create function state array (F0-F28 = 29 functions)
-    let out = []
-    for (let i = 0; i < 29; i++) {
-        out.push({ ...theDecoder.functions[i], state: false })
+        // Create function state array (F0-F28 = 29 functions)
+        const functions = []
+        for (let i = 0; i < 29; i++) {
+            functions.push({ ...decoder.functions[i], state: false })
+        }
+        return functions
+    } catch (error) {
+        console.error('Failed to create function state:', error)
+        throw error
     }
-    return out
 }
 
 /**
@@ -57,59 +62,76 @@ export class Locomotive {
      * 
      * @param {any} loco - Locomotive configuration object from database
      */
-    constructor(loco: any) {
-        this.window = null  // No throttle window initially
-        // Initialize throttle state with decoder function mappings
-        this.throttle = { 
-            speed: 0, 
-            direction: 'forward', 
-            functions: [...makeFunctionState(loco.loco.decoder)] 
+    constructor(locoData: any) {
+        this.window = null
+        
+        // Validate and safely assign locomotive data
+        if (!locoData?.loco) {
+            throw new Error('Invalid locomotive data provided')
         }
-        if (loco) { 
-            Object.assign(this, { ...loco }) 
+        
+        try {
+            // Initialize throttle state with decoder function mappings
+            this.throttle = { 
+                speed: 0, 
+                direction: 'forward', 
+                functions: [...makeFunctionState(locoData.loco.decoder)] 
+            }
+            
+            // Safely assign only expected properties
+            this.loco = { ...locoData.loco }
+            this.decoder = locoData.decoder
+        } catch (error) {
+            console.error('Failed to initialize locomotive:', error)
+            throw error
         }
     }
     info = () => { return { ...this } }
-    setName = (newName) => this.loco.name = newName
-    handleThrottleCommand = (action, data) => {
-        switch (action) {
-            case 'getThrottle':
-                console.log('Got Throttle Data Request')
-                return { ...this.throttle, ...this.loco, dcdr: this.decoder }
+    setName = (newName: string) => this.loco.name = newName
+    handleThrottleCommand = (action: string, data?: any) => {
+        try {
+            switch (action) {
+                case 'getThrottle':
+                    console.log('Got Throttle Data Request')
+                    return { ...this.throttle, ...this.loco, decoder: this.decoder }
 
-            case 'setSpeed':
-                this.throttle.speed = data
-                console.log("Setting speed to", data)
-                setSpeedAndDir(this.loco.address, this.throttle.speed, this.throttle.direction)
-                return this.throttle.speed
+                case 'setSpeed':
+                    this.throttle.speed = data
+                    console.log("Setting speed to", data)
+                    setSpeedAndDir(this.loco.address, this.throttle.speed, this.throttle.direction)
+                    return this.throttle.speed
 
-            case 'setDirection':
-                this.throttle.direction = data
-                console.log("Setting Direction to", data)
-                setSpeedAndDir(this.loco.address, this.throttle.speed, this.throttle.direction)
-                return this.throttle.direction
+                case 'setDirection':
+                    this.throttle.direction = data
+                    console.log("Setting Direction to", data)
+                    setSpeedAndDir(this.loco.address, this.throttle.speed, this.throttle.direction)
+                    return this.throttle.direction
 
-            case 'setFunction':
-                console.log("Set Function", data)
-                this.throttle.functions[data].state = !this.throttle.functions[data].state
-                setFunction(this.loco.address, data, this.throttle.functions)
-                return this.throttle.functions
+                case 'setFunction':
+                    console.log("Set Function", data)
+                    this.throttle.functions[data].state = !this.throttle.functions[data].state
+                    setFunction(this.loco.address, data, this.throttle.functions)
+                    return this.throttle.functions
 
-            case 'eStop':
-                console.log("E-Stop this loco")
-                this.throttle.speed = 0
-                sendEStop(this.loco.address, this.throttle.direction)
-                return 0
+                case 'eStop':
+                    console.log("E-Stop this loco")
+                    this.throttle.speed = 0
+                    sendEStop(this.loco.address, this.throttle.direction)
+                    return 0
 
-            case 'eStopAll':
-                console.log("E-Stop ALL")
-                return "Got E-Stop All"
+                case 'eStopAll':
+                    console.log("E-Stop ALL")
+                    return "Got E-Stop All"
 
-            default:
-                return "Got your Message"
+                default:
+                    return "Got your Message"
+            }
+        } catch (error) {
+            console.error(`Failed to handle throttle command ${action}:`, error)
+            throw error
         }
     }
-    showThrottle = (mainWindow, idx) => {
+    showThrottle = (mainWindow: any, idx: number) => {
         console.log("In show Throttle")
         if (this.window !== null) {
             console.log("Window is not Null")
@@ -121,11 +143,10 @@ export class Locomotive {
         this.window = new BrowserWindow({
             width: 300,
             height: 650,
-            icon: __dirname + '/throttle.ico',
+            icon: join(__dirname, 'throttle.ico'),
             autoHideMenuBar: true,
             show: false,
-            title: this.loco.name + " " + this.loco.number,
-            //resizable: false,
+            title: `${this.loco.name} ${this.loco.number}`,
             alwaysOnTop: true,
             webPreferences: {
                 preload: join(__dirname, 'preload.js'),
@@ -139,23 +160,37 @@ export class Locomotive {
 
         let startUrl
 
-        if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-            startUrl = MAIN_WINDOW_VITE_DEV_SERVER_URL + "#/modal/throttle"
-        } else {
-            startUrl = `file://${join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`)}#/modal/throttle`;
+        try {
+            if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
+                startUrl = MAIN_WINDOW_VITE_DEV_SERVER_URL + "#/modal/throttle"
+            } else {
+                startUrl = `file://${join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`)}#/modal/throttle`
+            }
+
+            console.log("Start url=", startUrl)
+            await this.window.loadURL(startUrl)
+        } catch (error) {
+            console.error('Failed to load throttle window URL:', error)
+            if (this.window) {
+                this.window.close()
+                this.window = null
+            }
+            throw error
         }
 
-        console.log("Start url=", startUrl)
-        this.window.loadURL(startUrl);
-
-        let lastRes = null
-        ipcMain.handle(this.loco._id, (e, action, data) => {
-            const res = this.handleThrottleCommand(action, data)
-            if (JSON.stringify(res) !== lastRes) {
-                mainWindow.webContents.send('throttleUpdate', idx)
-                lastRes = JSON.stringify(res)
+        let lastRes: string | null = null
+        ipcMain.handle(this.loco._id, async (e, action, data) => {
+            try {
+                const res = await this.handleThrottleCommand(action, data)
+                if (JSON.stringify(res) !== lastRes) {
+                    mainWindow.webContents.send('throttleUpdate', idx)
+                    lastRes = JSON.stringify(res)
+                }
+                return res
+            } catch (error) {
+                console.error('Failed to handle throttle command:', error)
+                return { error: 'Command failed', details: error instanceof Error ? error.message : 'Unknown error' }
             }
-            return res
         })
 
         // Emitted when the window is closed.

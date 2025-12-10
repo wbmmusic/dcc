@@ -2,26 +2,32 @@ import React, { useEffect, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { Button } from '../../ui'
 import { Table } from '../../ui'
+import { Switch, SwitchForm } from '../../types'
 
 export default function EditSwitch() {
     const location = useLocation()
     const navigate = useNavigate()
     const theID = useParams().switchID
     console.log(theID)
-    const [state, setState] = useState<Partial<Switch>>({ name: '', address: '', reverse: false })
-    const [ogState, setOgState] = useState(null)
+    const [state, setState] = useState<SwitchForm>({ _id: '', name: '', address: '', reverse: false, state: false })
+    const [ogState, setOgState] = useState<SwitchForm | null>(null)
 
 
     useEffect(() => {
         if (location.pathname.includes('new')) {
 
         } else if (location.pathname.includes('edit')) {
-            window.electron.invoke('getSwitchByID', theID)
-                .then(res => {
-                    setState(res)
-                    setOgState(res)
+            window.electron.invoke('getSwitchByID', theID as string)
+                .then((res: unknown) => {
+                    const switchData = res as Switch
+                    const formData: SwitchForm = {
+                        ...switchData,
+                        address: switchData.address.toString()
+                    }
+                    setState(formData)
+                    setOgState(formData)
                 })
-                .catch(err => console.log(err))
+                .catch((err: unknown) => console.log(err))
         } else console.error("Error in use effect")
     }, [theID])
 
@@ -38,18 +44,29 @@ export default function EditSwitch() {
     }
 
     const createSwitch = () => {
-        window.electron.invoke('createSwitch', {
+        const switchData: Switch = {
             _id: window.electron.uuid(),
-            ...state
-        })
+            name: state.name,
+            address: parseInt(state.address),
+            reverse: state.reverse,
+            state: false
+        }
+        window.electron.invoke('createSwitch', switchData as any)
             .then(() => navigate('/switches'))
-            .catch(err => console.log(err))
+            .catch((err: unknown) => console.log(err))
     }
 
     const updateSwitch = () => {
-        window.electron.invoke('updateSwitch', state)
+        const switchData: Switch = {
+            _id: state._id,
+            name: state.name,
+            address: parseInt(state.address),
+            reverse: state.reverse,
+            state: state.state
+        }
+        window.electron.invoke('updateSwitch', switchData as any)
             .then(() => navigate('/switches'))
-            .catch(err => console.log(err))
+            .catch((err: unknown) => console.log(err))
     }
 
     const makeButtons = () => {
@@ -71,12 +88,12 @@ export default function EditSwitch() {
         )
     }
 
-    const isCreatable = () => {
-        if (state.name !== '' && +state.address >= 0) return true
+    const isCreatable = (): boolean => {
+        if (state.name !== '' && !isNaN(parseInt(state.address)) && parseInt(state.address) >= 0) return true
         else return false
     }
 
-    const isUpdatable = () => {
+    const isUpdatable = (): boolean => {
         if (!isCreatable()) return false
         if (JSON.stringify(state) === JSON.stringify(ogState)) return false
         return true
@@ -97,7 +114,7 @@ export default function EditSwitch() {
                                         type="text"
                                         placeholder='Switch Name'
                                         value={state.name}
-                                        onChange={(e) => setState(old => ({ ...old, name: e.target.value }))}
+                                        onChange={(e) => setState((old: SwitchForm) => ({ ...old, name: e.target.value }))}
                                     />
                                 </td>
                             </tr>
@@ -109,7 +126,7 @@ export default function EditSwitch() {
                                         min={0} step={1}
                                         placeholder='123'
                                         value={state.address}
-                                        onChange={(e) => setState(old => ({ ...old, address: +e.target.value }))}
+                                        onChange={(e) => setState((old: SwitchForm) => ({ ...old, address: e.target.value }))}
                                     />
                                 </td>
                             </tr>
@@ -120,7 +137,7 @@ export default function EditSwitch() {
                                         type="checkbox"
                                         min={0} step={1}
                                         checked={state.reverse}
-                                        onChange={(e) => setState(old => ({ ...old, reverse: !old.reverse }))}
+                                        onChange={(e) => setState((old: SwitchForm) => ({ ...old, reverse: !old.reverse }))}
                                     />
                                 </td>
                             </tr>

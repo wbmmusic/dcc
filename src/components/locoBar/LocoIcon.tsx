@@ -8,7 +8,7 @@ import OpenInNewTwoToneIcon from '@mui/icons-material/OpenInNewTwoTone';
 import { useNavigate } from 'react-router-dom';
 
 
-import { LocoIconProps } from '../../types/react';
+import { LocoIconProps, Locomotive } from '../../types';
 
 export default function LocoIcon(props: LocoIconProps) {
     const theme = useTheme()
@@ -17,17 +17,17 @@ export default function LocoIcon(props: LocoIconProps) {
 
 
     const settings = () => {
-        console.log('SETTINGS idx:' + props.index + ' ' + props.loco.name + ' ' + props.loco.number)
+        console.log('SETTINGS idx:' + props.idx + ' ' + props.loco.name + ' ' + props.loco.number)
         navigate('/system/locomotives/edit/' + props.loco._id)
     }
 
-    const selectThisLoco = () => props.selected(props.index)
+    const selectThisLoco = () => props.setSelectedLoco(props.loco._id)
     const moveLeft = () => console.log('Move LocoIcon Left')
     const moveRight = () => console.log('Move LocoIcon Right')
 
 
 
-    const openThrottle = (id) => window.electron.send('newThrottle', id)
+    const openThrottle = (id: string) => window.electron.send('newThrottle', id)
 
     let leftButton = (
         <Tooltip text="Move left">
@@ -45,35 +45,35 @@ export default function LocoIcon(props: LocoIconProps) {
         </Tooltip>
     )
 
-    if (props.index <= 0) leftButton = ''
-    if (props.index >= props.numberOfLocos) rightButton = ''
+    if (props.idx <= 0) leftButton = <span></span>
+    if (props.idx >= (props.numberOfLocos || 0) - 1) rightButton = <span></span>
 
 
 
     return (
         <div style={{
-            backgroundColor: props.selectedLoco === props.index ? theme.colors.selected : theme.colors.gray[800],
+            backgroundColor: props.selectedLoco === props.loco._id ? theme.colors.selected : theme.colors.gray[800],
             display: 'inline-block',
             height: '118px',
             margin: `0 ${theme.spacing.xs}`,
             textAlign: 'center',
             width: '104px',
             overflow: 'hidden',
-            boxShadow: props.selectedLoco === props.index ? `0 4px 12px ${theme.colors.safetyStripe}80` : '0 2px 8px rgba(0,0,0,0.3)',
+            boxShadow: props.selectedLoco === props.loco._id ? `0 4px 12px ${theme.colors.safetyStripe}80` : '0 2px 8px rgba(0,0,0,0.3)',
             borderRadius: theme.borderRadius.md,
             transition: 'all 0.2s ease',
             cursor: 'pointer',
-            border: props.selectedLoco === props.index ? `2px solid ${theme.colors.safetyStripe}` : '2px solid transparent',
+            border: props.selectedLoco === props.loco._id ? `2px solid ${theme.colors.safetyStripe}` : '2px solid transparent',
             color: theme.colors.light
         }}
         onMouseEnter={(e) => {
-            if (props.selectedLoco !== props.index) {
+            if (props.selectedLoco !== props.loco._id) {
                 e.currentTarget.style.transform = 'translateY(-2px)'
                 e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)'
             }
         }}
         onMouseLeave={(e) => {
-            if (props.selectedLoco !== props.index) {
+            if (props.selectedLoco !== props.loco._id) {
                 e.currentTarget.style.transform = 'translateY(0)'
                 e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)'
             }

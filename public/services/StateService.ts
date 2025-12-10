@@ -6,7 +6,7 @@
  */
 
 import { EventEmitter } from 'events'
-import type { Locomotive, Switch, Accessory, LocoState } from '../types.js'
+import type { Locomotive, Switch, Accessory, LocoState } from '../../src/shared/types.js'
 
 export interface AppState {
     locomotives: Record<string, LocoState>

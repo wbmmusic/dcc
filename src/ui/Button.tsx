@@ -29,7 +29,7 @@ interface ButtonProps {
   size?: ButtonSize
   disabled?: boolean
   onClick?: (e: MouseEvent<HTMLButtonElement>) => void
-  onMouseDown?: (e: MouseEvent<HTMLButtonButton>) => void
+  onMouseDown?: (e: MouseEvent<HTMLButtonElement>) => void
   onMouseUp?: (e: MouseEvent<HTMLButtonElement>) => void
   onDoubleClick?: (e: MouseEvent<HTMLButtonElement>) => void
   style?: CSSProperties

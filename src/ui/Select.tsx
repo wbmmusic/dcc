@@ -1,10 +1,6 @@
 import React, { useState, useRef, useEffect, CSSProperties } from 'react'
 import { useTheme } from './ThemeProvider'
-
-interface SelectOption {
-  label: string;
-  value: string | number;
-}
+import { SelectOption } from '../types'
 
 interface SelectProps {
   options?: SelectOption[];
@@ -25,11 +21,11 @@ const Select = ({
 }: SelectProps): React.JSX.Element => {
   const theme = useTheme()
   const [isOpen, setIsOpen] = useState(false)
-  const selectRef = useRef(null)
+  const selectRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (selectRef.current && !selectRef.current.contains(event.target)) {
+      if (selectRef.current && event.target && !selectRef.current.contains(event.target as Node)) {
         setIsOpen(false)
       }
     }
@@ -98,12 +94,12 @@ const Select = ({
               }}
               onMouseEnter={(e) => {
                 if (value?.value !== option.value) {
-                  e.target.style.backgroundColor = theme.colors.gray[700]
+                  (e.target as HTMLElement).style.backgroundColor = theme.colors.gray[700]
                 }
               }}
               onMouseLeave={(e) => {
                 if (value?.value !== option.value) {
-                  e.target.style.backgroundColor = theme.colors.gray[800]
+                  (e.target as HTMLElement).style.backgroundColor = theme.colors.gray[800]
                 }
               }}
             >

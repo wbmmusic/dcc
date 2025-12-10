@@ -114,3 +114,9 @@ export interface Config {
   accessories: Accessory[];
   consists: Consist[];
 }
+
+export interface DCCCommand {
+  type: 'locoCtrlCmd' | 'asyncSignal' | 'opsProgramming' | 'enableProgrammingTrack' | 'disableProgrammingTrack' | 'readCvPrg';
+  data?: any;
+  callback?: (result: any) => void;
+}

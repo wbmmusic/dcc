@@ -84,6 +84,13 @@ pnpm make
 - **Type-Safe**: Full TypeScript coverage with shared type definitions
 - **Professional**: Enterprise-grade patterns with dependency injection
 
+## Recent Updates
+
+- **Fixed Button Colors**: Reorganized theme colors so only E-Stop and Delete buttons are red
+- **Throttle Window Sync**: Fixed bidirectional synchronization between main window and throttle windows
+- **Window Titles**: Throttle windows now show locomotive numbers, main window shows app version
+- **ID-Based Architecture**: Converted from index-based to ID-based locomotive selection for better consistency
+
 ## Development Notes
 
 Built as a programming challenge to create a custom DCC control system using modern software architecture patterns. The service-oriented design makes it flexible and expandable for future layout modifications while currently serving Dennis's specific N gauge operations.

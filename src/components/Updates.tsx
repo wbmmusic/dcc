@@ -10,9 +10,9 @@ export default function Updates() {
     const [downloadSnack, setDownloadSnack] = useState(defaultDownloadSnack)
     const [installSnack, setInstallSnack] = useState(defaultInstallSnack)
 
-    const handleClose = (event, reason) => {
+    const handleClose = (event: unknown, reason: string) => {
         if (reason === 'clickaway') return
-        setDownloadSnack({ show: false });
+        setDownloadSnack({ show: false, progress: 0 });
     };
 
     const install = () => window.electron.send('installUpdate')
@@ -48,18 +48,18 @@ export default function Updates() {
 
     useEffect(() => {
         window.electron.send('reactIsReady')
-        window.electron.receive('updater', (a, b) => {
+        window.electron.receive('updater', (a: unknown, b: unknown) => {
             if (a === 'checking-for-update') console.log("Checking For Update")
-            else if (a === 'update-not-available') console.log("Up to date: v" + b.version)
+            else if (a === 'update-not-available') console.log("Up to date: v" + (b as any)?.version)
             else if (a === 'update-available') setDownloadSnack(old => ({ show: true, progress: 0 }))
             else if (a === 'download-progress') {
-                console.log("Downloading", Math.round(b.percent) + "%")
-                setDownloadSnack(old => ({ ...old, progress: Math.round(b.percent) }))
+                console.log("Downloading", Math.round((b as any)?.percent || 0) + "%")
+                setDownloadSnack(old => ({ ...old, progress: Math.round((b as any)?.percent || 0) }))
             }
             else if (a === 'update-downloaded') {
                 console.log("Downloaded", b)
                 setDownloadSnack(defaultDownloadSnack)
-                setInstallSnack({ show: true, version: b.tag })
+                setInstallSnack({ show: true, version: (b as any)?.tag || 'unknown' })
             }
             else if (a === 'error') console.log("Update Error", b)
             else console.log(a, b)

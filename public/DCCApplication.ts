@@ -32,12 +32,17 @@ export class DCCApplication {
      * Start the application
      */
     async start(): Promise<void> {
-        await app.whenReady()
-        
-        this.registerProtocols()
-        this.createMainWindow()
-        this.initializeServices()
-        this.setupApplicationEvents()
+        try {
+            await app.whenReady()
+            
+            this.registerProtocols()
+            this.createMainWindow()
+            await this.initializeServices()
+            this.setupApplicationEvents()
+        } catch (error) {
+            console.error('Failed to start DCC application:', error)
+            app.quit()
+        }
     }
 
     /**
@@ -77,14 +82,41 @@ export class DCCApplication {
      */
     private registerProtocols(): void {
         protocol.handle('loco', (request) => {
-            const fileName = request.url.replace('loco://', '')
-            const imagePath = normalize(`${util.pathToImages}/${fileName}`)
-            return net.fetch(`file://${imagePath}`)
+            try {
+                const fileName = request.url.replace('loco://', '')
+                // Validate filename to prevent path traversal
+                if (!fileName || fileName.includes('..') || fileName.includes('/') || fileName.includes('\\') || fileName.includes('\0')) {
+                    throw new Error('Invalid filename')
+                }
+                const imagePath = join(util.pathToImages, fileName)
+                // Ensure resolved path is within images directory
+                if (!imagePath.startsWith(util.pathToImages)) {
+                    throw new Error('Path traversal attempt detected')
+                }
+                return net.fetch(`file://${imagePath}`)
+            } catch (error) {
+                console.error('Failed to load locomotive image:', error)
+                throw error
+            }
         })
 
-        protocol.handle('aimg', (request) => {
-            const imagePath = normalize(`${util.pathToAppImages}/${request.url.substring(7)}`)
-            return net.fetch(`file://${imagePath}`)
+        protocol.handle('appimg', (request) => {
+            try {
+                const fileName = request.url.replace('appimg://', '')
+                // Validate filename to prevent path traversal
+                if (!fileName || fileName.includes('..') || fileName.includes('/') || fileName.includes('\\') || fileName.includes('\0')) {
+                    throw new Error('Invalid filename')
+                }
+                const imagePath = join(util.pathToAppImages, fileName)
+                // Ensure resolved path is within app images directory
+                if (!imagePath.startsWith(util.pathToAppImages)) {
+                    throw new Error('Path traversal attempt detected')
+                }
+                return net.fetch(`file://${imagePath}`)
+            } catch (error) {
+                console.error('Failed to load app image:', error)
+                throw error
+            }
         })
     }
 
@@ -95,7 +127,7 @@ export class DCCApplication {
         this.mainWindow = new BrowserWindow({
             width: 950,
             height: 750,
-            icon: join(__dirname, '/icon.ico'),
+            icon: join(__dirname, 'icon.ico'),
             autoHideMenuBar: true,
             show: false,
             title: 'Big D\'s Railroad v' + app.getVersion(),
@@ -117,6 +149,8 @@ export class DCCApplication {
 
         this.mainWindow.on('closed', () => app.quit())
         this.mainWindow.on('ready-to-show', () => this.mainWindow?.show())
+        
+
 
         // Register window with services
         const windowService = this.container.get<WindowService>('windowService')
@@ -127,24 +161,37 @@ export class DCCApplication {
      * Initialize services after window creation
      */
     private async initializeServices(): Promise<void> {
-        const stateService = this.container.get<StateService>('stateService')
-        const dccService = this.container.get<DCCService>('dccService')
+        try {
+            const stateService = this.container.get<StateService>('stateService')
+            const dccService = this.container.get<DCCService>('dccService')
 
-        // Initialize state from config
-        stateService.initializeFromConfig(util.config)
+            // Initialize state from config
+            stateService.initializeFromConfig(util.config)
 
-        // Setup React ready handler
-        this.mainWindow?.webContents.once('dom-ready', () => {
-            this.mainWindow?.webContents.send('message', 'React Is Ready')
-            
-            // Initialize DCC interface if configured
-            if (util.settings.usbInterface.port) {
-                dccService.initialize(util.settings).catch(console.error)
-            }
-        })
+            // Setup React ready handler
+            this.mainWindow?.webContents.once('dom-ready', async () => {
+                try {
+                    this.mainWindow?.webContents.send('message', 'React Is Ready')
+                    
+                    // Initialize DCC interface if configured
+                    if (util.settings.usbInterface.port) {
+                        try {
+                            await dccService.initialize(util.settings)
+                        } catch (error) {
+                            console.error('Failed to initialize DCC service:', error)
+                        }
+                    }
+                } catch (error) {
+                    console.error('Failed to setup React ready handler:', error)
+                }
+            })
 
-        // Initialize IPC handlers
-        this.container.get('ipcController')
+            // Initialize IPC handlers
+            this.container.get('ipcController')
+        } catch (error) {
+            console.error('Failed to initialize services:', error)
+            throw error
+        }
     }
 
     /**
@@ -173,9 +220,14 @@ export class DCCApplication {
 
         app.on('window-all-closed', () => {
             if (process.platform !== 'darwin') {
-                const dccService = this.container.get<DCCService>('dccService')
-                dccService.close()
-                app.quit()
+                try {
+                    const dccService = this.container.get<DCCService>('dccService')
+                    dccService.close()
+                } catch (error) {
+                    console.error('Failed to close DCC service:', error)
+                } finally {
+                    app.quit()
+                }
             }
         })
     }

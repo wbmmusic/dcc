@@ -14,8 +14,8 @@
 export const theme = {
   colors: {
     // Primary brand colors
-    primary: '#d32f2f',      // Railroad red for primary actions
-    secondary: '#455a64',    // Steel blue-gray for secondary elements
+    primary: '#1976d2',      // Blue for primary actions
+    secondary: '#616161',    // Medium gray for secondary elements
     success: '#2e7d32',      // Green for positive states (connected, running)
     danger: '#d32f2f',       // Red for warnings and emergency stops
     warning: '#f9a825',      // Safety orange for attention-getting elements

@@ -22,8 +22,7 @@ import { useLocation } from 'react-router-dom'
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward'
 
-import { LocoControlProps } from '../../types/react';
-import { LocoState } from '../../types';
+import { LocoControlProps, LocoState, LocoFunction } from '../types';
 
 /**
  * Locomotive Control Component
@@ -51,30 +50,30 @@ export default function LocoControl({ selectedLoco }: LocoControlProps) {
     const [state, setState] = useState<LocoState | null>(null)
     const isModal = location.pathname.includes('/modal')
 
-    const makeChannel = () => {
-        if (isModal) return [window.electron.getWindowID()]
-        else return ['mainWindowThrottle', selectedLoco]
+    const makeChannel = (): [string, ...any[]] => {
+        if (isModal) return [window.electron.getWindowID() || '']
+        else return ['mainWindowThrottle', state?._id || selectedLoco]
     }
 
 
     useEffect(() => {
         window.electron.invoke(...makeChannel(), "getThrottle")
-            .then(res => setState(res))
-            .catch(err => console.log(err))
+            .then((res: unknown) => setState(res as LocoState))
+            .catch((err: unknown) => console.log(err))
 
         if (!isModal) {
-            window.electron.receive('throttleUpdate', idx => {
-                if (idx === selectedLoco) {
+            window.electron.receive('throttleUpdate', (locomotiveId: unknown) => {
+                if (locomotiveId === (state?._id || selectedLoco)) {
                     window.electron.invoke(...makeChannel(), "getThrottle")
-                        .then(res => setState(res))
-                        .catch(err => console.log(err))
+                        .then((res: unknown) => setState(res as LocoState))
+                        .catch((err: unknown) => console.log(err))
                 }
             })
         } else {
             window.electron.receive('modalThrottleUpdate', () => {
                 window.electron.invoke(...makeChannel(), "getThrottle")
-                    .then(res => setState(res))
-                    .catch(err => console.log(err))
+                    .then((res: unknown) => setState(res as LocoState))
+                    .catch((err: unknown) => console.log(err))
             })
         }
 
@@ -93,48 +92,48 @@ export default function LocoControl({ selectedLoco }: LocoControlProps) {
         )
     }
 
-    const isDisabled = (dir) => {
-        if (state.direction === dir) return true
+    const isDisabled = (dir: string): boolean => {
+        if (state?.direction === dir) return true
         else return false
     }
 
-    const setDirection = (dir) => {
+    const setDirection = (dir: string) => {
         window.electron.invoke(...makeChannel(), 'setDirection', dir)
-            .then(newDir => setState(old => ({ ...old, direction: newDir })))
-            .catch(err => console.log(err))
+            .then((newDir: unknown) => setState(old => old ? ({ ...old, direction: newDir as any }) : null))
+            .catch((err: unknown) => console.log(err))
     }
 
-    const setSpeed = (speed) => {
+    const setSpeed = (speed: string) => {
         window.electron.invoke(...makeChannel(), 'setSpeed', parseInt(speed))
-            .then(newSpeed => setState(old => ({ ...old, speed: newSpeed })))
-            .catch(err => console.log(err))
+            .then((newSpeed: unknown) => setState(old => old ? ({ ...old, speed: newSpeed as number }) : null))
+            .catch((err: unknown) => console.log(err))
     }
 
     const sendEStop = () => {
         window.electron.invoke(...makeChannel(), 'eStop')
-            .then(res => setState(old => ({ ...old, speed: res })))
-            .catch(err => console.log(err))
+            .then((res: unknown) => setState(old => old ? ({ ...old, speed: res as number }) : null))
+            .catch((err: unknown) => console.log(err))
     }
 
     const sendEStopAll = () => {
         window.electron.invoke(...makeChannel(), 'eStopAll')
-            .then(res => console.log(res))
-            .catch(err => console.log(err))
+            .then((res: unknown) => console.log(res))
+            .catch((err: unknown) => console.log(err))
     }
 
-    const handleFunctionPress = (func) => {
+    const handleFunctionPress = (func: number) => {
         window.electron.invoke(...makeChannel(), 'setFunction', func)
-            .then(res => setState(old => ({ ...old, functions: res })))
-            .catch(err => console.log(err))
+            .then((res: unknown) => setState(old => old ? ({ ...old, functions: res as LocoFunction[] }) : null))
+            .catch((err: unknown) => console.log(err))
     }
 
-    const makeFunctions = () => {
-        let out = []
+    const makeFunctions = (): React.ReactElement[] => {
+        let out: React.ReactElement[] = []
 
-        if (state.functions === undefined) return
-        state.functions.forEach((func, i) => {
+        if (!state?.functions) return out
+        state.functions.forEach((func: LocoFunction, i: number) => {
             if (func.name !== '') {
-                if (func.action === 'toggle') {
+                if ((func as any).action === 'toggle') {
                     out.push(
                         <Button
                             variant={func.state ? 'success' : 'secondary'}

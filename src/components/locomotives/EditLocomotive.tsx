@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo, useCallback } from 'react'
 import { Button, Table, Select, theme } from '../../ui'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { v4 as uuid } from 'uuid';
+import { Decoder, LocomotiveForm, locomotiveDataToForm, locomotiveFormToData, SelectOption } from '../../types';
 
 export default function EditLocomotive() {
     const locoID = useParams().locoID
     const location = useLocation()
     const navigate = useNavigate()
 
-    const defaultLoco = {
+    const defaultLoco: LocomotiveForm = {
         _id: uuid(),
         hidden: false,
         name: '',
@@ -19,11 +20,11 @@ export default function EditLocomotive() {
         decoder: '',
     }
 
-    const [loco, setLoco] = useState(defaultLoco)
-    const [ogLoco, setOgLoco] = useState<typeof defaultLoco | null>(null)
+    const [loco, setLoco] = useState<LocomotiveForm>(defaultLoco)
+    const [ogLoco, setOgLoco] = useState<LocomotiveForm | null>(null)
     const [decoders, setDecoders] = useState<Decoder[]>([])
 
-    const makeTitle = () => {
+    const makeTitle = (): React.ReactElement | string => {
         if (location.pathname.includes('new')) {
             return <b>New Locomotive</b>
         } else if (location.pathname.includes('edit')) {
@@ -32,69 +33,77 @@ export default function EditLocomotive() {
     }
 
     useEffect(() => {
-        window.electron.invoke('getDecoders')
-            .then(res => setDecoders(res))
-            .catch(err => console.log(err))
+        const loadData = async () => {
+            try {
+                const decodersData = await window.electron.invoke('getDecoders')
+                setDecoders(decodersData as Decoder[])
 
-        if (locoID !== undefined) {
-            window.electron.invoke('getLocomotiveById', locoID)
-                .then(theLoco => {
-                    setLoco(theLoco)
-                    setOgLoco(theLoco)
-                })
-                .catch(err => console.log(err))
+                if (locoID) {
+                    const locoData = await window.electron.invoke('getLocomotiveById', locoID)
+                    const formData = locomotiveDataToForm(locoData as any)
+                    setLoco(formData)
+                    setOgLoco(formData)
+                }
+            } catch (error) {
+                console.error('Failed to load locomotive data:', error)
+            }
         }
-    }, [])
+        loadData()
+    }, [locoID])
 
     useEffect(() => console.log(loco), [loco])
 
-    const handelCreateLoco = () => {
-        window.electron.invoke('createLoco', loco)
-            .then(navigate('/locomotives'))
-            .catch(err => console.log(err))
+    const handelCreateLoco = async () => {
+        try {
+            const locoData = locomotiveFormToData(loco)
+            await window.electron.invoke('createLoco', locoData as any)
+            navigate('/locomotives')
+        } catch (error) {
+            console.error('Failed to create locomotive:', error)
+        }
     }
 
-    const readyToCreate = () => {
-        if (loco.name !== '' && loco.decoder !== '' && loco.address !== '' && !isNaN(loco.address)) return true
+    const readyToCreate = (): boolean => {
+        if (loco.name !== '' && loco.decoder !== '' && loco.address !== '' && !isNaN(parseInt(loco.address))) return true
         else return false
     }
 
-    const makeDecoderOptions = () => {
-        let out = []
-        decoders.forEach(dcdr => {
-            out.push({
-                label: `${dcdr.name} ${dcdr.model}`,
-                value: dcdr._id
-            })
-        })
-        return out
-    }
+    const decoderOptions = useMemo((): SelectOption[] => {
+        return decoders.map((decoder: Decoder) => ({
+            label: `${decoder.name} ${decoder.model}`,
+            value: decoder._id
+        }))
+    }, [decoders])
 
-    const makeSelectValue = () => {
-        let decoder = decoders.find(dcdr => dcdr._id === loco.decoder)
-        if (decoder === undefined) return null
+    const selectedDecoder = useMemo((): SelectOption | null => {
+        const decoder = decoders.find((dcdr: Decoder) => dcdr._id === loco.decoder)
+        if (!decoder) return null
         return { label: `${decoder.name} ${decoder.model}`, value: decoder._id }
-    }
+    }, [decoders, loco.decoder])
 
-    const readyToUpdate = () => {
+    const readyToUpdate = (): boolean => {
         if (!readyToCreate()) return false
         if (JSON.stringify(loco) === JSON.stringify(ogLoco)) return false
         return true
     }
 
-    const handleUpdateLoco = () => {
-        window.electron.invoke('updateLocomotive', loco)
-            .then(theLoco => navigate('/locomotives'))
-            .catch(err => console.log(err))
+    const handleUpdateLoco = async () => {
+        try {
+            const locoData = locomotiveFormToData(loco)
+            await window.electron.invoke('updateLocomotive', locoData as any)
+            navigate('/locomotives')
+        } catch (error) {
+            console.error('Failed to update locomotive:', error)
+        }
     }
 
     const makeButtons = () => {
 
-        const makeSaveUpdate = () => {
+        const makeSaveUpdate = (): React.ReactElement | string => {
             if (location.pathname.includes('new')) {
-                return <Button size='sm' disabled={!readyToCreate()} onClick={handelCreateLoco} >Create Locomotive</Button>
+                return <Button variant='success' size='sm' disabled={!readyToCreate()} onClick={handelCreateLoco} >Create Locomotive</Button>
             } else if (location.pathname.includes('edit')) {
-                return <Button disabled={!readyToUpdate()} onClick={handleUpdateLoco} size='sm'>Update Locomotive</Button>
+                return <Button variant='success' disabled={!readyToUpdate()} onClick={handleUpdateLoco} size='sm'>Update Locomotive</Button>
             } else return "ERROR"
         }
 
@@ -108,16 +117,16 @@ export default function EditLocomotive() {
 
     }
 
-    const makeFunctions = () => {
-        let out = []
+    const makeFunctions = (): React.ReactElement[] | string => {
+        let out: React.ReactElement[] = []
         if (decoders.length <= 0 || loco.decoder === '') return out
 
-        const decoderIDX = decoders.findIndex(dcdr => dcdr._id === loco.decoder)
+        const decoderIDX = decoders.findIndex((decoder: Decoder) => decoder._id === loco.decoder)
         if (decoderIDX < 0) return 'ERROR'
 
-        decoders[decoderIDX].functions.forEach((func, i) => {
+        decoders[decoderIDX].functions.forEach((func, i: number) => {
             if (func.name !== '') out.push(
-                <tr key={func + i}>
+                <tr key={`${func.name}${i}`}>
                     <td>{i}</td>
                     <td>{func.name}</td>
                     <td>{func.action}</td>
@@ -171,7 +180,7 @@ export default function EditLocomotive() {
                                     type="number"
                                     value={loco.number}
                                     placeholder='1234'
-                                    onChange={(e) => setLoco(old => ({ ...old, number: parseInt(e.target.value) }))}
+                                    onChange={(e) => setLoco(old => ({ ...old, number: e.target.value }))}
                                 />
                             </td>
                         </tr>
@@ -183,7 +192,7 @@ export default function EditLocomotive() {
                                     type="number"
                                     value={loco.address}
                                     placeholder='1234'
-                                    onChange={(e) => setLoco(old => ({ ...old, address: parseInt(e.target.value) }))}
+                                    onChange={(e) => setLoco(old => ({ ...old, address: e.target.value }))}
                                 />
                             </td>
                         </tr>
@@ -191,9 +200,9 @@ export default function EditLocomotive() {
                             <td style={labelStyle}>Decoder</td>
                             <td>
                                 <Select
-                                    value={makeSelectValue()}
-                                    onChange={(e) => setLoco(old => ({ ...old, decoder: e.value }))}
-                                    options={makeDecoderOptions()}
+                                    value={selectedDecoder || undefined}
+                                    onChange={(option: SelectOption) => setLoco(old => ({ ...old, decoder: option.value as string }))}
+                                    options={decoderOptions}
                                     placeholder="Select decoder..."
                                 />
                             </td>
@@ -228,10 +237,15 @@ export default function EditLocomotive() {
                     </div>
                     <Button
                         size='sm'
-                        onClick={() => {
-                            window.electron.invoke('selectLocoImage')
-                                .then(res => { if (res !== 'canceled') setLoco(old => ({ ...old, photo: res })) })
-                                .catch(err => console.log(err))
+                        onClick={async () => {
+                            try {
+                                const res = await window.electron.invoke('selectLocoImage')
+                                if (res !== 'canceled' && res !== 'error') {
+                                    setLoco(old => ({ ...old, photo: res as string }))
+                                }
+                            } catch (error) {
+                                console.error('Failed to select image:', error)
+                            }
                         }}
                     >Choose Image</Button>
                 </div>

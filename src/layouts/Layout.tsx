@@ -41,12 +41,12 @@ export default function Layout({ activeTrack: propActiveTrack, setActiveTrack: p
     const [activeTrack, setActiveTrack] = useState(propActiveTrack || 0)
 
     const selectTrack = (track: number) => {
-        window.electron.invoke('fireMacro', track)
-            .then(res => {
+        window.electron.invoke('fireMacro', track as any)
+            .then((res: unknown) => {
                 setActiveTrack(track);
                 propSetActiveTrack?.(track);
             })
-            .catch(err => console.error(err))
+            .catch((err: unknown) => console.error(err))
     }
 
     const track3 = (active?: boolean) => {
@@ -134,7 +134,7 @@ export default function Layout({ activeTrack: propActiveTrack, setActiveTrack: p
         )
     }
 
-    const makeTrack = () => {
+    const makeTrack = (): React.ReactElement | undefined => {
         switch (activeTrack) {
             case 0:
                 return (
@@ -185,18 +185,18 @@ export default function Layout({ activeTrack: propActiveTrack, setActiveTrack: p
                 )
 
             default:
-                break;
+                return undefined;
         }
     }
 
     const open = (switchNum: number) => {
         //console.log('Switch Open')
-        window.electron.send('send-serial', [0xAD, 0x00, switchNum, 3, 0])
+        window.electron.send('send-serial', [0xAD, 0x00, switchNum, 3, 0] as any)
     }
 
     const close = (switchNum: number) => {
         //console.log('Switch close')
-        window.electron.send('send-serial', [0xAD, 0x00, switchNum, 4, 0])
+        window.electron.send('send-serial', [0xAD, 0x00, switchNum, 4, 0] as any)
     }
 
     switch (activeTrack) {

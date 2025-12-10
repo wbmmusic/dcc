@@ -5,65 +5,80 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { selectStyle } from '../../styles'
 import Select from 'react-select'
 import { accessories } from './options'
+import { AccessoryForm, Accessory, AccessoryDevice, AccessoryAction, SelectOption } from '../../types'
 
 export default function EditAccessory() {
     const location = useLocation()
     const navigate = useNavigate()
     const accID = useParams().accID
-    const [state, setState] = useState({ name: '', address: '', device: {} })
-    const [ogState, setOgState] = useState(null)
+    const [state, setState] = useState<AccessoryForm>({ 
+        _id: '', 
+        name: '', 
+        address: '', 
+        device: { name: '', actions: [] } 
+    })
+    const [ogState, setOgState] = useState<AccessoryForm | null>(null)
 
-    const makeTitle = () => {
+    const makeTitle = (): string => {
         if (location.pathname.includes('edit')) return "Edit"
         else if (location.pathname.includes('new')) return "Create"
         else return "ERROR"
     }
 
-    const makeOptions = () => {
-        let out = []
+    const makeOptions = (): SelectOption[] => {
+        let out: SelectOption[] = []
         accessories.forEach(acc => out.push({ label: acc.name, value: acc._id }));
         return out
     }
 
     const createAccessory = () => {
-        window.electron.invoke('createAccessory', {
+        const accessoryData: Accessory = {
             _id: window.electron.uuid(),
-            ...state
-        })
-            .then(navigate('/accessories'))
-            .catch(err => console.error(err))
+            name: state.name,
+            address: parseInt(state.address),
+            device: state.device
+        }
+        window.electron.invoke('createAccessory', accessoryData as any)
+            .then(() => navigate('/accessories'))
+            .catch((err: unknown) => console.error(err))
     }
 
     const updateAccessory = () => {
-        window.electron.invoke('updateAccessory', state)
-            .then(navigate('/accessories'))
-            .catch(err => console.error(err))
+        const accessoryData: Accessory = {
+            _id: state._id,
+            name: state.name,
+            address: parseInt(state.address),
+            device: state.device
+        }
+        window.electron.invoke('updateAccessory', accessoryData as any)
+            .then(() => navigate('/accessories'))
+            .catch((err: unknown) => console.error(err))
     }
 
-    const isCreatable = () => {
-        if (state.name === '' || state.address === '' || isNaN(state.address)) return false
+    const isCreatable = (): boolean => {
+        if (state.name === '' || state.address === '' || isNaN(parseInt(state.address))) return false
         return true
     }
 
-    const isUpdatable = () => {
+    const isUpdatable = (): boolean => {
         if (!isCreatable()) return false
         if (JSON.stringify(state) === JSON.stringify(ogState)) return false
         return true
     }
 
-    const makeButton = () => {
+    const makeButton = (): React.ReactElement => {
         if (location.pathname.includes("edit")) return <Button disabled={!isUpdatable()} size="sm" onClick={updateAccessory}>Update Accessory</Button>
         else if (location.pathname.includes("new")) return <Button disabled={!isCreatable()} size="sm" onClick={createAccessory}>Create Accessory</Button>
         else throw new Error('Error in makeButton')
     }
 
-    const makeDeviceInput = () => {
-        if (state.device.name === undefined) return
+    const makeDeviceInput = (): React.ReactElement | undefined => {
+        if (!state.device.name) return undefined
 
-        const makeInputRows = () => {
-            let out = []
-            if (state.device.actions === undefined) return
-            state.device.actions.forEach((act, i) => {
+        const makeInputRows = (): React.ReactElement[] => {
+            let out: React.ReactElement[] = []
+            if (!state.device.actions) return out
+            state.device.actions.forEach((act: AccessoryAction, i: number) => {
                 out.push(
                     <tr key={`actionRow${i}`}>
                         <td><b>{i}</b></td>
@@ -73,9 +88,18 @@ export default function EditAccessory() {
                                 value={act.name}
                                 placeholder={`Function ${i} name`}
                                 onChange={(e) => {
-                                    let tempActions = [...state.device.actions]
-                                    tempActions[i].name = e.target.value
-                                    setState(old => ({ ...old, device: { ...old.device, actions: tempActions } }))
+                                    const newActions = [...(state.device.actions || [])]
+                                    newActions[i].name = e.target.value
+                                    setState(old => {
+                                        const newState: AccessoryForm = {
+                                            ...old,
+                                            device: {
+                                                ...old.device,
+                                                actions: newActions
+                                            }
+                                        }
+                                        return newState
+                                    })
                                 }}
                             />
                         </td>
@@ -102,25 +126,33 @@ export default function EditAccessory() {
         )
     }
 
-    const loadDevice = (id) => {
+    const loadDevice = (id: string): void => {
         let devIDX = accessories.findIndex(acc => acc._id === id)
-        if (devIDX < 0) return new Error('Error in loadDevice')
+        if (devIDX < 0) {
+            console.error('Device not found')
+            return
+        }
         setState(old => ({ ...old, device: accessories[devIDX] }))
     }
 
-    const makeValue = () => {
-        if (state.device.name === undefined || state.device._id === undefined) return null
-        return { label: state.device.name, value: state.device._id }
+    const makeValue = (): SelectOption | null => {
+        if (!state.device.name || !('_id' in state.device)) return null
+        return { label: state.device.name, value: (state.device as any)._id }
     }
 
     useEffect(() => {
-        if (location.pathname.includes('edit')) {
+        if (location.pathname.includes('edit') && accID) {
             window.electron.invoke('getAccessoryByID', accID)
-                .then(res => {
-                    setState(JSON.parse(JSON.stringify(res)))
-                    setOgState(JSON.parse(JSON.stringify(res)))
+                .then((res: unknown) => {
+                    const accessory = res as Accessory
+                    const formData: AccessoryForm = {
+                        ...accessory,
+                        address: accessory.address.toString()
+                    }
+                    setState(formData)
+                    setOgState(formData)
                 })
-                .catch(err => console.error(err))
+                .catch((err: unknown) => console.error(err))
         }
     }, [])
 
@@ -149,8 +181,8 @@ export default function EditAccessory() {
                                     <input
                                         type="number"
                                         placeholder='1234'
-                                        value={state.address.toString()}
-                                        onChange={(e) => setState(old => ({ ...old, address: parseInt(e.target.value) }))}
+                                        value={state.address}
+                                        onChange={(e) => setState(old => ({ ...old, address: e.target.value }))}
                                     />
                                 </td>
                             </tr>
@@ -161,7 +193,7 @@ export default function EditAccessory() {
                                         styles={selectStyle}
                                         options={makeOptions()}
                                         value={makeValue()}
-                                        onChange={(e) => loadDevice(e.value)}
+                                        onChange={(e: SelectOption | null) => e && loadDevice(e.value as string)}
                                     />
                                 </td>
                             </tr>

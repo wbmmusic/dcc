@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Locomotive } from '../../types'
+import { Locomotive, DeleteModalState } from '../../types'
 import AddCircleTwoToneIcon from '@mui/icons-material/AddCircleTwoTone';
 import DeleteForeverTwoToneIcon from '@mui/icons-material/DeleteForeverTwoTone';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
@@ -10,23 +10,23 @@ export default function LocomotiveList() {
     const theme = useTheme()
     const navigate = useNavigate()
     const [locomotives, setLocomotives] = useState<Locomotive[]>([])
-    const defaultDeleteModal = { show: false, id: '' }
-    const [deleteLocoModal, setDeleteLocoModal] = useState(defaultDeleteModal)
+    const defaultDeleteModal: DeleteModalState<Locomotive> = { show: false, id: '' }
+    const [deleteLocoModal, setDeleteLocoModal] = useState<DeleteModalState<Locomotive>>(defaultDeleteModal)
 
     useEffect(() => {
         window.electron.invoke('getLocomotives')
-            .then(locos => setLocomotives(locos))
-            .catch(err => console.log(err))
+            .then((locos: unknown) => setLocomotives(locos as Locomotive[]))
+            .catch((err: unknown) => console.log(err))
     }, [])
 
-    const handleDeleteLoco = (id) => {
+    const handleDeleteLoco = (id: string) => {
         window.electron.invoke('deleteLocomotive', id)
-            .then(locos => {
+            .then((locos: unknown) => {
                 console.log(locos)
-                setLocomotives(locos)
+                setLocomotives(locos as Locomotive[])
                 setDeleteLocoModal(defaultDeleteModal)
             })
-            .catch(err => console.log(err))
+            .catch((err: unknown) => console.log(err))
     }
 
     const handleClose = () => setDeleteLocoModal(defaultDeleteModal)
@@ -35,7 +35,7 @@ export default function LocomotiveList() {
         <div className='pageContainer'>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: theme.spacing.md }}>
                 <div style={{ fontSize: theme.fontSize.lg, fontWeight: 'bold' }}>Locomotives</div>
-                <Button size='sm' onClick={() => navigate('/system/locomotives/new')}>
+                <Button variant='secondary' size='sm' onClick={() => navigate('/system/locomotives/new')}>
                     <AddCircleTwoToneIcon style={{ fontSize: '18px', marginRight: '4px' }} />
                     Add Locomotive
                 </Button>
