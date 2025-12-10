@@ -1,12 +1,35 @@
+/**
+ * Custom Button Component
+ * 
+ * A flexible button component that provides consistent styling across the DCC
+ * control application. Supports multiple variants, sizes, and interaction states
+ * optimized for railroad control operations.
+ */
+
 import React, { CSSProperties, MouseEvent } from 'react'
 import { theme, ButtonVariant, ButtonSize } from './theme'
 
+/**
+ * Props interface for the Button component
+ * 
+ * @interface ButtonProps
+ * @property {ButtonVariant} [variant='primary'] - Visual style variant
+ * @property {ButtonSize} [size='md'] - Button size
+ * @property {boolean} [disabled=false] - Whether the button is disabled
+ * @property {Function} [onClick] - Click event handler
+ * @property {Function} [onMouseDown] - Mouse down event handler (for momentary functions)
+ * @property {Function} [onMouseUp] - Mouse up event handler (for momentary functions)
+ * @property {Function} [onDoubleClick] - Double click event handler
+ * @property {CSSProperties} [style] - Additional CSS styles
+ * @property {React.ReactNode} [children] - Button content (text, icons, etc.)
+ * @property {string} [type='button'] - HTML button type
+ */
 interface ButtonProps {
   variant?: ButtonVariant
   size?: ButtonSize
   disabled?: boolean
   onClick?: (e: MouseEvent<HTMLButtonElement>) => void
-  onMouseDown?: (e: MouseEvent<HTMLButtonElement>) => void
+  onMouseDown?: (e: MouseEvent<HTMLButtonButton>) => void
   onMouseUp?: (e: MouseEvent<HTMLButtonElement>) => void
   onDoubleClick?: (e: MouseEvent<HTMLButtonElement>) => void
   style?: CSSProperties
@@ -14,6 +37,23 @@ interface ButtonProps {
   type?: 'button' | 'submit' | 'reset'
 }
 
+/**
+ * Generates CSS styles for different button variants
+ * 
+ * Each variant corresponds to a specific use case in the DCC interface:
+ * - primary: Main actions (Start, Save, etc.)
+ * - secondary: Secondary actions (Cancel, etc.)
+ * - success: Positive actions (Connect, Enable, etc.)
+ * - danger: Destructive actions (Delete, Emergency Stop, etc.)
+ * - warning: Attention-getting actions (Caution states)
+ * - info: Informational actions
+ * - light/dark: Contrast variations
+ * - outline-secondary: Subtle secondary actions
+ * 
+ * @param {ButtonVariant} variant - The button style variant
+ * @param {boolean} disabled - Whether the button is disabled
+ * @returns {CSSProperties} CSS styles for the variant
+ */
 const getVariantStyles = (variant: ButtonVariant, disabled: boolean): CSSProperties => {
   const baseStyles: CSSProperties = {
     border: '1px solid transparent',
@@ -77,6 +117,17 @@ const getVariantStyles = (variant: ButtonVariant, disabled: boolean): CSSPropert
   return { ...baseStyles, ...variants[variant] }
 }
 
+/**
+ * Generates CSS styles for different button sizes
+ * 
+ * Size guidelines:
+ * - sm: Compact buttons for toolbars, function buttons, and space-constrained areas
+ * - md: Standard buttons for most interface interactions
+ * - lg: Large buttons for primary actions and touch-friendly interfaces
+ * 
+ * @param {ButtonSize} size - The button size
+ * @returns {CSSProperties} CSS styles for the size
+ */
 const getSizeStyles = (size: ButtonSize): CSSProperties => {
   const sizes: Record<ButtonSize, CSSProperties> = {
     sm: {
@@ -99,6 +150,36 @@ const getSizeStyles = (size: ButtonSize): CSSProperties => {
   return sizes[size]
 }
 
+/**
+ * Button Component
+ * 
+ * A versatile button component designed for DCC railroad control interfaces.
+ * Provides consistent styling, multiple interaction modes, and accessibility features.
+ * 
+ * Usage Examples:
+ * ```tsx
+ * // Primary action button
+ * <Button variant="primary" onClick={handleSave}>Save</Button>
+ * 
+ * // Emergency stop button
+ * <Button variant="danger" size="lg" onClick={handleEmergencyStop}>E-STOP</Button>
+ * 
+ * // Momentary function button (horn, bell, etc.)
+ * <Button 
+ *   variant="secondary" 
+ *   onMouseDown={handleHornStart}
+ *   onMouseUp={handleHornStop}
+ * >
+ *   Horn
+ * </Button>
+ * 
+ * // Compact toolbar button
+ * <Button variant="outline-secondary" size="sm">Settings</Button>
+ * ```
+ * 
+ * @param {ButtonProps} props - Component props
+ * @returns {React.JSX.Element} Rendered button element
+ */
 export const Button: React.FC<ButtonProps> = ({
   variant = 'primary',
   size = 'md',

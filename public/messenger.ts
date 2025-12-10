@@ -1,11 +1,28 @@
+/**
+ * DCC Command Messenger
+ * 
+ * Handles all DCC (Digital Command Control) communication between the application
+ * and the physical railroad hardware. Provides high-level functions for locomotive
+ * control, accessory operation, and programming track operations.
+ */
+
 import { NceUSB } from './interfaces/nceUsb.js';
 import * as util from './utilities.js';
 
+// Global DCC interface instance
 export let dccInterface: any = null;
 
+/**
+ * Initializes the DCC hardware interface
+ * 
+ * @param {any} iface - Interface configuration object
+ * @param {any} status - Status callback function
+ * @returns {boolean} True if interface started successfully
+ */
 export const startInterface = (iface: any, status: any) => {
     switch (iface.type) {
         case 'nceUsb':
+            // Initialize NCE PowerCab USB interface
             dccInterface = new NceUSB({ comPort: iface.port, status: status })
             return true
 
@@ -14,13 +31,30 @@ export const startInterface = (iface: any, status: any) => {
     }
 }
 
+/**
+ * Converts a DCC address to the required byte format
+ * 
+ * DCC addresses are sent as two bytes (high and low). For locomotive commands,
+ * the high byte is OR'd with 0xC0 to indicate long address format.
+ * 
+ * @param {number} address - DCC address (1-10293)
+ * @param {boolean} useC0 - Whether to set the C0 bit for locomotive addressing
+ * @returns {number[]} Array of [highByte, lowByte]
+ */
 const getAddressBytes = (address, useC0) => {
-    var lowByte = address & 0xff
-    var highByte = (address >> 8) & 0xff
-    if (useC0) return [highByte | 0xC0, lowByte]
+    var lowByte = address & 0xff        // Extract low 8 bits
+    var highByte = (address >> 8) & 0xff // Extract high 8 bits
+    if (useC0) return [highByte | 0xC0, lowByte]  // Set C0 bit for loco addressing
     return [highByte, lowByte]
 }
 
+/**
+ * Sends speed and direction command to a locomotive
+ * 
+ * @param {number} address - DCC address of the locomotive
+ * @param {number} speed - Speed step (0-126)
+ * @param {string} direction - 'forward' or 'reverse'
+ */
 export const setSpeedAndDir = (address: number, speed: number, direction: string) => {
     console.log(`Address: ${address} | Speed: ${speed} | Direction: ${direction}`)
     if (!util.usbConnected) return
@@ -156,33 +190,43 @@ export const setCV = (address: number, cv: number, value: number) => {
 // PROGRAMMING
 export const enableProgrammingTrack = async () => {
     return new Promise((resolve, reject) => {
-        const trackStatus = (state) => {
-            this.programmingTrackEnabled = state
+        const trackStatus = (state: boolean) => {
+            if (dccInterface) {
+                dccInterface.programmingTrackEnabled = state
+            }
             resolve(state)
         }
 
-        dccInterface.sendMSG({
-            type: 'enableProgrammingTrack',
-            data: null,
-            callback: trackStatus
-        })
-
+        if (dccInterface) {
+            dccInterface.sendMSG({
+                type: 'enableProgrammingTrack',
+                data: null,
+                callback: trackStatus
+            })
+        } else {
+            reject(new Error('DCC Interface not available'))
+        }
     })
 }
 
 export const disableProgrammingTrack = async () => {
     return new Promise((resolve, reject) => {
-        const trackStatus = (state) => {
-            this.programmingTrackEnabled = state
+        const trackStatus = (state: boolean) => {
+            if (dccInterface) {
+                dccInterface.programmingTrackEnabled = state
+            }
             resolve(state)
         }
 
-        dccInterface.sendMSG({
-            type: 'disableProgrammingTrack',
-            data: null,
-            callback: trackStatus
-        })
-
+        if (dccInterface) {
+            dccInterface.sendMSG({
+                type: 'disableProgrammingTrack',
+                data: null,
+                callback: trackStatus
+            })
+        } else {
+            reject(new Error('DCC Interface not available'))
+        }
     })
 }
 

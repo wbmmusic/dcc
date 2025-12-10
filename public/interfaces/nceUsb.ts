@@ -1,49 +1,89 @@
+/**
+ * NCE USB Interface Driver
+ * 
+ * Provides communication interface for NCE PowerCab DCC system via USB.
+ * Handles locomotive control, programming track operations, and CV programming.
+ * 
+ * Protocol Implementation:
+ * - NCE USB Interface Protocol v7.0
+ * - Serial communication at 9600 baud
+ * - Command/response pattern with acknowledgment
+ * - Programming track support for decoder configuration
+ */
+
 import { SerialPort } from 'serialport';
 import { ByteLengthParser } from '@serialport/parser-byte-length';
 import { InterByteTimeoutParser } from '@serialport/parser-inter-byte-timeout';
 
+/**
+ * NCE USB Interface Class
+ * 
+ * Manages all communication with NCE PowerCab system including:
+ * - Locomotive speed and direction control
+ * - Function button activation (lights, sounds, etc.)
+ * - Programming track operations for CV programming
+ * - System status monitoring and error handling
+ */
 export class NceUSB {
+    /** Command queue for sequential message processing */
     outBuffer: any[];
+    /** Flag indicating if currently sending commands */
     sending: boolean;
+    /** Programming track power state */
     programmingTrackEnabled: boolean;
+    /** COM port path (e.g., "COM3", "/dev/ttyUSB0") */
     comPort: string;
-    port: any;
-    status: any;
+    /** SerialPort instance for USB communication */
+    port: SerialPort;
+    /** Status callback function for connection state changes */
+    status: (connected: boolean) => void;
 
-    constructor(device: any) {
+    /**
+     * Initialize NCE USB Interface
+     * 
+     * @param device - Device configuration containing comPort and status callback
+     */
+    constructor(device: { comPort: string; status: (connected: boolean) => void }) {
         this.outBuffer = []
         this.sending = false
         this.programmingTrackEnabled = false
         if (device) { Object.assign(this, { ...device }) }
 
-        this.port = new SerialPort(this.comPort, { baudRate: 9600 })
-        this.port.on('error', (msg) => this.status(false))
+        this.port = new SerialPort({ path: this.comPort, baudRate: 9600 })
+        this.port.on('error', () => this.status(false))
         this.port.on('open', async () => {
             this.status(true)
-            await this.#disableProgrammingTrack()
-            console.log("USB Software Ver", await this.#getSoftwareVersion())
+            await this.disableProgrammingTrack()
+            console.log("USB Software Ver", await this.getSoftwareVersion())
         })
     }
+    /** Close the serial port connection */
     closeSerialPort = () => this.port.close()
+    
+    /** Get interface information */
     info = () => { return { ...this } }
-    sendNextInBuffer2 = async () => {
+    /**
+     * Process next command in the output buffer
+     * Handles different command types sequentially to prevent conflicts
+     */
+    sendNextInBuffer2 = async (): Promise<void> => {
         const cmd = this.outBuffer.shift()
         switch (cmd.type) {
             case 'locoCtrlCmd':
-                await this.#sendLocoCtrlCmd(cmd.data)
+                await this.sendLocoCtrlCmd(cmd.data)
                 break;
 
             case 'asyncSignal':
-                await this.#sendAsyncSignal(cmd.data)
+                await this.sendAsyncSignal(cmd.data)
                 break
 
             case 'opsProgramming':
-                await this.#sendOpsProgrammingMsg(cmd.data)
+                await this.sendOpsProgrammingMsg(cmd.data)
                 break
 
             case 'enableProgrammingTrack':
                 try {
-                    const trackStateEn = await this.#enableProgrammingTrack()
+                    const trackStateEn = await this.enableProgrammingTrack()
                     console.log("Track State is", trackStateEn)
                     cmd.callback(this.programmingTrackEnabled)
                 } catch (error) {
@@ -53,7 +93,7 @@ export class NceUSB {
 
             case 'disableProgrammingTrack':
                 try {
-                    const trackState = await this.#disableProgrammingTrack()
+                    const trackState = await this.disableProgrammingTrack()
                     console.log("Track State is", trackState)
                     cmd.callback(this.programmingTrackEnabled)
                 } catch (error) {
@@ -63,7 +103,7 @@ export class NceUSB {
 
             case 'readCvPrg':
                 try {
-                    const cvVal = await this.#readCvPrg(cmd.data)
+                    const cvVal = await this.readCvPrg(cmd.data)
                     console.log("CV val =", cvVal)
                     cmd.callback(cvVal)
                 } catch (error) {
@@ -77,7 +117,12 @@ export class NceUSB {
         if (this.outBuffer.length === 0) this.sending = false
         else this.sendNextInBuffer2()
     }
-    sendMSG = (msg) => {
+    /**
+     * Queue a message for transmission
+     * 
+     * @param msg - Command message to send
+     */
+    sendMSG = (msg: any) => {
         console.log("Send Message", msg)
         this.outBuffer.push(msg)
         if (!this.sending) {
@@ -85,11 +130,17 @@ export class NceUSB {
             this.sendNextInBuffer2()
         }
     }
-    #sendLocoCtrlCmd = async (command) => {
+    /**
+     * Send locomotive control command (speed, direction, functions)
+     * 
+     * @param command - Command bytes for locomotive control
+     * @returns Promise resolving to success message
+     */
+    private sendLocoCtrlCmd = async (command: number[]): Promise<string> => {
         console.log('sendLocoCtrlCmd')
         const parser = this.port.pipe(new ByteLengthParser({ length: 1 }))
 
-        return new Promise(async (resolve, reject) => {
+        return new Promise<string>((resolve, reject) => {
             parser.once('data', (data) => {
                 let res = data.toString()
                 this.port.unpipe(parser)
@@ -99,11 +150,17 @@ export class NceUSB {
             this.port.write([0xA2, ...command])
         })
     }
-    #sendAsyncSignal = async (command) => {
+    /**
+     * Send asynchronous signal command (accessory control)
+     * 
+     * @param command - Command bytes for accessory control
+     * @returns Promise resolving to success message
+     */
+    private sendAsyncSignal = async (command: number[]): Promise<string> => {
         console.log('sendAsyncSignal')
         const parser = this.port.pipe(new ByteLengthParser({ length: 1 }))
 
-        return new Promise(async (resolve, reject) => {
+        return new Promise<string>((resolve, reject) => {
             parser.once('data', (data) => {
                 let res = data.toString()
                 this.port.unpipe(parser)
@@ -113,11 +170,17 @@ export class NceUSB {
             this.port.write([0xAD, ...command])
         })
     }
-    #sendOpsProgrammingMsg = async (command) => {
+    /**
+     * Send operations mode programming message (programming on main)
+     * 
+     * @param command - Command bytes for ops programming
+     * @returns Promise resolving to success message
+     */
+    private sendOpsProgrammingMsg = async (command: number[]): Promise<string> => {
         console.log('sendOpsProgrammingMsg')
         const parser = this.port.pipe(new ByteLengthParser({ length: 1 }))
 
-        return new Promise(async (resolve, reject) => {
+        return new Promise<string>((resolve, reject) => {
             parser.once('data', (data) => {
                 let res = data.toString()
                 this.port.unpipe(parser)
@@ -128,12 +191,16 @@ export class NceUSB {
         })
     }
 
-    // PROGRAMMING TRACK RELATED
-    #enableProgrammingTrack = async (command) => {
+    /**
+     * Enable programming track power for CV programming
+     * 
+     * @returns Promise resolving to success message
+     */
+    enableProgrammingTrack = async (): Promise<string> => {
         console.log('Enable Programming Track')
         const parser = this.port.pipe(new ByteLengthParser({ length: 1 }))
 
-        return new Promise(async (resolve, reject) => {
+        return new Promise<string>((resolve, reject) => {
             parser.once('data', (data) => {
                 let res = data.toString()
                 this.port.unpipe(parser)
@@ -147,11 +214,16 @@ export class NceUSB {
             this.port.write([0x9E])
         })
     }
-    #disableProgrammingTrack = async (command) => {
+    /**
+     * Disable programming track power
+     * 
+     * @returns Promise resolving to success message
+     */
+    disableProgrammingTrack = async (): Promise<string> => {
         console.log('Disable Programming Track')
         const parser = this.port.pipe(new ByteLengthParser({ length: 1 }))
 
-        return new Promise(async (resolve, reject) => {
+        return new Promise<string>((resolve, reject) => {
             parser.once('data', (data) => {
                 let res = data.toString()
                 this.port.unpipe(parser)
@@ -164,11 +236,17 @@ export class NceUSB {
             this.port.write([0x9F])
         })
     }
-    #programCvInPagedMode = async (command) => {
+    /**
+     * Program CV in paged mode (legacy programming method)
+     * 
+     * @param command - Command bytes for paged mode programming
+     * @returns Promise resolving to success message
+     */
+    programCvInPagedMode = async (command: number[]): Promise<string> => {
         console.log('programCvInPagedMode')
         const parser = this.port.pipe(new ByteLengthParser({ length: 1 }))
 
-        return new Promise(async (resolve, reject) => {
+        return new Promise<string>((resolve, reject) => {
             if (command.length !== 3) reject(new Error('programCvInPagedMode expects 3 command bytes'))
             parser.once('data', (data) => {
                 let res = data.toString()
@@ -180,27 +258,41 @@ export class NceUSB {
             this.port.write([0xA0, ...command])
         })
     }
-    #programRegister = async (command) => {
+
+    /**
+     * Program decoder register (legacy programming method)
+     * 
+     * @param command - Command bytes for register programming
+     * @returns Promise resolving to success message
+     */
+    programRegister = async (command: number[]): Promise<string> => {
         console.log('programRegister')
         const parser = this.port.pipe(new ByteLengthParser({ length: 1 }))
 
-        return new Promise(async (resolve, reject) => {
+        return new Promise<string>((resolve, reject) => {
             if (command.length !== 2) reject(new Error('programRegister expects 2 command bytes'))
             parser.once('data', (data) => {
                 let res = data.toString()
                 this.port.unpipe(parser)
-                if (res === '!') resolve('Programmed CV in paged mode')
+                if (res === '!') resolve('Programmed register')
                 else if (res === '0') reject('Programming Track Not Enabled')
-                else reject(new Error('Error Programming CV in paged mode'))
+                else reject(new Error('Error Programming register'))
             })
             this.port.write([0xA6, ...command])
         })
     }
-    #readRegister = async (command) => {
+
+    /**
+     * Read decoder register value
+     * 
+     * @param command - Register number to read
+     * @returns Promise resolving to register value
+     */
+    readRegister = async (command: number[]): Promise<number> => {
         console.log('readRegister')
         const parser = this.port.pipe(new InterByteTimeoutParser({ interval: 500 }))
 
-        return new Promise(async (resolve, reject) => {
+        return new Promise<number>((resolve, reject) => {
             if (command.length !== 1) reject(new Error('readRegister expects 1 command byte'))
             parser.once('data', (data) => {
                 this.port.unpipe(parser)
@@ -215,11 +307,18 @@ export class NceUSB {
             this.port.write([0xA7, ...command])
         })
     }
-    #programCV = async (command) => {
+
+    /**
+     * Program CV value directly
+     * 
+     * @param command - CV number and value bytes
+     * @returns Promise resolving to success message
+     */
+    programCV = async (command: number[]): Promise<string> => {
         console.log('programCV')
         const parser = this.port.pipe(new ByteLengthParser({ length: 1 }))
 
-        return new Promise(async (resolve, reject) => {
+        return new Promise<string>((resolve, reject) => {
             if (command.length !== 3) reject(new Error('programCV expects 3 command bytes'))
             parser.once('data', (data) => {
                 let res = data.toString()
@@ -231,11 +330,17 @@ export class NceUSB {
             this.port.write([0xA8, ...command])
         })
     }
-    #readCvPrg = async (command) => {
+    /**
+     * Read CV value from programming track
+     * 
+     * @param command - CV address bytes to read
+     * @returns Promise resolving to CV value
+     */
+    readCvPrg = async (command: number[]): Promise<number> => {
         console.log('readCV')
         const parser = this.port.pipe(new InterByteTimeoutParser({ interval: 20 }))
 
-        return new Promise(async (resolve, reject) => {
+        return new Promise<number>((resolve, reject) => {
             if (command.length !== 2) reject(new Error('readCV expects 2 command bytes'))
             parser.once('data', (data) => {
                 this.port.unpipe(parser)
@@ -251,12 +356,16 @@ export class NceUSB {
         })
     }
 
-    // ADMIN
-    #getSoftwareVersion = async () => {
-        console.log('programCvInPagedMode')
+    /**
+     * Get NCE USB interface software version
+     * 
+     * @returns Promise resolving to version data
+     */
+    getSoftwareVersion = async (): Promise<Buffer> => {
+        console.log('getSoftwareVersion')
         const parser = this.port.pipe(new ByteLengthParser({ length: 3 }))
 
-        return new Promise(async (resolve, reject) => {
+        return new Promise<Buffer>((resolve) => {
             parser.once('data', (data) => {
                 this.port.unpipe(parser)
                 resolve(data)

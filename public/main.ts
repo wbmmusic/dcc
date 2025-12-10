@@ -1,4 +1,16 @@
-import { app, BrowserWindow, ipcMain, dialog, protocol } from 'electron';
+/**
+ * Big D's Railroad - Main Electron Process
+ * 
+ * This is the main process for the DCC railroad control application. It manages:
+ * - Application lifecycle and window creation
+ * - IPC communication with the renderer process
+ * - DCC hardware interface and command processing
+ * - Data persistence and configuration management
+ * - Auto-update functionality
+ * - File protocol handlers for locomotive images
+ */
+
+import { app, BrowserWindow, ipcMain, dialog, protocol, net } from 'electron';
 import { join, normalize, parse } from 'path';
 import { autoUpdater } from 'electron-updater';
 import { copyFileSync } from 'fs';
@@ -6,51 +18,68 @@ import * as util from './utilities.js';
 import { Locomotive } from './locomotive.js';
 import { Switch } from './switches.js';
 import { Accessory } from './accessory.js';
+import type { SerialPort } from 'serialport';
+import type { Config, Settings } from '../shared/types.js';
 import { setCV, getProgrammingTrackStatus, enableProgrammingTrack, disableProgrammingTrack, readCvPrg } from './messenger.js';
 
 import squirrelStartup from 'electron-squirrel-startup';
 
+// Vite build configuration constants
 declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string;
 declare const MAIN_WINDOW_VITE_NAME: string;
 
+// Handle Squirrel installer events on Windows
 if (squirrelStartup) app.quit();
 
-let win
-let port
-let locoObjects = []
-let switchObjects = []
-let accessoryObjects = []
+// Global application state
+let win: BrowserWindow | null = null;  // Main application window
+let port: any = null;    // Serial port connection to DCC interface
+let locoObjects: { id: string; loco: any }[] = [];      // Active locomotive control objects
+let switchObjects: { id: string; switch: any }[] = [];   // Active switch control objects
+let accessoryObjects: { id: string; accessory: any }[] = []; // Active accessory control objects
 
-
-// SECOND INSTANCE
+/**
+ * Single Instance Lock
+ * Ensures only one instance of the application runs at a time.
+ * If a second instance is attempted, focus the existing window instead.
+ */
 const gotTheLock = app.requestSingleInstanceLock()
-if (!gotTheLock) app.quit()
-else {
+if (!gotTheLock) {
+    app.quit()
+} else {
     app.on('second-instance', () => {
-        // Someone tried to run a second instance, we should focus our window.
+        // Focus existing window when second instance is attempted
         if (win) {
             if (win.isMinimized()) win.restore()
             win.focus()
         }
     })
 }
-// END SECOND INSTANCE
 
 
+/**
+ * Creates the main application window with security settings optimized for DCC control
+ * 
+ * Security Configuration:
+ * - Context isolation enabled for security
+ * - Node integration disabled in renderer
+ * - Preload script for safe IPC communication
+ * - Web security enabled
+ */
 const createWindow = () => {
     win = new BrowserWindow({
-        width: 950,
-        height: 750,
+        width: 950,           // Optimal width for DCC control interface
+        height: 750,          // Optimal height for locomotive controls
         icon: join(__dirname, '/icon.ico'),
-        autoHideMenuBar: true,
-        show: false,
+        autoHideMenuBar: true, // Clean interface for railroad operations
+        show: false,          // Hide until ready to prevent flash
         title: 'Big D\'s Railroad v' + app.getVersion(),
         webPreferences: {
-            preload: join(__dirname, 'preload.js'),
-            sandbox: false,
-            nodeIntegration: false,
-            contextIsolation: true,
-            webSecurity: true
+            preload: join(__dirname, 'preload.js'),  // Secure IPC bridge
+            sandbox: false,        // Required for file system access
+            nodeIntegration: false, // Security: no Node.js in renderer
+            contextIsolation: true, // Security: isolate contexts
+            webSecurity: true      // Security: enable web security
         }
     })
 
@@ -63,7 +92,7 @@ const createWindow = () => {
     win.on('closed', () => app.quit())
     win.on('ready-to-show', () => win.show())
 
-    util.setWindow(win)
+    if (win) util.setWindow(win)
 }
 
 const checkIfAllThrottlesAreClosed = () => {
@@ -73,34 +102,35 @@ const checkIfAllThrottlesAreClosed = () => {
         if (loco.loco.window !== null) allAreClosed = false
     })
 
-    if (allAreClosed) win.webContents.send('throttlesClosed')
+    if (allAreClosed && win) win.webContents.send('throttlesClosed')
 }
 
 app.whenReady().then(() => {
     // Register protocols before creating windows
-    protocol.registerFileProtocol('loco', (request, callback) => {
+    protocol.handle('loco', (request) => {
         const fileName = request.url.replace('loco://', '')
         const imagePath = normalize(`${util.pathToImages}/${fileName}`)
-        callback({ path: imagePath })
+        return net.fetch(`file://${imagePath}`)
     })
 
-    protocol.registerFileProtocol('aimg', (request, callback) => {
-        callback({ path: normalize(`${util.pathToAppImages}/${request.url.substring(7)}`) })
+    protocol.handle('aimg', (request) => {
+        const imagePath = normalize(`${util.pathToAppImages}/${request.url.substring(7)}`)
+        return net.fetch(`file://${imagePath}`)
     })
 
     ipcMain.on('reactIsReady', () => {
         //console.log('React Is Ready')
-        win.webContents.send('message', 'React Is Ready')
+        win?.webContents.send('message', 'React Is Ready')
 
         if (app.isPackaged) {
-            win.webContents.send('message', 'App is packaged')
+            win?.webContents.send('message', 'App is packaged')
 
-            autoUpdater.on('error', (err) => win.webContents.send('updater', err))
-            autoUpdater.on('checking-for-update', () => win.webContents.send('updater', "checking-for-update"))
-            autoUpdater.on('update-available', (info) => win.webContents.send('updater', 'update-available', info))
-            autoUpdater.on('update-not-available', (info) => win.webContents.send('updater', 'update-not-available', info))
-            autoUpdater.on('download-progress', (info) => win.webContents.send('updater', 'download-progress', info))
-            autoUpdater.on('update-downloaded', (info) => win.webContents.send('updater', 'update-downloaded', info))
+            autoUpdater.on('error', (err) => win?.webContents.send('updater', err))
+            autoUpdater.on('checking-for-update', () => win?.webContents.send('updater', "checking-for-update"))
+            autoUpdater.on('update-available', (info) => win?.webContents.send('updater', 'update-available', info))
+            autoUpdater.on('update-not-available', (info) => win?.webContents.send('updater', 'update-not-available', info))
+            autoUpdater.on('download-progress', (info) => win?.webContents.send('updater', 'download-progress', info))
+            autoUpdater.on('update-downloaded', (info) => win?.webContents.send('updater', 'update-downloaded', info))
 
             ipcMain.on('installUpdate', () => autoUpdater.quitAndInstall())
 
@@ -112,27 +142,29 @@ app.whenReady().then(() => {
 
     createWindow()
 
-    const setSwitch = (id, action) => {
+    const setSwitch = (id: string, action: string) => {
         const switchIDX = switchObjects.findIndex(swh => swh.id === id)
         if (switchIDX < 0) throw new Error('Error in setSwitch')
         if (action === 'open') return switchObjects[switchIDX].switch.open()
         else if (action === 'close') return switchObjects[switchIDX].switch.close()
         else if (action === 'toggle') return switchObjects[switchIDX].switch.toggle()
+        return undefined
     }
 
-    const handleMacro = (idx) => {
+    const handleMacro = (idx: number) => {
         console.log("Handle Macro", idx)
         if (util.config.macros[idx] === undefined) return new Error('Invalid Macro Index')
         let actions = util.config.macros[idx].actions
-        actions.forEach(act => { setSwitch(act.switch, act.state) })
+        actions.forEach((act: {switch: string, state: string}) => { setSwitch(act.switch, act.state) })
+        return 'completed'
     }
 
     // CONSISTS
     ipcMain.handle('getConsists', () => util.config.consists)
-    ipcMain.handle('createConsist', (e, newConsist) => util.createConsist(newConsist))
-    ipcMain.handle('getConsistByID', (e, id) => util.getConsistById(id))
-    ipcMain.handle('updateConsist', (e, updatedConsist) => util.updateConsist(updatedConsist))
-    ipcMain.handle('deleteConsist', (e, id) => util.deleteConsist(id))
+    ipcMain.handle('createConsist', (e: Electron.IpcMainInvokeEvent, newConsist: unknown) => util.createConsist(newConsist))
+    ipcMain.handle('getConsistByID', (e: Electron.IpcMainInvokeEvent, id: string) => util.getConsistById(id))
+    ipcMain.handle('updateConsist', (e: Electron.IpcMainInvokeEvent, updatedConsist: unknown) => util.updateConsist(updatedConsist))
+    ipcMain.handle('deleteConsist', (e: Electron.IpcMainInvokeEvent, id: string) => util.deleteConsist(id))
     ipcMain.handle('toggleConsist', (e, id) => util.toggleConsist(id))
 
     // DECODERS
@@ -145,7 +177,7 @@ app.whenReady().then(() => {
 
     // SWITCHES
     ipcMain.handle('getSwitches', () => {
-        let out = []
+        const out: Array<{_id: string, name: string, state: boolean}> = []
         switchObjects.forEach(swh => out.push({ _id: swh.switch._id, name: swh.switch.name, state: swh.switch.state }))
         return out
     })
@@ -157,6 +189,7 @@ app.whenReady().then(() => {
     // LOCOS
     ipcMain.handle('getLocomotives', () => util.config.locos)
     ipcMain.handle('selectLocoImage', async () => {
+        if (!win) return "canceled"
         let file = await dialog.showOpenDialog(win, {
             filters: [{
                 name: 'Images',
@@ -166,7 +199,9 @@ app.whenReady().then(() => {
         if (!file.canceled) {
             copyFileSync(file.filePaths[0], join(util.pathToImages, parse(file.filePaths[0]).base))
             return parse(file.filePaths[0]).base
-        } else return "canceled"
+        } else {
+            return "canceled"
+        }
 
     })
     ipcMain.handle('createLoco', (e, loco) => util.newLoco(loco))
@@ -177,7 +212,9 @@ app.whenReady().then(() => {
     // THROTTLES
     ipcMain.handle('mainWindowThrottle', (e, locoIdx, action, data) => {
         const res = locoObjects[locoIdx].loco.handleThrottleCommand(action, data)
-        if (locoObjects[locoIdx].loco.window !== null) locoObjects[locoIdx].loco.window.webContents.send('modalThrottleUpdate')
+        if (locoObjects[locoIdx].loco.window !== null) {
+            locoObjects[locoIdx].loco.window.webContents.send('modalThrottleUpdate')
+        }
         return res
     })
     ipcMain.on('newThrottle', (e, id) => {
@@ -185,8 +222,10 @@ app.whenReady().then(() => {
         const locoIdx = locoObjects.findIndex(loco => loco.id === id)
         if (locoIdx >= 0) {
             locoObjects[locoIdx].loco.showThrottle(win, locoIdx)
-            win.webContents.send('throttlesOpen')
-        } else return new Error("THROTTLE ERROR")
+            win?.webContents.send('throttlesOpen')
+        } else {
+            return new Error("THROTTLE ERROR")
+        }
     })
     ipcMain.on('closeThrottles', () => {
         locoObjects.forEach(obj => {
@@ -209,6 +248,7 @@ app.whenReady().then(() => {
 
     // CONFIG
     ipcMain.on('backupConfig', async () => {
+        if (!win) return
         let file = await dialog.showSaveDialog(win, {
             title: 'Backup config to file',
             filters: [{
@@ -224,9 +264,12 @@ app.whenReady().then(() => {
             } catch (error) {
                 throw error
             }
-        } else return "canceled"
+        } else {
+            return "canceled"
+        }
     })
     ipcMain.on('restoreConfig', async () => {
+        if (!win) return
         let file = await dialog.showOpenDialog(win, {
             title: 'Restore from file',
             filters: [{
@@ -236,7 +279,9 @@ app.whenReady().then(() => {
         })
         if (!file.canceled) {
             util.restoreConfig(file.filePaths[0])
-        } else return "canceled"
+        } else {
+            return "canceled"
+        }
     })
 
     //CVs
@@ -269,9 +314,9 @@ app.whenReady().then(() => {
     ipcMain.handle('getAccessoryByID', (e, id) => util.getAccessoryByID(id))
 
     const getAccessoryActions = () => {
-        let out = []
+        const out: Array<any> = []
         accessoryObjects.forEach(acc => {
-            acc.accessory.device.actions.forEach((act, idx) => {
+            acc.accessory.device.actions.forEach((act: any, idx: number) => {
                 if (act.name !== '') out.push({ action: acc.accessory._id, idx: idx, ...act })
             })
         })
@@ -298,7 +343,7 @@ app.whenReady().then(() => {
 
     // IMPORTANT /////////////////////////////////////////////////////////////////////////////////////////////////
     util.config.locos.forEach(loco => locoObjects.push({ id: loco._id, loco: new Locomotive({ loco: loco }) }))
-    util.config.switches.forEach(switchh => switchObjects.push({ id: switchh._id, switch: new Switch({ ...switchh }) }))
+    util.config.switches.forEach(sw => switchObjects.push({ id: sw._id, switch: new Switch({ ...sw }) }))
     util.config.accessories.forEach(acc => accessoryObjects.push({ id: acc._id, accessory: new Accessory({ ...acc }) }))
 
 
@@ -309,7 +354,9 @@ app.whenReady().then(() => {
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
-        port.close()
+        if (port?.isOpen) {
+            port.close()
+        }
         app.quit()
     }
 })

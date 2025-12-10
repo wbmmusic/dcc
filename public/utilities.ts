@@ -6,6 +6,7 @@ import AdmZip from 'adm-zip';
 import { SerialPort } from 'serialport';
 import { usb } from 'usb';
 import * as messenger from './messenger.js';
+import type { Config, Settings, SerialPort as SerialPortType } from '../shared/types.js';
 
 // PATHS
 const pathToDataFolder = join(app.getPath('userData'), 'data')
@@ -16,8 +17,8 @@ const pathToAppImages = join(pathToDataFolder, 'appImages')
 const pathToDefaultLocoImage = join(pathToImages, 'default.jpg')
 export { pathToImages, pathToAppImages };
 
-const defaultConfig = { locos: [], decoders: [], switches: [], consists: [], accessories: [], macros: [] }
-const defaultSettings = { usbInterface: { type: '', port: '' } }
+const defaultConfig: Config = { locos: [], decoders: [], switches: [], consists: [], accessories: [], macros: [] }
+const defaultSettings: Settings = { usbInterface: { type: '', port: '' } }
 
 const checkForFilesAndFolders = () => {
     if (!existsSync(pathToDataFolder)) {
@@ -67,13 +68,13 @@ const checkForFilesAndFolders = () => {
 }
 checkForFilesAndFolders()
 
-let config = {}
-let settings = {}
-export let serialPorts: any[] = [];
+let config: Config = defaultConfig
+let settings: Settings = defaultSettings
+export let serialPorts: SerialPortType[] = [];
 export let usbConnected = false;
 
-let window: any;
-export const setWindow = (win: any) => window = win;
+let window: Electron.BrowserWindow | null = null;
+export const setWindow = (win: Electron.BrowserWindow) => window = win;
 
 const readConfig = () => JSON.parse(readFileSync(pathToConfigFile))
 const saveConfig = () => {
@@ -300,7 +301,10 @@ export const restoreConfig = async (pathToZip: string) => {
     zipEntries.forEach(function(zipEntry) {
         console.log(zipEntry.toString()); // outputs zip entries information
         if (zipEntry.entryName == "my_file.txt") {
-            console.log(zipEntry.getData().toString("utf8"));
+            const data = zipEntry.getData()
+            if (data) {
+                console.log(Buffer.from(data).toString("utf8"));
+            }
         }
     });
     // extracts everything
@@ -321,12 +325,17 @@ export const setUSBport = (port: string) => {
     return settings
 }
 
-const listPorts = async() => {
-    return new Promise(async(resolve, reject) => {
-        SerialPort.list()
-            .then(ports => resolve(ports))
-            .catch(err => reject('Error listing ports', err))
-    })
+const listPorts = async(): Promise<SerialPortType[]> => {
+    try {
+        const ports = await SerialPort.list()
+        return ports.map(port => ({
+            path: port.path,
+            serialNumber: port.serialNumber || ''
+        }))
+    } catch (err) {
+        console.error('Error listing ports:', err)
+        return []
+    }
 }
 
 const interfaceIsConfigured = () => {
@@ -358,7 +367,10 @@ const setConnectedStatus = (status: boolean) => {
     console.log("In Send Status", status)
     usbConnected = status
     if (window) window.webContents.send('usbConnection', status)
-    if (!status) messenger.dccInterface = null
+    if (!status) {
+        // Reset interface when disconnected
+        Object.assign(messenger, { dccInterface: null })
+    }
 }
 
 const doWeCareAboutThisUSBdevice = async() => {

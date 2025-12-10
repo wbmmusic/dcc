@@ -1,34 +1,73 @@
+/**
+ * Locomotive Control Class
+ * 
+ * Manages individual locomotive instances with DCC command processing,
+ * throttle window management, and real-time status tracking.
+ */
+
 import { BrowserWindow, ipcMain } from 'electron';
 import { join } from 'path';
 import { setSpeedAndDir, sendEStop, setFunction } from './messenger.js';
 import { config } from './utilities.js';
+import type { Config, Decoder } from './types.js';
 
+// Vite build configuration
 declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string;
 declare const MAIN_WINDOW_VITE_NAME: string;
 
+/**
+ * Creates initial function state array for a locomotive's decoder
+ * 
+ * Initializes all 29 DCC function buttons (F0-F28) with their configured
+ * names and actions, but sets all states to false (off).
+ * 
+ * @param {string} decoderID - ID of the decoder to get function definitions from
+ * @returns {Array} Array of function objects with name, action, and state properties
+ */
 const makeFunctionState = (decoderID: string) => {
-    let theDecoder = null
-    for (let i = 0; i < config.decoders.length; i++) {
-        if (decoderID === config.decoders[i]._id) {
-            theDecoder = config.decoders.find(dcdr => dcdr._id === decoderID)
-        }
+    // Find the decoder configuration for this locomotive
+    const theDecoder = config.decoders.find(dcdr => dcdr._id === decoderID)
+    if (!theDecoder) {
+        throw new Error(`Decoder ${decoderID} not found`)
     }
 
+    // Create function state array (F0-F28 = 29 functions)
     let out = []
-    for (let i = 0; i < 29; i++)out.push({ ...theDecoder.functions[i], state: false })
+    for (let i = 0; i < 29; i++) {
+        out.push({ ...theDecoder.functions[i], state: false })
+    }
     return out
 }
 
+/**
+ * Locomotive Control Class
+ * 
+ * Manages a single locomotive's DCC operations including speed, direction,
+ * function control, and throttle window management. Each locomotive instance
+ * maintains its own state and can have an optional always-on-top throttle window.
+ */
 export class Locomotive {
-    window: any;
-    throttle: any;
-    loco: any;
-    decoder: any;
+    window: any;    // BrowserWindow for the throttle (null if closed)
+    throttle: any;  // Current throttle state (speed, direction, functions)
+    loco: any;      // Locomotive configuration data
+    decoder: any;   // Decoder configuration reference
 
+    /**
+     * Creates a new locomotive control instance
+     * 
+     * @param {any} loco - Locomotive configuration object from database
+     */
     constructor(loco: any) {
-        this.window = null
-        this.throttle = { speed: 0, direction: 'forward', functions: [...makeFunctionState(loco.loco.decoder)] }
-        if (loco) { Object.assign(this, { ...loco }) }
+        this.window = null  // No throttle window initially
+        // Initialize throttle state with decoder function mappings
+        this.throttle = { 
+            speed: 0, 
+            direction: 'forward', 
+            functions: [...makeFunctionState(loco.loco.decoder)] 
+        }
+        if (loco) { 
+            Object.assign(this, { ...loco }) 
+        }
     }
     info = () => { return { ...this } }
     setName = (newName) => this.loco.name = newName
@@ -81,7 +120,7 @@ export class Locomotive {
         // Create the browser window.
         this.window = new BrowserWindow({
             width: 300,
-            height: 550,
+            height: 650,
             icon: __dirname + '/throttle.ico',
             autoHideMenuBar: true,
             show: false,

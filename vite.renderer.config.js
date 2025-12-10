@@ -10,14 +10,15 @@ export default defineConfig({
   root: '.',
   publicDir: 'public',
   esbuild: {
-    loader: 'jsx',
-    include: /src\/.*\.jsx?$/,
+    loader: 'tsx',
+    include: /src\/.*\.(jsx?|tsx?)$/,
     exclude: [],
   },
   optimizeDeps: {
     esbuildOptions: {
       loader: {
         '.js': 'jsx',
+        '.ts': 'tsx',
       },
     },
   },
