@@ -1,8 +1,7 @@
 import React, { Fragment, useEffect, useState } from 'react'
-import IconButton from "@mui/material/IconButton";
-import Snackbar from "@mui/material/Snackbar";
+import { IconButton, Snackbar } from '../ui'
 import CloseIcon from '@mui/icons-material/Close';
-import Button from "@mui/material/Button";
+import { Button } from '../ui/Button';
 
 export default function Updates() {
     const defaultDownloadSnack = { show: false, progress: 0 }
@@ -23,25 +22,25 @@ export default function Updates() {
         <Fragment>
             <IconButton
                 size="small"
-                aria-label="close"
                 color="inherit"
                 onClick={handleClose}
+                title="Close"
             >
-                <CloseIcon fontSize="small" />
+                <CloseIcon style={{ fontSize: '16px' }} />
             </IconButton>
         </Fragment>
     );
 
     const installAction = (
         <Fragment>
-            <Button color='error' size="small" onClick={() => install()}>Relaunch App</Button>
+            <Button variant='danger' size="sm" onClick={() => install()}>Relaunch App</Button>
             <IconButton
                 size="small"
-                aria-label="close"
                 color="inherit"
                 onClick={closeInstallSnack}
+                title="Close"
             >
-                <CloseIcon fontSize="small" />
+                <CloseIcon style={{ fontSize: '16px' }} />
             </IconButton>
         </Fragment>
     );

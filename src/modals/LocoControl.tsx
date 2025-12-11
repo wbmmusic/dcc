@@ -52,7 +52,7 @@ export default function LocoControl({ selectedLoco }: LocoControlProps) {
 
     const makeChannel = (): [string, ...any[]] => {
         if (isModal) return [window.electron.getWindowID() || '']
-        else return ['mainWindowThrottle', state?._id || selectedLoco]
+        else return ['mainWindowThrottle', selectedLoco]
     }
 
 
@@ -63,7 +63,7 @@ export default function LocoControl({ selectedLoco }: LocoControlProps) {
 
         if (!isModal) {
             window.electron.receive('throttleUpdate', (locomotiveId: unknown) => {
-                if (locomotiveId === (state?._id || selectedLoco)) {
+                if (locomotiveId === selectedLoco) {
                     window.electron.invoke(...makeChannel(), "getThrottle")
                         .then((res: unknown) => setState(res as LocoState))
                         .catch((err: unknown) => console.log(err))
@@ -82,7 +82,7 @@ export default function LocoControl({ selectedLoco }: LocoControlProps) {
             else window.electron.removeListener('modalThrottleUpdate')
         }
 
-    }, [selectedLoco])
+    }, [selectedLoco, isModal])
 
     //useEffect(() => console.log(state), [state])
 

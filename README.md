@@ -55,8 +55,7 @@ Designed specifically for Dennis's N gauge layout operations, featuring occasion
 - Electron 39
 - Electron Forge + Vite
 - TypeScript
-- Bootstrap
-- Material-UI
+- Material-UI Icons (icons only)
 - SerialPort
 - electron-updater
 
