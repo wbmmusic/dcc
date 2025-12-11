@@ -36,11 +36,20 @@ export class WindowService {
      */
     async createThrottleWindow(locomotiveId: string, locomotiveData: any): Promise<BrowserWindow> {
         try {
-            // Close existing window if open
+            // Check if window already exists and is still valid
             if (this.throttleWindows.has(locomotiveId)) {
                 const existingWindow = this.throttleWindows.get(locomotiveId)!
-                existingWindow.focus()
-                return existingWindow
+                if (!existingWindow.isDestroyed()) {
+                    if (existingWindow.isMinimized()) {
+                        existingWindow.restore()
+                    }
+                    existingWindow.focus()
+                    existingWindow.show()
+                    return existingWindow
+                } else {
+                    // Clean up destroyed window reference
+                    this.throttleWindows.delete(locomotiveId)
+                }
             }
 
             // Validate locomotive ID to prevent injection
@@ -53,9 +62,15 @@ export class WindowService {
             console.log('Creating throttle window for locomotive:', locomotiveData)
             console.log('Locomotive number:', locomotiveData.number)
             
+            // Calculate offset for cascading windows
+            const windowCount = this.throttleWindows.size
+            const offset = windowCount * 40 // 40px offset for each existing window
+            
             const throttleWindow = new BrowserWindow({
                 width: 300,
                 height: 650,
+                x: 100 + offset,
+                y: 100 + offset,
                 icon: join(__dirname, 'throttle.ico'),
                 autoHideMenuBar: true,
                 show: false,

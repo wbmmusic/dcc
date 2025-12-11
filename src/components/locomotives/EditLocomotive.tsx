@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react'
-import { Button, Table, Select, theme } from '../../ui'
+import { Button, Table, Select, Modal, theme } from '../../ui'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { v4 as uuid } from 'uuid';
 import { Decoder, LocomotiveForm, locomotiveDataToForm, locomotiveFormToData, SelectOption } from '../../types';
@@ -23,12 +23,15 @@ export default function EditLocomotive() {
     const [loco, setLoco] = useState<LocomotiveForm>(defaultLoco)
     const [ogLoco, setOgLoco] = useState<LocomotiveForm | null>(null)
     const [decoders, setDecoders] = useState<Decoder[]>([])
+    const [loading, setLoading] = useState(false)
+    const [showImageModal, setShowImageModal] = useState(false)
+    const [pendingImage, setPendingImage] = useState<string | null>(null)
 
     const makeTitle = (): React.ReactElement | string => {
         if (location.pathname.includes('new')) {
-            return <b>New Locomotive</b>
+            return <div style={{ fontSize: theme.fontSize.lg, fontWeight: 'bold' }}>New Locomotive</div>
         } else if (location.pathname.includes('edit')) {
-            return <b>Edit Locomotive</b>
+            return <div style={{ fontSize: theme.fontSize.lg, fontWeight: 'bold' }}>Edit Locomotive</div>
         } else return 'ERROR'
     }
 
@@ -54,12 +57,15 @@ export default function EditLocomotive() {
     useEffect(() => console.log(loco), [loco])
 
     const handelCreateLoco = async () => {
+        setLoading(true)
         try {
             const locoData = locomotiveFormToData(loco)
             await window.electron.invoke('createLoco', locoData as any)
-            navigate('/locomotives')
+            navigate('/system/locomotives')
         } catch (error) {
             console.error('Failed to create locomotive:', error)
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -88,12 +94,15 @@ export default function EditLocomotive() {
     }
 
     const handleUpdateLoco = async () => {
+        setLoading(true)
         try {
             const locoData = locomotiveFormToData(loco)
             await window.electron.invoke('updateLocomotive', locoData as any)
-            navigate('/locomotives')
+            navigate('/system/locomotives')
         } catch (error) {
             console.error('Failed to update locomotive:', error)
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -101,16 +110,16 @@ export default function EditLocomotive() {
 
         const makeSaveUpdate = (): React.ReactElement | string => {
             if (location.pathname.includes('new')) {
-                return <Button variant='success' size='sm' disabled={!readyToCreate()} onClick={handelCreateLoco} >Create Locomotive</Button>
+                return <Button variant='success' size='sm' disabled={!readyToCreate()} loading={loading} onClick={handelCreateLoco} >Create Locomotive</Button>
             } else if (location.pathname.includes('edit')) {
-                return <Button variant='success' disabled={!readyToUpdate()} onClick={handleUpdateLoco} size='sm'>Update Locomotive</Button>
+                return <Button variant='success' disabled={!readyToUpdate()} loading={loading} onClick={handleUpdateLoco} size='sm'>Update Locomotive</Button>
             } else return "ERROR"
         }
 
         return (
             <div style={{ textAlign: 'right', marginTop: '10px' }}>
-                <Button variant="secondary" size='sm' onClick={() => navigate(-1)} >Close</Button>
-                <div style={{ display: 'inline-block', width: '8px' }} />
+                <Button variant="secondary" size='sm' onClick={() => navigate('/system/locomotives')} >Cancel</Button>
+                <div style={{ display: 'inline-block', width: theme.spacing.sm }} />
                 {makeSaveUpdate()}
             </div>
         )
@@ -141,7 +150,7 @@ export default function EditLocomotive() {
     return (
         <div className='pageContainer'>
             {makeTitle()}
-            <hr />
+            <hr style={{ borderColor: theme.colors.gray[600] }} />
             
             {/* Basic Information Section */}
             <div style={sectionStyle}>
@@ -251,17 +260,16 @@ export default function EditLocomotive() {
                     </div>
                     <Button
                         size='sm'
-                        onClick={async () => {
+onClick={async () => {
                             try {
-                                // Show confirmation if replacing existing image
-                                if (loco.photo !== 'default.jpg') {
-                                    const confirmed = window.confirm('Replace current locomotive image?')
-                                    if (!confirmed) return
-                                }
-                                
                                 const res = await window.electron.invoke('selectLocoImage')
                                 if (res !== 'canceled' && res !== 'error') {
-                                    setLoco(old => ({ ...old, photo: res as string }))
+                                    if (loco.photo !== 'default.jpg') {
+                                        setPendingImage(res as string)
+                                        setShowImageModal(true)
+                                    } else {
+                                        setLoco(old => ({ ...old, photo: res as string }))
+                                    }
                                 }
                             } catch (error) {
                                 console.error('Failed to select image:', error)
@@ -275,6 +283,32 @@ export default function EditLocomotive() {
             <div style={{ marginTop: theme.spacing.md }}>
                 {makeButtons()}
             </div>
+
+            <Modal
+                show={showImageModal}
+                onClose={() => {
+                    setShowImageModal(false)
+                    setPendingImage(null)
+                }}
+                title="Replace Image"
+                footer={
+                    <>
+                        <Button variant="secondary" size="sm" onClick={() => {
+                            setShowImageModal(false)
+                            setPendingImage(null)
+                        }}>Cancel</Button>
+                        <Button variant="success" size="sm" onClick={() => {
+                            if (pendingImage) {
+                                setLoco(old => ({ ...old, photo: pendingImage }))
+                            }
+                            setShowImageModal(false)
+                            setPendingImage(null)
+                        }}>Replace</Button>
+                    </>
+                }
+            >
+                Replace current locomotive image with the selected file?
+            </Modal>
         </div >
     )
 }

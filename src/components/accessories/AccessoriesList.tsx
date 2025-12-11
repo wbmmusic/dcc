@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { Accessory } from '../../types'
-import { Table, Button, useTheme } from '../../ui'
+import { Table, Button, IconButton, useTheme } from '../../ui'
 import { useNavigate } from 'react-router-dom'
-import AddCircleTwoToneIcon from '@mui/icons-material/AddCircleTwoTone';
-import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
-import DeleteForeverTwoToneIcon from '@mui/icons-material/DeleteForeverTwoTone';
+import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 
 export default function AccessoriesList() {
     const theme = useTheme()
@@ -21,23 +21,26 @@ export default function AccessoriesList() {
         let out: React.ReactElement[] = []
         accessories.forEach((acc, i) => {
             out.push(
-                <tr key={`accRow${i}`}>
+                <tr 
+                    key={`accRow${i}`}
+                    style={{ transition: 'background-color 0.2s ease' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = theme.colors.gray[700]}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                >
                     <td>{acc.name}</td>
                     <td>{acc.device.name}</td>
-                    <td>
-                        <div
-                            style={{ display: 'inline-block', cursor: 'pointer' }}
-                            onClick={() => navigate('/system/accessories/edit/' + acc._id)}
-                        >
-                            <EditTwoToneIcon />
+                    <td style={{ textAlign: 'center' }}>
+                        <div style={{ display: 'flex', justifyContent: 'center' }}>
+                            <IconButton onClick={() => navigate('/system/accessories/edit/' + acc._id)}>
+                                <EditOutlinedIcon />
+                            </IconButton>
                         </div>
                     </td>
-                    <td>
-                        <div
-                            style={{ display: 'inline-block', cursor: 'pointer', color: 'red' }}
-                            onClick={() => deleteAccessory(acc._id)}
-                        >
-                            <DeleteForeverTwoToneIcon />
+                    <td style={{ textAlign: 'center' }}>
+                        <div style={{ display: 'flex', justifyContent: 'center' }}>
+                            <IconButton color="danger" onClick={() => deleteAccessory(acc._id)}>
+                                <DeleteForeverIcon />
+                            </IconButton>
                         </div>
                     </td>
                 </tr>
@@ -57,19 +60,19 @@ export default function AccessoriesList() {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: theme.spacing.md }}>
                 <b>Accessories</b>
                 <Button variant='secondary' size='sm' onClick={() => navigate('/system/accessories/new')}>
-                    <AddCircleTwoToneIcon style={{ fontSize: '18px', marginRight: '4px' }} />
+                    <AddOutlinedIcon style={{ fontSize: '18px', marginRight: '4px' }} />
                     Add Accessory
                 </Button>
             </div>
             <div>
-                <div style={{ display: 'inline-block' }}>
+                <div style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.3)', borderRadius: theme.borderRadius.md, overflow: 'hidden' }}>
                     <Table>
                         <thead>
                             <tr>
                                 <th>Name</th>
                                 <th>Device</th>
-                                <th>Edit</th>
-                                <th>Delete</th>
+                                <th style={{ textAlign: 'center', width: '60px' }}>Edit</th>
+                                <th style={{ textAlign: 'center', width: '60px' }}>Del</th>
                             </tr>
                         </thead>
                         <tbody>

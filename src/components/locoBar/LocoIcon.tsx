@@ -2,7 +2,7 @@ import React from 'react'
 import { Tooltip, useTheme } from '../../ui'
 import { overlayDelay } from '../../settings'
 import SettingsTwoToneIcon from '@mui/icons-material/SettingsTwoTone';
-import OpenInNewTwoToneIcon from '@mui/icons-material/OpenInNewTwoTone';
+import LaunchOutlinedIcon from '@mui/icons-material/LaunchOutlined';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import { useNavigate } from 'react-router-dom';
 import { useSortable } from '@dnd-kit/sortable';
@@ -97,7 +97,7 @@ export default function LocoIcon(props: LocoIconProps) {
                             <td style={topBarCell}>
                                 <Tooltip text="Open Throttle Window">
                                     <div style={iconDivStyle} onMouseDown={() => openThrottle(props.loco._id)} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.2)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>
-                                        <OpenInNewTwoToneIcon style={{...iconStyle, color: theme.colors.gray[400]}} />
+                                        <LaunchOutlinedIcon style={{...iconStyle, color: theme.colors.gray[400]}} />
                                     </div>
                                 </Tooltip>
                             </td>

@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { Switch } from '../../types'
 import { useNavigate } from 'react-router-dom'
-import AddCircleTwoToneIcon from '@mui/icons-material/AddCircleTwoTone';
-import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
-import DeleteForeverTwoToneIcon from '@mui/icons-material/DeleteForeverTwoTone';
-import { Table, Button, useTheme } from '../../ui';
+import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import { Table, Button, IconButton, useTheme } from '../../ui';
 
 export default function SwitchesList() {
     const theme = useTheme()
@@ -25,25 +25,30 @@ export default function SwitchesList() {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: theme.spacing.md }}>
                 <b>Switches</b>
                 <Button variant='secondary' size='sm' onClick={() => navigate('/system/switches/new')}>
-                    <AddCircleTwoToneIcon style={{ fontSize: '18px', marginRight: '4px' }} />
+                    <AddOutlinedIcon style={{ fontSize: '18px', marginRight: '4px' }} />
                     Add Switch
                 </Button>
             </div>
-            <div style={{ display: 'inline-block' }} >
+            <div style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.3)', borderRadius: theme.borderRadius.md, overflow: 'hidden' }}>
                 <Table>
                     <thead>
                         <tr>
                             <th>Name</th>
-                            <th>Open</th>
-                            <th>Close</th>
-                            <th>Edit</th>
-                            <th>Del</th>
+                            <th style={{ textAlign: 'center' }}>Open</th>
+                            <th style={{ textAlign: 'center' }}>Close</th>
+                            <th style={{ textAlign: 'center', width: '60px' }}>Edit</th>
+                            <th style={{ textAlign: 'center', width: '60px' }}>Del</th>
                         </tr>
                     </thead>
                     <tbody>
                         {
                             switches.map((switchh, idx) => (
-                                <tr key={(switchh)._id + "switchRow"}>
+                                <tr 
+                                    key={(switchh)._id + "switchRow"}
+                                    style={{ transition: 'background-color 0.2s ease' }}
+                                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = theme.colors.gray[700]}
+                                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                                >
                                     <td>{switchh.name}</td>
                                     <td>
                                         <Button
@@ -75,17 +80,18 @@ export default function SwitchesList() {
                                             }}
                                         >Close</Button>
                                     </td>
-                                    <td>
-                                        <div
-                                            style={{ display: 'inline-block', cursor: 'pointer' }}
-                                            onClick={() => navigate('/system/switches/edit/' + switchh._id)}
-                                        >
-                                            <EditTwoToneIcon />
+                                    <td style={{ textAlign: 'center' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                            <IconButton onClick={() => navigate('/system/switches/edit/' + switchh._id)}>
+                                                <EditOutlinedIcon />
+                                            </IconButton>
                                         </div>
                                     </td>
-                                    <td>
-                                        <div style={{ display: 'inline-block', cursor: 'pointer', color: 'red' }}>
-                                            <DeleteForeverTwoToneIcon />
+                                    <td style={{ textAlign: 'center' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                            <IconButton color="danger">
+                                                <DeleteForeverIcon />
+                                            </IconButton>
                                         </div>
                                     </td>
                                 </tr>

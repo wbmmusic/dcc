@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { Macro } from '../../types'
 import { useNavigate } from 'react-router-dom'
-import AddCircleTwoToneIcon from '@mui/icons-material/AddCircleTwoTone';
-import DeleteForeverTwoToneIcon from '@mui/icons-material/DeleteForeverTwoTone';
-import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
-import { Table, Button, useTheme } from '../../ui';
+import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import { Table, Button, IconButton, useTheme } from '../../ui';
 
 export default function MacroList() {
     const theme = useTheme()
@@ -22,36 +22,42 @@ export default function MacroList() {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: theme.spacing.md }}>
                 <b>Macro List</b>
                 <Button variant='secondary' size='sm' onClick={() => navigate('/system/macros/new')}>
-                    <AddCircleTwoToneIcon style={{ fontSize: '18px', marginRight: '4px' }} />
+                    <AddOutlinedIcon style={{ fontSize: '18px', marginRight: '4px' }} />
                     Add Macro
                 </Button>
             </div>
             <div>
-                <div style={{ display: 'inline-block' }}>
+                <div style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.3)', borderRadius: theme.borderRadius.md, overflow: 'hidden' }}>
                     <Table>
                         <thead>
                             <tr>
                                 <th>Name</th>
-                                <th>Edit</th>
-                                <th>Delete</th>
+                                <th style={{ textAlign: 'center', width: '60px' }}>Edit</th>
+                                <th style={{ textAlign: 'center', width: '60px' }}>Del</th>
                             </tr>
                         </thead>
                         <tbody>
                             {
                                 macros.map((macro, idx) => (
-                                    <tr key={`maroRow${idx}`}>
+                                    <tr 
+                                        key={`maroRow${idx}`}
+                                        style={{ transition: 'background-color 0.2s ease' }}
+                                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = theme.colors.gray[700]}
+                                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                                    >
                                         <td>{macro.name}</td>
-                                        <td>
-                                            <div
-                                                style={{ display: 'inline-block', cursor: 'pointer' }}
-                                                onClick={() => navigate('/system/macros/edit/' + macro._id)}
-                                            >
-                                                <EditTwoToneIcon />
+                                        <td style={{ textAlign: 'center' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                                <IconButton onClick={() => navigate('/system/macros/edit/' + macro._id)}>
+                                                    <EditOutlinedIcon />
+                                                </IconButton>
                                             </div>
                                         </td>
-                                        <td>
-                                            <div style={{ display: 'inline-block', cursor: 'pointer', color: 'red' }}>
-                                                <DeleteForeverTwoToneIcon />
+                                        <td style={{ textAlign: 'center' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                                <IconButton color="danger">
+                                                    <DeleteForeverIcon />
+                                                </IconButton>
                                             </div>
                                         </td>
                                     </tr>

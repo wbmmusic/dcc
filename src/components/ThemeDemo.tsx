@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
-import { Button, Table, Select, Modal, Tooltip, Dropdown, Spinner, useTheme } from '../ui'
+import { Button, Table, Select, Modal, Tooltip, Dropdown, Spinner, IconButton, useTheme } from '../ui'
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 
 export default function ThemeDemo() {
     const theme = useTheme()
@@ -197,19 +199,45 @@ export default function ThemeDemo() {
 
             {/* Spinner Section */}
             <section style={sectionStyle(theme)}>
-                <h2 style={sectionTitleStyle(theme)}>Spinner</h2>
-                <div style={{ display: 'flex', gap: theme.spacing.lg, alignItems: 'center' }}>
-                    <div style={{ textAlign: 'center' }}>
-                        <Spinner size="sm" />
-                        <div style={{ fontSize: theme.fontSize.sm, marginTop: theme.spacing.xs }}>Small</div>
+                <h2 style={sectionTitleStyle(theme)}>Spinner & Loading States</h2>
+                <div style={{ marginBottom: theme.spacing.md }}>
+                    <h3 style={{ fontSize: theme.fontSize.md, marginBottom: theme.spacing.sm }}>Spinner Sizes</h3>
+                    <div style={{ display: 'flex', gap: theme.spacing.lg, alignItems: 'center' }}>
+                        <div style={{ textAlign: 'center' }}>
+                            <Spinner size="sm" />
+                            <div style={{ fontSize: theme.fontSize.sm, marginTop: theme.spacing.xs }}>Small</div>
+                        </div>
+                        <div style={{ textAlign: 'center' }}>
+                            <Spinner size="md" />
+                            <div style={{ fontSize: theme.fontSize.sm, marginTop: theme.spacing.xs }}>Medium</div>
+                        </div>
+                        <div style={{ textAlign: 'center' }}>
+                            <Spinner size="lg" />
+                            <div style={{ fontSize: theme.fontSize.sm, marginTop: theme.spacing.xs }}>Large</div>
+                        </div>
                     </div>
-                    <div style={{ textAlign: 'center' }}>
-                        <Spinner size="md" />
-                        <div style={{ fontSize: theme.fontSize.sm, marginTop: theme.spacing.xs }}>Medium</div>
+                </div>
+                <div>
+                    <h3 style={{ fontSize: theme.fontSize.md, marginBottom: theme.spacing.sm }}>Loading Buttons</h3>
+                    <div style={{ display: 'flex', gap: theme.spacing.sm }}>
+                        <Button loading>Loading...</Button>
+                        <Button variant="success" loading size="sm">Save</Button>
+                        <Button variant="danger" loading size="lg">Delete</Button>
                     </div>
-                    <div style={{ textAlign: 'center' }}>
-                        <Spinner size="lg" />
-                        <div style={{ fontSize: theme.fontSize.sm, marginTop: theme.spacing.xs }}>Large</div>
+                </div>
+            </section>
+
+            {/* IconButton Section */}
+            <section style={sectionStyle(theme)}>
+                <h2 style={sectionTitleStyle(theme)}>Icon Buttons</h2>
+                <div style={{ marginBottom: theme.spacing.md }}>
+                    <h3 style={{ fontSize: theme.fontSize.md, marginBottom: theme.spacing.sm }}>Sizes & Colors</h3>
+                    <div style={{ display: 'flex', gap: theme.spacing.md, alignItems: 'center' }}>
+                        <IconButton size="small"><EditOutlinedIcon /></IconButton>
+                        <IconButton size="medium"><EditOutlinedIcon /></IconButton>
+                        <IconButton size="large"><EditOutlinedIcon /></IconButton>
+                        <IconButton color="danger"><DeleteForeverIcon /></IconButton>
+                        <IconButton color="primary"><EditOutlinedIcon /></IconButton>
                     </div>
                 </div>
             </section>
@@ -250,15 +278,17 @@ export default function ThemeDemo() {
 const sectionStyle = (theme) => ({
     marginBottom: theme.spacing.lg,
     padding: theme.spacing.md,
-    backgroundColor: theme.colors.background.light,
+    backgroundColor: theme.colors.gray[800],
     borderRadius: theme.borderRadius.md,
-    border: `1px solid ${theme.colors.gray[300]}`,
+    border: `1px solid ${theme.colors.gray[600]}`,
+    boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
 })
 
 const sectionTitleStyle = (theme) => ({
     fontSize: theme.fontSize.lg,
     fontWeight: 'bold',
     marginBottom: theme.spacing.md,
-    borderBottom: `2px solid ${theme.colors.gray[300]}`,
+    borderBottom: `2px solid ${theme.colors.gray[600]}`,
     paddingBottom: theme.spacing.sm,
+    color: theme.colors.warning,
 })

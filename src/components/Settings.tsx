@@ -5,12 +5,17 @@
  * selection, serial port configuration, and backup/restore functionality.
  */
 
-import React, { useEffect, useState, useMemo, useCallback } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import { Settings as SettingsType, SerialPort } from '../types'
 import { Button, useTheme } from '../ui'
 import { Modal } from '../ui'
 import Select from 'react-select'
 import { selectStyle } from './../styles'
+
+interface SelectOption {
+    label: string;
+    value: string;
+}
 
 /**
  * Available DCC interface types
@@ -40,6 +45,7 @@ export default function Settings() {
     const [settings, setSettings] = useState<SettingsType | null>(null)
     const [serialPorts, setSerialPorts] = useState<SerialPort[]>([])
     const [restoreModal, setRestoreModal] = useState(false)
+    const [error, setError] = useState<string | null>(null)
 
     const makeIfaceValue = () => {
         if (settings !== null) {
@@ -51,26 +57,34 @@ export default function Settings() {
         return null
     }
 
-    const handleIfaceSelect = async (e: any) => {
+    const handleIfaceSelect = async (option: SelectOption | null) => {
+        if (!option) return
         try {
-            const res = await window.electron.invoke('setUSBiface', e.value)
+            setError(null)
+            const res = await window.electron.invoke('setUSBiface', option.value)
             const settings = res as SettingsType
             if (settings) {
                 setSettings(settings)
             }
         } catch (error) {
+            const errorMsg = 'Failed to set USB interface. Please try again.'
+            setError(errorMsg)
             console.error('Failed to set USB interface:', error)
         }
     }
 
-    const handlePortSelect = async (e: any) => {
+    const handlePortSelect = async (option: SelectOption | null) => {
+        if (!option) return
         try {
-            const res = await window.electron.invoke('setUSBport', e.value)
+            setError(null)
+            const res = await window.electron.invoke('setUSBport', option.value)
             const settings = res as SettingsType
             if (settings) {
                 setSettings(settings)
             }
         } catch (error) {
+            const errorMsg = 'Failed to set USB port. Please try again.'
+            setError(errorMsg)
             console.error('Failed to set USB port:', error)
         }
     }
@@ -141,14 +155,24 @@ export default function Settings() {
         return () => window.electron.removeListener('serialPorts')
     }, [])
 
-    useEffect(() => console.log(settings), [settings])
-    useEffect(() => console.log(serialPorts), [serialPorts])
+
 
     return (
         <div style={{ padding: theme.spacing.md }}>
             <div className='pageContainer'>
                 <div style={{ fontSize: theme.fontSize.lg, fontWeight: 'bold' }}>Settings</div>
                 <hr style={{ borderColor: theme.colors.gray[600] }} />
+                {error && (
+                    <div style={{
+                        backgroundColor: theme.colors.danger,
+                        color: '#fff',
+                        padding: theme.spacing.sm,
+                        borderRadius: theme.borderRadius.sm,
+                        marginBottom: theme.spacing.md
+                    }}>
+                        {error}
+                    </div>
+                )}
                 <div>
                     <div style={{ marginBottom: theme.spacing.sm, fontSize: theme.fontSize.md, fontWeight: 'bold' }}>USB Interface</div>
                     <div style={{ display: 'inline-block', backgroundColor: theme.colors.gray[800], whiteSpace: 'nowrap', borderRadius: theme.borderRadius.md, border: `1px solid ${theme.colors.gray[600]}` }}>

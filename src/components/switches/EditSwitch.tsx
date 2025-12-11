@@ -11,6 +11,7 @@ export default function EditSwitch() {
     console.log(theID)
     const [state, setState] = useState<SwitchForm>({ _id: '', name: '', address: '', reverse: false, state: false })
     const [ogState, setOgState] = useState<SwitchForm | null>(null)
+    const [loading, setLoading] = useState(false)
 
 
     useEffect(() => {
@@ -43,45 +44,57 @@ export default function EditSwitch() {
         return <div style={{ fontSize: theme.fontSize.lg, fontWeight: 'bold' }}>{`${out} Switch`}</div>
     }
 
-    const createSwitch = () => {
-        const switchData: Switch = {
-            _id: window.electron.uuid(),
-            name: state.name,
-            address: parseInt(state.address),
-            reverse: state.reverse,
-            state: false
+    const createSwitch = async () => {
+        setLoading(true)
+        try {
+            const switchData: Switch = {
+                _id: window.electron.uuid(),
+                name: state.name,
+                address: parseInt(state.address),
+                reverse: state.reverse,
+                state: false
+            }
+            await window.electron.invoke('createSwitch', switchData as any)
+            navigate('/system/switches')
+        } catch (err) {
+            console.log(err)
+        } finally {
+            setLoading(false)
         }
-        window.electron.invoke('createSwitch', switchData as any)
-            .then(() => navigate('/switches'))
-            .catch((err: unknown) => console.log(err))
     }
 
-    const updateSwitch = () => {
-        const switchData: Switch = {
-            _id: state._id,
-            name: state.name,
-            address: parseInt(state.address),
-            reverse: state.reverse,
-            state: state.state
+    const updateSwitch = async () => {
+        setLoading(true)
+        try {
+            const switchData: Switch = {
+                _id: state._id,
+                name: state.name,
+                address: parseInt(state.address),
+                reverse: state.reverse,
+                state: state.state
+            }
+            await window.electron.invoke('updateSwitch', switchData as any)
+            navigate('/system/switches')
+        } catch (err) {
+            console.log(err)
+        } finally {
+            setLoading(false)
         }
-        window.electron.invoke('updateSwitch', switchData as any)
-            .then(() => navigate('/switches'))
-            .catch((err: unknown) => console.log(err))
     }
 
     const makeButtons = () => {
 
         const makeButton = () => {
             if (location.pathname.includes('new')) {
-                return <Button variant='success' size='sm' disabled={!isCreatable()} onClick={createSwitch}>Create Switch</Button>
+                return <Button variant='success' size='sm' disabled={!isCreatable()} loading={loading} onClick={createSwitch}>Create Switch</Button>
             } else if (location.pathname.includes('edit')) {
-                return <Button variant='success' size='sm' disabled={!isUpdatable()} onClick={updateSwitch}>Update Switch</Button>
+                return <Button variant='success' size='sm' disabled={!isUpdatable()} loading={loading} onClick={updateSwitch}>Update Switch</Button>
             } else return "ERROR"
         }
 
         return (
             <div style={{ textAlign: 'right' }}>
-                <Button variant='secondary' size='sm' onClick={() => navigate('/switches')}>Cancel</Button>
+                <Button variant='secondary' size='sm' onClick={() => navigate('/system/switches')}>Cancel</Button>
                 <div style={{ display: 'inline-block', width: theme.spacing.sm }} />
                 {makeButton()}
             </div>
@@ -103,7 +116,13 @@ export default function EditSwitch() {
         <div className='pageContainer'>
             {makeTitle()}
             <hr style={{ borderColor: theme.colors.gray[600] }} />
-            <div>
+            <div style={{
+                backgroundColor: theme.colors.gray[800],
+                border: `1px solid ${theme.colors.gray[600]}`,
+                borderRadius: theme.borderRadius.md,
+                padding: theme.spacing.md,
+                boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+            }}>
                 <div style={{ display: 'inline-block' }}>
                     <Table size='sm'>
                         <tbody>
@@ -116,9 +135,9 @@ export default function EditSwitch() {
                                         value={state.name}
                                         onChange={(e) => setState((old: SwitchForm) => ({ ...old, name: e.target.value }))}
                                         style={{
-                                            backgroundColor: theme.colors.gray[800],
+                                            backgroundColor: theme.colors.gray[700],
                                             color: theme.colors.light,
-                                            border: `1px solid ${theme.colors.gray[600]}`,
+                                            border: `1px solid ${theme.colors.gray[500]}`,
                                             borderRadius: theme.borderRadius.sm,
                                             padding: theme.spacing.xs
                                         }}
@@ -135,9 +154,9 @@ export default function EditSwitch() {
                                         value={state.address}
                                         onChange={(e) => setState((old: SwitchForm) => ({ ...old, address: e.target.value }))}
                                         style={{
-                                            backgroundColor: theme.colors.gray[800],
+                                            backgroundColor: theme.colors.gray[700],
                                             color: theme.colors.light,
-                                            border: `1px solid ${theme.colors.gray[600]}`,
+                                            border: `1px solid ${theme.colors.gray[500]}`,
                                             borderRadius: theme.borderRadius.sm,
                                             padding: theme.spacing.xs
                                         }}

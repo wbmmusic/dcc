@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { Decoder, DeleteModalState } from '../../types'
-import { Button, Table, Modal, useTheme } from '../../ui'
+import { Button, Table, Modal, IconButton, useTheme } from '../../ui'
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import EditDecoder from './EditDecoder'
-import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
-import DeleteForeverTwoToneIcon from '@mui/icons-material/DeleteForeverTwoTone';
-import AddCircleTwoToneIcon from '@mui/icons-material/AddCircleTwoTone';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 
 export default function Decoders() {
     const theme = useTheme()
@@ -59,7 +59,7 @@ export default function Decoders() {
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: theme.spacing.md }}>
                     <div style={{ fontSize: theme.fontSize.lg, fontWeight: 'bold' }}>Decoders</div>
                     <Button variant='secondary' size='sm' onClick={() => navigate('/system/decoders/new')}>
-                        <AddCircleTwoToneIcon style={{ fontSize: '18px', marginRight: '4px' }} />
+                        <AddOutlinedIcon style={{ fontSize: '18px', marginRight: '4px' }} />
                         Add Decoder
                     </Button>
                 </div>
@@ -71,7 +71,8 @@ export default function Decoders() {
                                 <th>Name</th>
                                 <th>Model</th>
                                 <th>Manufacturer</th>
-                                <th style={{ textAlign: 'center', width: '100px' }}>Actions</th>
+                                <th style={{ textAlign: 'center', width: '60px' }}>Edit</th>
+                                <th style={{ textAlign: 'center', width: '60px' }}>Del</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -79,50 +80,26 @@ export default function Decoders() {
                                 decoders.map((dcdr, i) => (
                                     <tr 
                                         key={`decoder${i + dcdr.name}`}
-                                        style={{ cursor: 'pointer', transition: 'background-color 0.2s ease' }}
+                                        style={{ transition: 'background-color 0.2s ease' }}
                                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = theme.colors.gray[700]}
                                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                                        onClick={() => navigate('/system/decoders/edit/' + dcdr._id)}
                                     >
                                         <td>{dcdr.name}</td>
                                         <td>{dcdr.model}</td>
                                         <td>{dcdr.manufacturer}</td>
-                                        <td style={{ textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
-                                            <span
-                                                style={{
-                                                    cursor: 'pointer',
-                                                    marginLeft: theme.spacing.xs,
-                                                    marginRight: theme.spacing.xs,
-                                                    display: 'inline-flex',
-                                                    alignItems: 'center',
-                                                    padding: '4px',
-                                                    borderRadius: theme.borderRadius.sm,
-                                                    transition: 'transform 0.2s ease'
-                                                }}
-                                                onClick={() => navigate('/system/decoders/edit/' + dcdr._id)}
-                                                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.2)'}
-                                                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                                            >
-                                                <EditTwoToneIcon style={{ fontSize: '20px' }} />
-                                            </span>
-                                            <span
-                                                style={{
-                                                    cursor: 'pointer',
-                                                    marginLeft: theme.spacing.xs,
-                                                    marginRight: theme.spacing.xs,
-                                                    display: 'inline-flex',
-                                                    alignItems: 'center',
-                                                    padding: '4px',
-                                                    borderRadius: theme.borderRadius.sm,
-                                                    color: theme.colors.danger,
-                                                    transition: 'transform 0.2s ease'
-                                                }}
-                                                onClick={() => setDeleteModal({ show: true, id: dcdr._id, entity: dcdr })}
-                                                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.2)'}
-                                                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                                            >
-                                                <DeleteForeverTwoToneIcon style={{ fontSize: '20px' }} />
-                                            </span>
+                                        <td style={{ textAlign: 'center' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                                <IconButton onClick={() => navigate('/system/decoders/edit/' + dcdr._id)}>
+                                                    <EditOutlinedIcon />
+                                                </IconButton>
+                                            </div>
+                                        </td>
+                                        <td style={{ textAlign: 'center' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                                <IconButton color="danger" onClick={() => setDeleteModal({ show: true, id: dcdr._id, entity: dcdr })}>
+                                                    <DeleteForeverIcon />
+                                                </IconButton>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))

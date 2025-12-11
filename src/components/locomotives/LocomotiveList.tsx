@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { Locomotive, DeleteModalState } from '../../types'
-import AddCircleTwoToneIcon from '@mui/icons-material/AddCircleTwoTone';
-import DeleteForeverTwoToneIcon from '@mui/icons-material/DeleteForeverTwoTone';
-import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import { Button, Modal, useTheme } from '../../ui'
+import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import VisibilityOffTwoToneIcon from '@mui/icons-material/VisibilityOffTwoTone';
+import VisibilityTwoToneIcon from '@mui/icons-material/VisibilityTwoTone';
+import { Button, Modal, IconButton, useTheme } from '../../ui'
 import { useNavigate } from 'react-router-dom';
 
 export default function LocomotiveList() {
@@ -57,7 +57,7 @@ export default function LocomotiveList() {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: theme.spacing.md }}>
                 <div style={{ fontSize: theme.fontSize.lg, fontWeight: 'bold' }}>Locomotives</div>
                 <Button variant='secondary' size='sm' onClick={() => navigate('/system/locomotives/new')}>
-                    <AddCircleTwoToneIcon style={{ fontSize: '18px', marginRight: '4px' }} />
+                    <AddOutlinedIcon style={{ fontSize: '18px', marginRight: '4px' }} />
                     Add Locomotive
                 </Button>
             </div>
@@ -130,16 +130,8 @@ export default function LocomotiveList() {
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: theme.spacing.sm }}>
-                                    <span
-                                        style={{
-                                            cursor: 'pointer',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            padding: '6px',
-                                            borderRadius: theme.borderRadius.sm,
-                                            color: loco.hidden ? theme.colors.gray[500] : theme.colors.success,
-                                            transition: 'transform 0.2s ease'
-                                        }}
+                                    <IconButton
+                                        color={loco.hidden ? 'secondary' : 'primary'}
                                         onClick={() => {
                                             const updatedLoco = { ...loco, hidden: !loco.hidden }
                                             window.electron.invoke('updateLocomotive', updatedLoco)
@@ -148,47 +140,25 @@ export default function LocomotiveList() {
                                                 })
                                                 .catch(err => console.log(err))
                                         }}
-                                        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.2)'}
-                                        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                                         title={loco.hidden ? 'Show locomotive' : 'Hide locomotive'}
                                     >
-                                        {loco.hidden ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                                    </span>
+                                        {loco.hidden ? <VisibilityOffTwoToneIcon /> : <VisibilityTwoToneIcon />}
+                                    </IconButton>
                                 </div>
                                 <div style={{ display: 'flex', gap: theme.spacing.sm }}>
-                                    <span
-                                        style={{
-                                            cursor: 'pointer',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            padding: '6px',
-                                            borderRadius: theme.borderRadius.sm,
-                                            transition: 'transform 0.2s ease'
-                                        }}
+                                    <IconButton
                                         onClick={() => navigate('/system/locomotives/edit/' + loco._id)}
-                                        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.2)'}
-                                        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                                         title="Edit locomotive"
                                     >
-                                        <EditTwoToneIcon style={{ fontSize: '20px' }} />
-                                    </span>
-                                    <span
-                                        style={{
-                                            cursor: 'pointer',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            padding: '6px',
-                                            borderRadius: theme.borderRadius.sm,
-                                            color: theme.colors.danger,
-                                            transition: 'transform 0.2s ease'
-                                        }}
+                                        <EditOutlinedIcon />
+                                    </IconButton>
+                                    <IconButton
+                                        color="danger"
                                         onClick={() => setDeleteLocoModal({ show: true, id: loco._id })}
-                                        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.2)'}
-                                        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                                         title="Delete locomotive"
                                     >
-                                        <DeleteForeverTwoToneIcon style={{ fontSize: '20px' }} />
-                                    </span>
+                                        <DeleteForeverIcon />
+                                    </IconButton>
                                 </div>
                             </div>
                         </div>

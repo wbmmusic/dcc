@@ -1,14 +1,11 @@
 import React, { useState } from 'react'
 import { useTheme } from '../ui'
 import { Route, Routes, useNavigate, useLocation } from 'react-router-dom'
-import LocomotiveList from './locomotives/LocomotiveList.jsx'
-import EditLocomotive from './locomotives/EditLocomotive.jsx'
+import Locomotives from './locomotives/Locomotives.jsx'
 import Decoders from './decoders/Decoders.jsx'
 import Switches from './switches/Switches.jsx'
-import AccessoriesList from './accessories/AccessoriesList.jsx'
-import EditAccessory from './accessories/EditAccessory.jsx'
-import MacroList from './macros/MacroList.jsx'
-import EditMacro from './macros/EditMacro.jsx'
+import Accessories from './accessories/Accessories.jsx'
+import Macros from './macros/Macros.jsx'
 
 export default function System() {
     const theme = useTheme()
@@ -73,20 +70,14 @@ export default function System() {
                 ))}
             </div>
 
-            <div style={{ flex: 1, overflow: 'auto', padding: theme.spacing.md }}>
+            <div style={{ flex: 1, overflow: 'auto' }}>
                 <Routes>
-                    <Route path="/locomotives" element={<LocomotiveList />} />
-                    <Route path="/locomotives/new" element={<EditLocomotive />} />
-                    <Route path="/locomotives/edit/:locoID" element={<EditLocomotive />} />
+                    <Route path="/locomotives/*" element={<Locomotives />} />
                     <Route path="/decoders/*" element={<Decoders />} />
                     <Route path="/switches/*" element={<Switches />} />
-                    <Route path="/accessories" element={<AccessoriesList />} />
-                    <Route path="/accessories/new" element={<EditAccessory />} />
-                    <Route path="/accessories/edit/:accessoryID" element={<EditAccessory />} />
-                    <Route path="/macros" element={<MacroList />} />
-                    <Route path="/macros/new" element={<EditMacro />} />
-                    <Route path="/macros/edit/:macroID" element={<EditMacro />} />
-                    <Route path="*" element={<LocomotiveList />} />
+                    <Route path="/accessories/*" element={<Accessories />} />
+                    <Route path="/macros/*" element={<Macros />} />
+                    <Route path="*" element={<Locomotives />} />
                 </Routes>
             </div>
         </div>

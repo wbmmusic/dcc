@@ -19,24 +19,37 @@ export default function EditMacro() {
     const [state, setState] = useState<Partial<Macro>>({ name: '', actions: [] })
     const [ogState, setOgState] = useState<Partial<Macro> | null>(null)
     const [switches, setSwitches] = useState<Switch[]>([])
+    const [loading, setLoading] = useState(false)
     const defaultActionModal: ActionModal = { show: false, handle: '', action: { switch: '', state: 'open' } }
     const [actionModal, setActionModal] = useState<ActionModal>(defaultActionModal)
 
-    const createMacro = () => {
-        const macroData: Macro = {
-            _id: window.electron.uuid(),
-            name: state.name || '',
-            actions: state.actions || []
+    const createMacro = async () => {
+        setLoading(true)
+        try {
+            const macroData: Macro = {
+                _id: window.electron.uuid(),
+                name: state.name || '',
+                actions: state.actions || []
+            }
+            await window.electron.invoke('createMacro', macroData as any)
+            navigate('/system/macros')
+        } catch (err) {
+            console.error(err)
+        } finally {
+            setLoading(false)
         }
-        window.electron.invoke('createMacro', macroData as any)
-            .then(() => navigate('/system/macros'))
-            .catch((err: unknown) => console.error(err))
     }
 
-    const updateMacro = () => {
-        window.electron.invoke('updateMacro', state)
-            .then(() => navigate('/system/macros'))
-            .catch((err: unknown) => console.error(err))
+    const updateMacro = async () => {
+        setLoading(true)
+        try {
+            await window.electron.invoke('updateMacro', state)
+            navigate('/system/macros')
+        } catch (err) {
+            console.error(err)
+        } finally {
+            setLoading(false)
+        }
     }
 
     const makeTitle = (): string => {
@@ -60,9 +73,9 @@ export default function EditMacro() {
     const makeButtons = () => {
         const makeButton = () => {
             if (location.pathname.includes('new')) {
-                return <Button variant='success' size='sm' disabled={!isCreatable()} onClick={createMacro}>Create Macro</Button>
+                return <Button variant='success' size='sm' disabled={!isCreatable()} loading={loading} onClick={createMacro}>Create Macro</Button>
             } else if (location.pathname.includes('edit')) {
-                return <Button variant='success' size='sm' disabled={!isUpdatable()} onClick={updateMacro}>Update Macro</Button>
+                return <Button variant='success' size='sm' disabled={!isUpdatable()} loading={loading} onClick={updateMacro}>Update Macro</Button>
             } else return "ERROR"
         }
 
@@ -214,7 +227,14 @@ export default function EditMacro() {
         <div className='pageContainer'>
             <div style={{ fontSize: theme.fontSize.lg, fontWeight: 'bold' }}>{`${makeTitle()} Macro`}</div>
             <hr style={{ borderColor: theme.colors.gray[600] }} />
-            <div>
+            <div style={{
+                backgroundColor: theme.colors.gray[800],
+                border: `1px solid ${theme.colors.gray[600]}`,
+                borderRadius: theme.borderRadius.md,
+                padding: theme.spacing.md,
+                boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                marginBottom: theme.spacing.md
+            }}>
                 <div style={{ display: 'inline-block' }}>
                     <Table size='sm' >
                         <tbody>
@@ -227,9 +247,9 @@ export default function EditMacro() {
                                         value={state.name}
                                         onChange={(e) => setState((old: Partial<Macro>) => ({ ...old, name: e.target.value }))}
                                         style={{
-                                            backgroundColor: theme.colors.gray[800],
+                                            backgroundColor: theme.colors.gray[700],
                                             color: theme.colors.light,
-                                            border: `1px solid ${theme.colors.gray[600]}`,
+                                            border: `1px solid ${theme.colors.gray[500]}`,
                                             borderRadius: theme.borderRadius.sm,
                                             padding: theme.spacing.xs
                                         }}
@@ -241,7 +261,14 @@ export default function EditMacro() {
                 </div>
             </div>
             <Button size='sm' onClick={() => setActionModal(old => ({ ...old, show: true, handle: 'Add' }))}>Add Action</Button>
-            <div>
+            <div style={{
+                backgroundColor: theme.colors.gray[800],
+                border: `1px solid ${theme.colors.gray[600]}`,
+                borderRadius: theme.borderRadius.md,
+                boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                overflow: 'hidden',
+                marginBottom: theme.spacing.md
+            }}>
                 <div style={{ display: 'inline-block' }}>
                     <Table>
                         <thead>

@@ -28,6 +28,7 @@ interface ButtonProps {
   variant?: ButtonVariant
   size?: ButtonSize
   disabled?: boolean
+  loading?: boolean
   onClick?: (e: MouseEvent<HTMLButtonElement>) => void
   onMouseDown?: (e: MouseEvent<HTMLButtonElement>) => void
   onMouseUp?: (e: MouseEvent<HTMLButtonElement>) => void
@@ -62,8 +63,9 @@ const getVariantStyles = (variant: ButtonVariant, disabled: boolean): CSSPropert
     textAlign: 'center',
     verticalAlign: 'middle',
     userSelect: 'none',
-    transition: 'color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out',
+    transition: 'all 0.2s ease-in-out',
     opacity: disabled ? 0.65 : 1,
+    transform: 'translateY(0)',
   }
 
   const variants: Record<ButtonVariant, CSSProperties> = {
@@ -184,6 +186,7 @@ export const Button: React.FC<ButtonProps> = ({
   variant = 'primary',
   size = 'md',
   disabled = false,
+  loading = false,
   onClick,
   onMouseDown,
   onMouseUp,
@@ -199,19 +202,78 @@ export const Button: React.FC<ButtonProps> = ({
     ...variantStyles,
     ...sizeStyles,
     ...style,
+    position: 'relative',
   }
+
+  const isDisabled = disabled || loading
+
+  const LoadingSpinner = () => (
+    <div
+      style={{
+        position: 'absolute',
+        left: '50%',
+        top: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: '16px',
+        height: '16px',
+        border: '2px solid transparent',
+        borderTop: '2px solid currentColor',
+        borderRadius: '50%',
+        animation: 'spin 1s linear infinite',
+      }}
+    />
+  )
 
   return (
     <button
       type={type}
       style={buttonStyle}
-      disabled={disabled}
+      disabled={isDisabled}
       onClick={onClick}
       onMouseDown={onMouseDown}
       onMouseUp={onMouseUp}
       onDoubleClick={onDoubleClick}
+      onMouseEnter={(e) => {
+        if (!isDisabled) {
+          e.currentTarget.style.transform = 'translateY(-1px)'
+          e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)'
+          e.currentTarget.style.filter = 'brightness(1.1)'
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (!isDisabled) {
+          e.currentTarget.style.transform = 'translateY(0)'
+          e.currentTarget.style.boxShadow = 'none'
+          e.currentTarget.style.filter = 'brightness(1)'
+        }
+      }}
+      onMouseDown={(e) => {
+        if (!isDisabled) {
+          e.currentTarget.style.transform = 'translateY(1px)'
+          e.currentTarget.style.filter = 'brightness(0.9)'
+        }
+        onMouseDown?.(e)
+      }}
+      onMouseUp={(e) => {
+        if (!isDisabled) {
+          e.currentTarget.style.transform = 'translateY(-1px)'
+          e.currentTarget.style.filter = 'brightness(1.1)'
+        }
+        onMouseUp?.(e)
+      }}
     >
-      {children}
+      <style>
+        {`
+          @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+          }
+        `}
+      </style>
+      <span style={{ opacity: loading ? 0 : 1, transition: 'opacity 0.2s ease' }}>
+        {children}
+      </span>
+      {loading && <LoadingSpinner />}
     </button>
   )
 }

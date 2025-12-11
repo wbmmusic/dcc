@@ -18,6 +18,7 @@ export default function EditAccessory() {
         device: { name: '', actions: [] } 
     })
     const [ogState, setOgState] = useState<AccessoryForm | null>(null)
+    const [loading, setLoading] = useState(false)
 
     const makeTitle = (): string => {
         if (location.pathname.includes('edit')) return "Edit"
@@ -31,28 +32,40 @@ export default function EditAccessory() {
         return out
     }
 
-    const createAccessory = () => {
-        const accessoryData: Accessory = {
-            _id: window.electron.uuid(),
-            name: state.name,
-            address: parseInt(state.address),
-            device: state.device
+    const createAccessory = async () => {
+        setLoading(true)
+        try {
+            const accessoryData: Accessory = {
+                _id: window.electron.uuid(),
+                name: state.name,
+                address: parseInt(state.address),
+                device: state.device
+            }
+            await window.electron.invoke('createAccessory', accessoryData as any)
+            navigate('/system/accessories')
+        } catch (err) {
+            console.error(err)
+        } finally {
+            setLoading(false)
         }
-        window.electron.invoke('createAccessory', accessoryData as any)
-            .then(() => navigate('/system/accessories'))
-            .catch((err: unknown) => console.error(err))
     }
 
-    const updateAccessory = () => {
-        const accessoryData: Accessory = {
-            _id: state._id,
-            name: state.name,
-            address: parseInt(state.address),
-            device: state.device
+    const updateAccessory = async () => {
+        setLoading(true)
+        try {
+            const accessoryData: Accessory = {
+                _id: state._id,
+                name: state.name,
+                address: parseInt(state.address),
+                device: state.device
+            }
+            await window.electron.invoke('updateAccessory', accessoryData as any)
+            navigate('/system/accessories')
+        } catch (err) {
+            console.error(err)
+        } finally {
+            setLoading(false)
         }
-        window.electron.invoke('updateAccessory', accessoryData as any)
-            .then(() => navigate('/system/accessories'))
-            .catch((err: unknown) => console.error(err))
     }
 
     const isCreatable = (): boolean => {
@@ -67,8 +80,8 @@ export default function EditAccessory() {
     }
 
     const makeButton = (): React.ReactElement => {
-        if (location.pathname.includes("edit")) return <Button variant='success' disabled={!isUpdatable()} size="sm" onClick={updateAccessory}>Update Accessory</Button>
-        else if (location.pathname.includes("new")) return <Button variant='success' disabled={!isCreatable()} size="sm" onClick={createAccessory}>Create Accessory</Button>
+        if (location.pathname.includes("edit")) return <Button variant='success' disabled={!isUpdatable()} loading={loading} size="sm" onClick={updateAccessory}>Update Accessory</Button>
+        else if (location.pathname.includes("new")) return <Button variant='success' disabled={!isCreatable()} loading={loading} size="sm" onClick={createAccessory}>Create Accessory</Button>
         else throw new Error('Error in makeButton')
     }
 
@@ -175,7 +188,14 @@ export default function EditAccessory() {
         <div className='pageContainer' >
             <div style={{ fontSize: theme.fontSize.lg, fontWeight: 'bold' }}>{`${makeTitle()} Accessory`}</div>
             <hr style={{ borderColor: theme.colors.gray[600] }} />
-            <div>
+            <div style={{
+                backgroundColor: theme.colors.gray[800],
+                border: `1px solid ${theme.colors.gray[600]}`,
+                borderRadius: theme.borderRadius.md,
+                padding: theme.spacing.md,
+                boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                marginBottom: theme.spacing.md
+            }}>
                 <div>
                     <Table>
                         <tbody>
@@ -188,9 +208,9 @@ export default function EditAccessory() {
                                         value={state.name}
                                         onChange={(e) => setState(old => ({ ...old, name: e.target.value }))}
                                         style={{
-                                            backgroundColor: theme.colors.gray[800],
+                                            backgroundColor: theme.colors.gray[700],
                                             color: theme.colors.light,
-                                            border: `1px solid ${theme.colors.gray[600]}`,
+                                            border: `1px solid ${theme.colors.gray[500]}`,
                                             borderRadius: theme.borderRadius.sm,
                                             padding: theme.spacing.xs
                                         }}
@@ -206,9 +226,9 @@ export default function EditAccessory() {
                                         value={state.address}
                                         onChange={(e) => setState(old => ({ ...old, address: e.target.value }))}
                                         style={{
-                                            backgroundColor: theme.colors.gray[800],
+                                            backgroundColor: theme.colors.gray[700],
                                             color: theme.colors.light,
-                                            border: `1px solid ${theme.colors.gray[600]}`,
+                                            border: `1px solid ${theme.colors.gray[500]}`,
                                             borderRadius: theme.borderRadius.sm,
                                             padding: theme.spacing.xs
                                         }}
@@ -230,7 +250,18 @@ export default function EditAccessory() {
                     </Table>
                 </div>
             </div>
-            {makeDeviceInput()}
+            {makeDeviceInput() && (
+                <div style={{
+                    backgroundColor: theme.colors.gray[800],
+                    border: `1px solid ${theme.colors.gray[600]}`,
+                    borderRadius: theme.borderRadius.md,
+                    padding: theme.spacing.md,
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                    marginBottom: theme.spacing.md
+                }}>
+                    {makeDeviceInput()}
+                </div>
+            )}
             <div style={{ textAlign: 'right' }}>
                 <Button variant='secondary' size="sm" style={{ marginRight: theme.spacing.sm }} onClick={() => navigate('/system/accessories')}>Cancel</Button>
                 {makeButton()}

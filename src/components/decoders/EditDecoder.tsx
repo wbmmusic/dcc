@@ -42,6 +42,7 @@ export default function EditDecoder() {
 
     const [decoder, setDecoder] = useState<Decoder>(defaultDecoder)
     const [ogDecoder, setOgDecoder] = useState<Decoder | null>(null)
+    const [loading, setLoading] = useState(false)
 
     useEffect(() => {
         makeState()
@@ -62,27 +63,39 @@ export default function EditDecoder() {
         else return true
     }
 
-    const handleCreate = () => {
-        window.electron.invoke('createDecoder', decoder as any)
-            .then(() => navigate('/decoders'))
-            .catch((err: unknown) => console.log(err))
+    const handleCreate = async () => {
+        setLoading(true)
+        try {
+            await window.electron.invoke('createDecoder', decoder as any)
+            navigate('/system/decoders')
+        } catch (err) {
+            console.log(err)
+        } finally {
+            setLoading(false)
+        }
     }
 
-    const handleSaveChanges = () => {
-        window.electron.invoke('updateDecoder', decoder as any)
-            .then(() => navigate('/decoders'))
-            .catch((err: unknown) => console.log(err))
+    const handleSaveChanges = async () => {
+        setLoading(true)
+        try {
+            await window.electron.invoke('updateDecoder', decoder as any)
+            navigate('/system/decoders')
+        } catch (err) {
+            console.log(err)
+        } finally {
+            setLoading(false)
+        }
     }
 
     const makeButtons = () => {
         const createOrUpdate = (): React.ReactElement | undefined => {
             if (location.pathname.includes('new')) {
                 return (
-                    <Button size="sm" disabled={!readyToCreate()} onClick={handleCreate}>Create Decoder</Button>
+                    <Button variant="success" size="sm" disabled={!readyToCreate()} loading={loading} onClick={handleCreate}>Create Decoder</Button>
                 )
             } else if (location.pathname.includes('edit')) {
                 return (
-                    <Button size="sm" disabled={!readyToSave()} onClick={handleSaveChanges}>Save Changes</Button>
+                    <Button variant="success" size="sm" disabled={!readyToSave()} loading={loading} onClick={handleSaveChanges}>Save Changes</Button>
                 )
             }
             return undefined
@@ -90,7 +103,7 @@ export default function EditDecoder() {
 
         return (
             <div style={{ borderTop: `1px solid ${theme.colors.gray[600]}`, textAlign: 'right', paddingTop: theme.spacing.sm }}>
-                <Button size="sm" variant="secondary" onClick={() => navigate('/decoders')}>Cancel</Button>
+                <Button size="sm" variant="secondary" onClick={() => navigate('/system/decoders')}>Cancel</Button>
                 <div style={{ width: theme.spacing.sm, display: 'inline-block' }} />
                 {createOrUpdate()}
             </div>
@@ -102,11 +115,11 @@ export default function EditDecoder() {
         decoder.functions.forEach((func: DecoderFunction, i: number) => {
             out.push(
                 <tr key={`functionChannel${i}`}>
-                    <td><b>{i}</b></td>
+                    <td style={{ textAlign: 'center', fontWeight: 'bold', color: theme.colors.warning }}>{i}</td>
                     <td>
                         <input
                             spellCheck="true"
-                            placeholder='Enter Function Name'
+                            placeholder={`F${i} Function Name`}
                             value={func.name}
                             onChange={(e) => {
                                 setDecoder((old: Decoder) => {
@@ -117,16 +130,17 @@ export default function EditDecoder() {
                             }}
                             style={{
                                 width: '100%',
-                                backgroundColor: theme.colors.gray[800],
+                                backgroundColor: theme.colors.gray[700],
                                 color: theme.colors.light,
-                                border: `1px solid ${theme.colors.gray[600]}`,
+                                border: `1px solid ${theme.colors.gray[500]}`,
                                 borderRadius: theme.borderRadius.sm,
-                                padding: theme.spacing.xs
+                                padding: theme.spacing.xs,
+                                fontSize: theme.fontSize.sm
                             }}
                         />
                     </td>
-                    <td>
-                        <div style={{ display: 'flex', gap: '0' }}>
+                    <td style={{ textAlign: 'center' }}>
+                        <div style={{ display: 'flex', gap: '0', justifyContent: 'center' }}>
                             <Button
                                 size="sm"
                                 variant={func.action === 'toggle' ? 'primary' : 'secondary'}
@@ -165,82 +179,99 @@ export default function EditDecoder() {
     }
 
     return (
-        <div style={{ height: '100%', overflowY: 'auto' }}>
-            <div className='pageContainer'>
-                {makeLabel()}
-                <hr style={{ borderColor: theme.colors.gray[600] }} />
-                <div style={{ padding: theme.spacing.md }}>
-                    <div>
-                        <div style={{ display: 'inline-block' }}>
-                            <Table size="sm">
-                                <tbody>
-                                    <tr>
-                                        <td style={labelStyle}>Name</td>
-                                        <td><input
-                                            style={{
-                                                width: '100%',
-                                                backgroundColor: theme.colors.gray[800],
-                                                color: theme.colors.light,
-                                                border: `1px solid ${theme.colors.gray[600]}`,
-                                                borderRadius: theme.borderRadius.sm,
-                                                padding: theme.spacing.xs
-                                            }}
-                                            placeholder='Decoder Name'
-                                            value={decoder.name}
-                                            onChange={(e) => setDecoder((old: Decoder) => ({ ...old, name: e.target.value }))}
-                                        /></td>
-                                    </tr>
-                                    <tr>
-                                        <td style={labelStyle}>Model</td>
-                                        <td><input
-                                            style={{
-                                                width: '100%',
-                                                backgroundColor: theme.colors.gray[800],
-                                                color: theme.colors.light,
-                                                border: `1px solid ${theme.colors.gray[600]}`,
-                                                borderRadius: theme.borderRadius.sm,
-                                                padding: theme.spacing.xs
-                                            }}
-                                            placeholder='Decoder Model'
-                                            value={decoder.model}
-                                            onChange={(e) => setDecoder((old: Decoder) => ({ ...old, model: e.target.value }))}
-                                        /></td>
-                                    </tr>
-                                    <tr>
-                                        <td style={labelStyle}>Manufacturer</td>
-                                        <td><input
-                                            style={{
-                                                width: '100%',
-                                                backgroundColor: theme.colors.gray[800],
-                                                color: theme.colors.light,
-                                                border: `1px solid ${theme.colors.gray[600]}`,
-                                                borderRadius: theme.borderRadius.sm,
-                                                padding: theme.spacing.xs
-                                            }}
-                                            placeholder='Decoder Manufacturer'
-                                            value={decoder.manufacturer}
-                                            onChange={(e) => setDecoder((old: Decoder) => ({ ...old, manufacturer: e.target.value }))}
-                                        /></td>
-                                    </tr>
-                                </tbody>
-                            </Table>
-                        </div>
+        <div className='pageContainer'>
+            {makeLabel()}
+            <hr style={{ borderColor: theme.colors.gray[600] }} />
+                    <div style={{
+                        backgroundColor: theme.colors.gray[800],
+                        border: `1px solid ${theme.colors.gray[600]}`,
+                        borderRadius: theme.borderRadius.md,
+                        padding: theme.spacing.md,
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                        marginBottom: theme.spacing.md
+                    }}>
+                        <div style={{ fontSize: theme.fontSize.md, fontWeight: 'bold', marginBottom: theme.spacing.md }}>Decoder Information</div>
+                        <Table size="sm">
+                            <tbody>
+                                <tr>
+                                    <td style={labelStyle}>Name</td>
+                                    <td><input
+                                        style={{
+                                            width: '100%',
+                                            backgroundColor: theme.colors.gray[700],
+                                            color: theme.colors.light,
+                                            border: `1px solid ${theme.colors.gray[500]}`,
+                                            borderRadius: theme.borderRadius.sm,
+                                            padding: theme.spacing.xs
+                                        }}
+                                        placeholder='Decoder Name'
+                                        value={decoder.name}
+                                        onChange={(e) => setDecoder((old: Decoder) => ({ ...old, name: e.target.value }))}
+                                    /></td>
+                                </tr>
+                                <tr>
+                                    <td style={labelStyle}>Model</td>
+                                    <td><input
+                                        style={{
+                                            width: '100%',
+                                            backgroundColor: theme.colors.gray[700],
+                                            color: theme.colors.light,
+                                            border: `1px solid ${theme.colors.gray[500]}`,
+                                            borderRadius: theme.borderRadius.sm,
+                                            padding: theme.spacing.xs
+                                        }}
+                                        placeholder='Decoder Model'
+                                        value={decoder.model}
+                                        onChange={(e) => setDecoder((old: Decoder) => ({ ...old, model: e.target.value }))}
+                                    /></td>
+                                </tr>
+                                <tr>
+                                    <td style={labelStyle}>Manufacturer</td>
+                                    <td><input
+                                        style={{
+                                            width: '100%',
+                                            backgroundColor: theme.colors.gray[700],
+                                            color: theme.colors.light,
+                                            border: `1px solid ${theme.colors.gray[500]}`,
+                                            borderRadius: theme.borderRadius.sm,
+                                            padding: theme.spacing.xs
+                                        }}
+                                        placeholder='Decoder Manufacturer'
+                                        value={decoder.manufacturer}
+                                        onChange={(e) => setDecoder((old: Decoder) => ({ ...old, manufacturer: e.target.value }))}
+                                    /></td>
+                                </tr>
+                            </tbody>
+                        </Table>
                     </div>
-                    <Table size="sm" striped style={{ display: 'inline-block' }}>
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Function</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {makeChannels()}
-                        </tbody>
-                    </Table>
-                    {makeButtons()}
-                </div>
-            </div>
+                    
+                    <div style={{
+                        backgroundColor: theme.colors.gray[800],
+                        border: `1px solid ${theme.colors.gray[600]}`,
+                        borderRadius: theme.borderRadius.md,
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                        overflow: 'hidden'
+                    }}>
+                        <div style={{ 
+                            padding: theme.spacing.md, 
+                            borderBottom: `1px solid ${theme.colors.gray[600]}`,
+                            fontSize: theme.fontSize.md, 
+                            fontWeight: 'bold' 
+                        }}>Function Configuration</div>
+                        <Table size="sm" striped>
+                            <thead>
+                                <tr>
+                                    <th style={{ textAlign: 'center', width: '60px' }}>#</th>
+                                    <th>Function Name</th>
+                                    <th style={{ textAlign: 'center', width: '200px' }}>Action Type</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {makeChannels()}
+                            </tbody>
+                        </Table>
+                    </div>
+            {makeButtons()}
         </div>
     )
 }
