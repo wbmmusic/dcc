@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import { Button } from '../../ui'
-import { Table } from '../../ui'
+import { Button, Table, useTheme } from '../../ui'
 import { Switch, SwitchForm } from '../../types'
 
 export default function EditSwitch() {
+    const theme = useTheme()
     const location = useLocation()
     const navigate = useNavigate()
     const theID = useParams().switchID
@@ -40,7 +40,7 @@ export default function EditSwitch() {
         let out = 'ERROR'
         if (location.pathname.includes('new')) out = 'Create'
         else if (location.pathname.includes('edit')) out = 'Edit'
-        return <div><b>{`${out} Switch`}</b></div>
+        return <div style={{ fontSize: theme.fontSize.lg, fontWeight: 'bold' }}>{`${out} Switch`}</div>
     }
 
     const createSwitch = () => {
@@ -73,16 +73,16 @@ export default function EditSwitch() {
 
         const makeButton = () => {
             if (location.pathname.includes('new')) {
-                return <Button size='sm' disabled={!isCreatable()} onClick={createSwitch}>Create Switch</Button>
+                return <Button variant='success' size='sm' disabled={!isCreatable()} onClick={createSwitch}>Create Switch</Button>
             } else if (location.pathname.includes('edit')) {
-                return <Button size='sm' disabled={!isUpdatable()} onClick={updateSwitch}>Update Switch</Button>
+                return <Button variant='success' size='sm' disabled={!isUpdatable()} onClick={updateSwitch}>Update Switch</Button>
             } else return "ERROR"
         }
 
         return (
             <div style={{ textAlign: 'right' }}>
-                <Button size='sm' onClick={() => navigate('/switches')}>Cancel</Button>
-                <div style={{ display: 'inline-block', width: '8px' }} />
+                <Button variant='secondary' size='sm' onClick={() => navigate('/switches')}>Cancel</Button>
+                <div style={{ display: 'inline-block', width: theme.spacing.sm }} />
                 {makeButton()}
             </div>
         )
@@ -102,7 +102,7 @@ export default function EditSwitch() {
     return (
         <div className='pageContainer'>
             {makeTitle()}
-            <hr />
+            <hr style={{ borderColor: theme.colors.gray[600] }} />
             <div>
                 <div style={{ display: 'inline-block' }}>
                     <Table size='sm'>
@@ -115,6 +115,13 @@ export default function EditSwitch() {
                                         placeholder='Switch Name'
                                         value={state.name}
                                         onChange={(e) => setState((old: SwitchForm) => ({ ...old, name: e.target.value }))}
+                                        style={{
+                                            backgroundColor: theme.colors.gray[800],
+                                            color: theme.colors.light,
+                                            border: `1px solid ${theme.colors.gray[600]}`,
+                                            borderRadius: theme.borderRadius.sm,
+                                            padding: theme.spacing.xs
+                                        }}
                                     />
                                 </td>
                             </tr>
@@ -127,6 +134,13 @@ export default function EditSwitch() {
                                         placeholder='123'
                                         value={state.address}
                                         onChange={(e) => setState((old: SwitchForm) => ({ ...old, address: e.target.value }))}
+                                        style={{
+                                            backgroundColor: theme.colors.gray[800],
+                                            color: theme.colors.light,
+                                            border: `1px solid ${theme.colors.gray[600]}`,
+                                            borderRadius: theme.borderRadius.sm,
+                                            padding: theme.spacing.xs
+                                        }}
                                     />
                                 </td>
                             </tr>

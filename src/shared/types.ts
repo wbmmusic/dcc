@@ -92,6 +92,7 @@ export interface LocoState {
 export interface LocoFunction {
   name: string;
   state: boolean;
+  action?: 'toggle' | 'momentary';
 }
 
 export interface Settings {

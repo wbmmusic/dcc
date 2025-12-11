@@ -28,8 +28,8 @@ contextBridge.exposeInMainWorld('electron', {
      * @returns {string|null} Window ID or null if not a throttle window
      */
     getWindowID: () => {
-        let idArgIdx = window.process.argv.findIndex(arg => arg.includes('--windowID:'))
-        if (idArgIdx >= 0) return window.process.argv[idArgIdx].split(':')[1]
+        let idArgIdx = process.argv.findIndex(arg => arg.includes('--windowID:'))
+        if (idArgIdx >= 0) return process.argv[idArgIdx].split(':')[1]
         else return null
     },
     

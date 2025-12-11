@@ -127,13 +127,19 @@ export default function LocoControl({ selectedLoco }: LocoControlProps) {
             .catch((err: unknown) => console.log(err))
     }
 
+    const handleFunctionRelease = (func: number) => {
+        window.electron.invoke(...makeChannel(), 'releaseFunction', func)
+            .then((res: unknown) => setState(old => old ? ({ ...old, functions: res as LocoFunction[] }) : null))
+            .catch((err: unknown) => console.log(err))
+    }
+
     const makeFunctions = (): React.ReactElement[] => {
         let out: React.ReactElement[] = []
 
         if (!state?.functions) return out
         state.functions.forEach((func: LocoFunction, i: number) => {
             if (func.name !== '') {
-                if ((func as any).action === 'toggle') {
+                if (func.action === 'toggle') {
                     out.push(
                         <Button
                             variant={func.state ? 'success' : 'secondary'}
@@ -155,11 +161,12 @@ export default function LocoControl({ selectedLoco }: LocoControlProps) {
                             style={{ 
                                 marginRight: theme.spacing.sm, 
                                 marginBottom: theme.spacing.sm,
-                                boxShadow: func.state ? `0 0 8px ${theme.colors.success}` : 'none'
+                                boxShadow: func.state ? `0 0 8px ${theme.colors.success}` : 'none',
+                                color: theme.colors.warning
                             }}
                             size='sm'
                             onMouseDown={() => handleFunctionPress(i)}
-                            onMouseUp={() => handleFunctionPress(i)}
+                            onMouseUp={() => handleFunctionRelease(i)}
                         > {func.name}</Button >
                     )
                 }

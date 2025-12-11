@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { Accessory } from '../../types'
-import { Table } from '../../ui'
+import { Table, Button, useTheme } from '../../ui'
 import { useNavigate } from 'react-router-dom'
 import AddCircleTwoToneIcon from '@mui/icons-material/AddCircleTwoTone';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import DeleteForeverTwoToneIcon from '@mui/icons-material/DeleteForeverTwoTone';
 
 export default function AccessoriesList() {
+    const theme = useTheme()
     const navigate = useNavigate()
     const [accessories, setAccessories] = useState<Accessory[]>([])
 
@@ -53,14 +54,12 @@ export default function AccessoriesList() {
 
     return (
         <div className="pageContainer">
-            <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: theme.spacing.md }}>
                 <b>Accessories</b>
-                <div
-                    style={{ display: 'inline-block', color: 'green', marginLeft: '10px', cursor: 'pointer' }}
-                    onClick={() => navigate('/system/accessories/new')}
-                >
-                    <AddCircleTwoToneIcon />
-                </div>
+                <Button variant='secondary' size='sm' onClick={() => navigate('/system/accessories/new')}>
+                    <AddCircleTwoToneIcon style={{ fontSize: '18px', marginRight: '4px' }} />
+                    Add Accessory
+                </Button>
             </div>
             <div>
                 <div style={{ display: 'inline-block' }}>

@@ -70,14 +70,17 @@ export default function EditConsist() {
         address: parseInt(consist.address),
         locos: consist.locos,
       })
-      const formData: ConsistForm = {
-        _id: res._id,
-        name: res.name,
-        address: res.address.toString(),
-        locos: res.locos,
+      const updatedConsist = res as Consist
+      if (updatedConsist) {
+        const formData: ConsistForm = {
+          _id: updatedConsist._id,
+          name: updatedConsist.name,
+          address: updatedConsist.address.toString(),
+          locos: updatedConsist.locos,
+        }
+        setConsist(formData)
+        setOgConsist(formData)
       }
-      setConsist(formData)
-      setOgConsist(formData)
     } catch (error) {
       console.error('Failed to update consist:', error)
     }
@@ -406,14 +409,17 @@ export default function EditConsist() {
 
         if (location.pathname.includes("/edit") && consistID) {
           const res = await window.electron.invoke("getConsistByID", consistID)
-          const formData: ConsistForm = {
-            _id: res._id,
-            name: res.name,
-            address: res.address.toString(),
-            locos: res.locos || [],
+          const consist = res as Consist
+          if (consist) {
+            const formData: ConsistForm = {
+              _id: consist._id,
+              name: consist.name,
+              address: consist.address.toString(),
+              locos: consist.locos || [],
+            }
+            setConsist(formData)
+            setOgConsist(formData)
           }
-          setConsist(formData)
-          setOgConsist(formData)
         }
       } catch (error) {
         console.error('Failed to load data:', error)

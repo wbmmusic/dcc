@@ -54,7 +54,21 @@ export class LocomotiveController {
         }
 
         this.ensureLocomotiveState(locomotiveId, locomotive)
-        logger.throttle(locomotiveId, action, data)
+        
+        // Enhanced logging for function commands
+        if ((action === 'setFunction' || action === 'releaseFunction') && typeof data === 'number') {
+            const decoder = config.decoders.find((d: Decoder) => d._id === locomotive.decoder)
+            const functionName = decoder?.functions[data]?.name || `F${data}`
+            if (action === 'setFunction') {
+                const currentState = this.stateService.getLocomotive(locomotiveId)
+                const newState = currentState?.functions[data]?.state ? 'OFF' : 'ON'
+                logger.throttle(locomotiveId, action, `F${data}: ${functionName}: ${newState}`)
+            } else {
+                logger.throttle(locomotiveId, action, `F${data}: ${functionName}: OFF`)
+            }
+        } else {
+            logger.throttle(locomotiveId, action, data)
+        }
 
         return this.executeThrottleAction(locomotiveId, locomotive, action, data)
     }
@@ -85,6 +99,8 @@ export class LocomotiveController {
                 return this.setDirection(locomotiveId, locomotive, data)
             case 'setFunction':
                 return this.setFunction(locomotiveId, locomotive, data)
+            case 'releaseFunction':
+                return this.releaseFunction(locomotiveId, locomotive, data)
             case 'eStop':
                 return this.emergencyStop(locomotiveId, locomotive)
             case 'eStopAll':
@@ -192,7 +208,8 @@ export class LocomotiveController {
         for (let i = 0; i < 29; i++) {
             functions.push({
                 name: decoder.functions[i]?.name || '',
-                state: false
+                state: false,
+                action: decoder.functions[i]?.action || 'toggle'
             })
         }
         return functions
@@ -280,10 +297,17 @@ export class LocomotiveController {
     private async setFunction(locomotiveId: string, locomotive: Locomotive, functionIndex: number): Promise<LocoFunction[]> {
         const currentState = this.stateService.getLocomotive(locomotiveId)!
         const functions = [...currentState.functions]
+        const decoder = config.decoders.find((d: Decoder) => d._id === locomotive.decoder)
         
         try {
-            // Toggle function state
-            functions[functionIndex].state = !functions[functionIndex].state
+            // Handle toggle vs momentary functions differently
+            if (decoder?.functions[functionIndex]?.action === 'toggle') {
+                // Toggle functions: flip state on each press
+                functions[functionIndex].state = !functions[functionIndex].state
+            } else {
+                // Momentary functions: always turn on (will be turned off by onMouseUp)
+                functions[functionIndex].state = true
+            }
             
             // Send DCC command
             await this.dccService.setLocomotiveFunction(locomotive.address, functionIndex, functions)
@@ -294,6 +318,33 @@ export class LocomotiveController {
             return functions
         } catch (error) {
             logger.error(`Failed to set function ${functionIndex} for locomotive ${locomotiveId}`, error)
+            throw error
+        }
+    }
+
+    /**
+     * Release momentary function (turn it off)
+     */
+    private async releaseFunction(locomotiveId: string, locomotive: Locomotive, functionIndex: number): Promise<LocoFunction[]> {
+        const currentState = this.stateService.getLocomotive(locomotiveId)!
+        const functions = [...currentState.functions]
+        const decoder = config.decoders.find((d: Decoder) => d._id === locomotive.decoder)
+        
+        try {
+            // Only release momentary functions
+            if (decoder?.functions[functionIndex]?.action === 'momentary') {
+                functions[functionIndex].state = false
+                
+                // Send DCC command
+                await this.dccService.setLocomotiveFunction(locomotive.address, functionIndex, functions)
+                
+                // Update state
+                this.stateService.updateLocomotive(locomotiveId, { functions })
+            }
+            
+            return functions
+        } catch (error) {
+            logger.error(`Failed to release function ${functionIndex} for locomotive ${locomotiveId}`, error)
             throw error
         }
     }

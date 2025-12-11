@@ -96,19 +96,8 @@ export default function LocomotiveList() {
                                 border: `1px solid ${theme.colors.gray[600]}`,
                                 borderRadius: theme.borderRadius.md,
                                 padding: theme.spacing.md,
-                                boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
-                                transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-                                cursor: 'pointer'
+                                boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
                             }}
-                            onMouseEnter={(e) => {
-                                e.currentTarget.style.transform = 'translateY(-2px)'
-                                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.4)'
-                            }}
-                            onMouseLeave={(e) => {
-                                e.currentTarget.style.transform = 'translateY(0)'
-                                e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)'
-                            }}
-                            onClick={() => navigate('/system/locomotives/edit/' + loco._id)}
                         >
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: theme.spacing.md }}>
                                 <div style={{ fontSize: theme.fontSize.lg, fontWeight: 'bold' }}>{loco.name}</div>
@@ -139,7 +128,7 @@ export default function LocomotiveList() {
                             <div style={{ marginBottom: theme.spacing.md, color: theme.colors.gray[300] }}>
                                 <strong>Model:</strong> {loco.model}
                             </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} onClick={(e) => e.stopPropagation()}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: theme.spacing.sm }}>
                                     <span
                                         style={{

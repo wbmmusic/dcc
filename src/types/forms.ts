@@ -3,10 +3,9 @@
  * These handle the string/number conversion between forms and data models
  */
 
-import { Locomotive, Decoder, Switch, Consist, Macro, Accessory } from '../../shared/types';
+import { Locomotive, Decoder, Switch, Consist, Macro, Accessory } from '../shared/types';
 
 // Form versions where numbers are strings (from HTML inputs)
-import type { Locomotive, Switch, Consist, Accessory } from '../shared/types';
 
 export interface LocomotiveForm extends Omit<Locomotive, 'number' | 'address'> {
   number: string;

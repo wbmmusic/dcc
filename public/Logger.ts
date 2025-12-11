@@ -44,7 +44,8 @@ class Logger {
     }
 
     throttle(locomotiveId: string, action: string, data?: any): void {
-        this.debug(`Throttle command - Loco: ${locomotiveId}, Action: ${action}`, data)
+        const dataStr = data !== undefined ? ` ${typeof data === 'string' ? data : JSON.stringify(data)}` : ''
+        this.debug(`Throttle command - Loco: ${locomotiveId}, Action: ${action}${dataStr}`)
     }
 
     dcc(command: string, address?: number, data?: any): void {

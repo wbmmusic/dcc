@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Button, Table, Modal } from '../../ui'
+import { Button, Table, Modal, useTheme } from '../../ui'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import Select from 'react-select'
 import { selectStyle } from '../../styles'
@@ -12,10 +12,12 @@ interface ActionModal {
 }
 
 export default function EditMacro() {
+    const theme = useTheme()
     const location = useLocation()
     const navigate = useNavigate()
     const macroID = useParams().macroID
     const [state, setState] = useState<Partial<Macro>>({ name: '', actions: [] })
+    const [ogState, setOgState] = useState<Partial<Macro> | null>(null)
     const [switches, setSwitches] = useState<Switch[]>([])
     const defaultActionModal: ActionModal = { show: false, handle: '', action: { switch: '', state: 'open' } }
     const [actionModal, setActionModal] = useState<ActionModal>(defaultActionModal)
@@ -27,13 +29,13 @@ export default function EditMacro() {
             actions: state.actions || []
         }
         window.electron.invoke('createMacro', macroData as any)
-            .then(() => navigate('/macros'))
+            .then(() => navigate('/system/macros'))
             .catch((err: unknown) => console.error(err))
     }
 
     const updateMacro = () => {
         window.electron.invoke('updateMacro', state)
-            .then(() => navigate('/macros'))
+            .then(() => navigate('/system/macros'))
             .catch((err: unknown) => console.error(err))
     }
 
@@ -46,19 +48,28 @@ export default function EditMacro() {
         return "ERROR"
     }
 
+    const isCreatable = (): boolean => {
+        return (state.name || '').trim() !== ''
+    }
+
+    const isUpdatable = (): boolean => {
+        if (!isCreatable()) return false
+        return JSON.stringify(state) !== JSON.stringify(ogState)
+    }
+
     const makeButtons = () => {
         const makeButton = () => {
             if (location.pathname.includes('new')) {
-                return <Button size='sm' onClick={createMacro}>Create Macro</Button>
+                return <Button variant='success' size='sm' disabled={!isCreatable()} onClick={createMacro}>Create Macro</Button>
             } else if (location.pathname.includes('edit')) {
-                return <Button size='sm' onClick={updateMacro}>Update Macro</Button>
+                return <Button variant='success' size='sm' disabled={!isUpdatable()} onClick={updateMacro}>Update Macro</Button>
             } else return "ERROR"
         }
 
         return (
             <div style={{ textAlign: 'right' }}>
-                <Button size='sm' onClick={() => navigate('/macros')}>Cancel</Button>
-                <div style={{ display: 'inline-block', width: '8px' }} />
+                <Button variant='secondary' size='sm' onClick={() => navigate('/system/macros')}>Cancel</Button>
+                <div style={{ display: 'inline-block', width: theme.spacing.sm }} />
                 {makeButton()}
             </div>
         )
@@ -172,26 +183,22 @@ export default function EditMacro() {
     }
 
     const makeActions = (): React.ReactElement[] => {
-        let out: React.ReactElement[] = []
-
-        (state.actions || []).forEach((act: MacroAction, i: number) => {
-            out.push(
-                <tr key={`actionRow${i}`}>
-                    <td>{getSwitchName(act.switch)}</td>
-                    <td>{act.state}</td>
-                </tr>
-            )
-        })
-
-        return out
+        const actions = state.actions || []
+        return actions.map((act: MacroAction, i: number) => (
+            <tr key={`actionRow${i}`}>
+                <td>{getSwitchName(act.switch)}</td>
+                <td>{act.state}</td>
+            </tr>
+        ))
     }
 
     useEffect(() => {
         if (macroID) {
             window.electron.invoke('getMacroByID', macroID)
                 .then((res: unknown) => {
-                    console.log(res)
-                    setState(res as Macro)
+                    const macro = res as Macro
+                    setState(macro)
+                    setOgState(macro)
                 })
                 .catch((err: unknown) => console.error(err))
         }
@@ -205,8 +212,8 @@ export default function EditMacro() {
 
     return (
         <div className='pageContainer'>
-            <b>{`${makeTitle()} Macro`}</b>
-            <hr />
+            <div style={{ fontSize: theme.fontSize.lg, fontWeight: 'bold' }}>{`${makeTitle()} Macro`}</div>
+            <hr style={{ borderColor: theme.colors.gray[600] }} />
             <div>
                 <div style={{ display: 'inline-block' }}>
                     <Table size='sm' >
@@ -219,6 +226,13 @@ export default function EditMacro() {
                                         placeholder='Macro Name'
                                         value={state.name}
                                         onChange={(e) => setState((old: Partial<Macro>) => ({ ...old, name: e.target.value }))}
+                                        style={{
+                                            backgroundColor: theme.colors.gray[800],
+                                            color: theme.colors.light,
+                                            border: `1px solid ${theme.colors.gray[600]}`,
+                                            borderRadius: theme.borderRadius.sm,
+                                            padding: theme.spacing.xs
+                                        }}
                                     />
                                 </td>
                             </tr>
@@ -242,7 +256,7 @@ export default function EditMacro() {
                     </Table>
                 </div>
             </div>
-            <hr />
+            <hr style={{ borderColor: theme.colors.gray[600] }} />
             {makeButtons()}
             {makeActionModal()}
         </div>

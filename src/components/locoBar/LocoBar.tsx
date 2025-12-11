@@ -34,7 +34,7 @@ import { Locomotive } from '../../types';
  * @param {LocoBarProps} props - Component props
  * @returns {React.JSX.Element} The locomotive selection bar
  */
-export default function LocoBar({ selectedLoco, setSelectedLoco }: LocoBarProps) {
+export default function LocoBar({ selectedLoco, onSelectLocomotive }: LocoBarProps) {
     const theme = useTheme()
     const navigate = useNavigate();
 
@@ -129,7 +129,7 @@ export default function LocoBar({ selectedLoco, setSelectedLoco }: LocoBarProps)
                                 numberOfLocos={locos.length}
                                 idx={i}
                                 selectedLoco={selectedLoco}
-                                setSelectedLoco={setSelectedLoco}
+                                setSelectedLoco={onSelectLocomotive}
                                 color={color}
                             />
                         )
@@ -148,7 +148,7 @@ export default function LocoBar({ selectedLoco, setSelectedLoco }: LocoBarProps)
                                         numberOfLocos={locos.length}
                                         idx={0}
                                         selectedLoco={selectedLoco}
-                                        setSelectedLoco={setSelectedLoco}
+                                        setSelectedLoco={onSelectLocomotive}
                                         color={color}
                                     />
                                 )

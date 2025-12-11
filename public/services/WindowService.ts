@@ -8,6 +8,7 @@
 import { BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import type { StateService } from './StateService.js'
+import { theme } from '../../src/ui/theme.js'
 
 // Vite build configuration
 declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string
@@ -57,7 +58,8 @@ export class WindowService {
                 height: 650,
                 icon: join(__dirname, 'throttle.ico'),
                 autoHideMenuBar: true,
-                show: true,
+                show: false,
+                backgroundColor: theme.colors.background.dark,
                 title: `${locomotiveData.number}`,
                 alwaysOnTop: true,
                 webPreferences: {
@@ -99,8 +101,6 @@ export class WindowService {
                 }
             })
 
-            await throttleWindow.loadURL(startUrl)
-
             // Handle window events
             throttleWindow.on('closed', () => {
                 try {
@@ -112,11 +112,18 @@ export class WindowService {
                 }
             })
 
-
-
             throttleWindow.on('ready-to-show', () => {
                 throttleWindow.show()
             })
+
+            await throttleWindow.loadURL(startUrl)
+            
+            // Fallback to show window if ready-to-show doesn't fire
+            setTimeout(() => {
+                if (!throttleWindow.isVisible()) {
+                    throttleWindow.show()
+                }
+            }, 1000)
 
             this.throttleWindows.set(locomotiveId, throttleWindow)
             return throttleWindow

@@ -4,9 +4,10 @@ import { useNavigate } from 'react-router-dom'
 import AddCircleTwoToneIcon from '@mui/icons-material/AddCircleTwoTone';
 import DeleteForeverTwoToneIcon from '@mui/icons-material/DeleteForeverTwoTone';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
-import { Table } from '../../ui';
+import { Table, Button, useTheme } from '../../ui';
 
 export default function MacroList() {
+    const theme = useTheme()
     const navigate = useNavigate()
     const [macros, setMacros] = useState<Macro[]>([])
 
@@ -18,7 +19,7 @@ export default function MacroList() {
 
     return (
         <div className='pageContainer'>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: theme.spacing.md }}>
                 <b>Macro List</b>
                 <Button variant='secondary' size='sm' onClick={() => navigate('/system/macros/new')}>
                     <AddCircleTwoToneIcon style={{ fontSize: '18px', marginRight: '4px' }} />

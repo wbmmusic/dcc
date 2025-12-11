@@ -4,9 +4,10 @@ import { useNavigate } from 'react-router-dom'
 import AddCircleTwoToneIcon from '@mui/icons-material/AddCircleTwoTone';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import DeleteForeverTwoToneIcon from '@mui/icons-material/DeleteForeverTwoTone';
-import { Table, Button } from '../../ui';
+import { Table, Button, useTheme } from '../../ui';
 
 export default function SwitchesList() {
+    const theme = useTheme()
     const navigate = useNavigate()
     const [switches, setSwitches] = useState<Switch[]>([])
 
@@ -21,7 +22,7 @@ export default function SwitchesList() {
 
     return (
         <div className='pageContainer'>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: theme.spacing.md }}>
                 <b>Switches</b>
                 <Button variant='secondary' size='sm' onClick={() => navigate('/system/switches/new')}>
                     <AddCircleTwoToneIcon style={{ fontSize: '18px', marginRight: '4px' }} />

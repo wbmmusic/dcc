@@ -2,22 +2,22 @@
  * React Component Props Types
  */
 
+import type { Locomotive } from '../shared/types';
+
 export interface LocoControlProps {
-  selectedLoco: number;
+  selectedLoco: string;
 }
 
 export interface LocoBarProps {
-  selectedLoco: number;
-  setSelectedLoco: (index: number) => void;
+  selectedLoco: string;
+  onSelectLocomotive: (locomotiveId: string) => void;
 }
-
-import type { Locomotive } from '../shared/types';
 
 export interface LocoIconProps {
   loco: Locomotive;
   idx: number;
-  selectedLoco: number;
-  setSelectedLoco: (index: number) => void;
+  selectedLoco: string;
+  setSelectedLoco: (locomotiveId: string) => void;
   numberOfLocos?: number;
   color?: string;
 }

@@ -19,6 +19,7 @@ import Programming from './Programming';
 import LocoBar from './locoBar/LocoBar';
 import ThemeDemo from './ThemeDemo';
 import System from './System';
+import { Locomotive } from '../types';
 
 /**
  * Application state interface for tracking user selections
@@ -62,7 +63,8 @@ export default function AppTop(): React.JSX.Element {
     // Initialize with first locomotive ID
     useEffect(() => {
         window.electron.invoke('getLocomotives')
-            .then((locos: any[]) => {
+            .then((res: unknown) => {
+                const locos = res as Locomotive[]
                 if (locos.length > 0 && state.selectedLoco === '') {
                     setState(old => ({ ...old, selectedLoco: locos[0]._id }))
                 }
@@ -109,7 +111,8 @@ export default function AppTop(): React.JSX.Element {
                 // Send emergency stop command to all locomotives via selected loco's throttle
                 // Use first available locomotive ID for emergency stop all
                 window.electron.invoke('getLocomotives')
-                    .then((locos: any[]) => {
+                    .then((res: unknown) => {
+                        const locos = res as Locomotive[]
                         if (locos.length > 0) {
                             window.electron.invoke('mainWindowThrottle', locos[0]._id, 'eStopAll')
                         }
@@ -142,7 +145,7 @@ export default function AppTop(): React.JSX.Element {
                             <Route path="/theme-demo" element={<ThemeDemo />} />
                             <Route path="*" element={
                                 <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-                                    <LocoBar selectedLoco={state.selectedLoco} setSelectedLoco={selectLoco} />
+                                    <LocoBar selectedLoco={state.selectedLoco} onSelectLocomotive={selectLoco} />
                                     <div style={{
                                         height: '100%', width: '100%', maxWidth: '100%', display: 'flex',
                                         flexDirection: 'column', overflow: 'hidden', backgroundColor: theme.colors.background.dark

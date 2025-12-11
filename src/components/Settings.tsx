@@ -54,7 +54,10 @@ export default function Settings() {
     const handleIfaceSelect = async (e: any) => {
         try {
             const res = await window.electron.invoke('setUSBiface', e.value)
-            setSettings(res as SettingsType)
+            const settings = res as SettingsType
+            if (settings) {
+                setSettings(settings)
+            }
         } catch (error) {
             console.error('Failed to set USB interface:', error)
         }
@@ -63,7 +66,10 @@ export default function Settings() {
     const handlePortSelect = async (e: any) => {
         try {
             const res = await window.electron.invoke('setUSBport', e.value)
-            setSettings(res as SettingsType)
+            const settings = res as SettingsType
+            if (settings) {
+                setSettings(settings)
+            }
         } catch (error) {
             console.error('Failed to set USB port:', error)
         }
@@ -120,8 +126,10 @@ export default function Settings() {
                     window.electron.invoke('getSettings'),
                     window.electron.invoke('getSerialPorts')
                 ])
-                setSettings(settingsData as SettingsType)
-                setSerialPorts(portsData as SerialPort[])
+                const settings = settingsData as SettingsType
+                const ports = portsData as SerialPort[]
+                if (settings) setSettings(settings)
+                if (ports) setSerialPorts(ports)
             } catch (error) {
                 console.error('Failed to load settings:', error)
             }

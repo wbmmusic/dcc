@@ -253,6 +253,12 @@ export default function EditLocomotive() {
                         size='sm'
                         onClick={async () => {
                             try {
+                                // Show confirmation if replacing existing image
+                                if (loco.photo !== 'default.jpg') {
+                                    const confirmed = window.confirm('Replace current locomotive image?')
+                                    if (!confirmed) return
+                                }
+                                
                                 const res = await window.electron.invoke('selectLocoImage')
                                 if (res !== 'canceled' && res !== 'error') {
                                     setLoco(old => ({ ...old, photo: res as string }))
