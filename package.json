@@ -20,10 +20,10 @@
     "electron-updater": "^6.7.3",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "react-router-dom": "^7.12.0",
+    "react-router-dom": "^7.13.0",
     "react-select": "^5.10.2",
     "serialport": "^13.0.0",
-    "usb": "^2.16.0",
+    "usb": "^2.17.0",
     "uuid": "^13.0.0"
   },
   "scripts": {
@@ -48,8 +48,8 @@
     "@electron/fuses": "^2.0.0",
     "@types/adm-zip": "^0.5.7",
     "@types/archiver": "^7.0.0",
-    "@types/node": "^25.0.9",
-    "@types/react": "^19.2.8",
+    "@types/node": "^25.0.10",
+    "@types/react": "^19.2.9",
     "@types/react-dom": "^19.0.2",
     "@vitejs/plugin-react": "^5.1.2",
     "electron": "^40.0.0",
