@@ -103,8 +103,8 @@ importers:
         specifier: ^5.1.4
         version: 5.1.4(vite@7.3.1(@types/node@25.4.0)(jiti@2.6.1)(terser@5.44.1))
       electron:
-        specifier: ^40.8.0
-        version: 40.8.0
+        specifier: ^41.0.0
+        version: 41.0.0
       fs-extra:
         specifier: ^11.3.4
         version: 11.3.4
@@ -1638,8 +1638,8 @@ packages:
     resolution: {integrity: sha512-EYj1cm1nZoVHmIIx3o0aKt784lxdEpJnXbEnyypklUCnglqSb7ni+1xi1Vp/gtrGS/mzIxnWBT+x5fIfuDjhvA==}
     engines: {node: '>=14.0.0'}
 
-  electron@40.8.0:
-    resolution: {integrity: sha512-WoPq0Nr9Yx3g7T6VnJXdwa/rr2+VRyH3a+K+ezfMKBlf6WjxE/LmhMQabKbb6yjm9RbZhJBRcYyoLph421O2mQ==}
+  electron@41.0.0:
+    resolution: {integrity: sha512-U7QueSj1cFj9QM0Qamgh/MK08662FVK555iMfapqU7mcAmIm4A8bZuZptpjMXrT4JNAMGjgWu9sOeO1+RPCJNw==}
     engines: {node: '>= 12.20.55'}
     hasBin: true
 
@@ -5015,7 +5015,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  electron@40.8.0:
+  electron@41.0.0:
     dependencies:
       '@electron/get': 2.0.3
       '@types/node': 24.12.0
