@@ -48,14 +48,14 @@
     "@electron/fuses": "^2.1.0",
     "@types/adm-zip": "^0.5.7",
     "@types/archiver": "^7.0.0",
-    "@types/node": "^25.4.0",
+    "@types/node": "^25.5.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.0.2",
-    "@vitejs/plugin-react": "^5.1.4",
-    "electron": "^41.0.0",
+    "@vitejs/plugin-react": "^6.0.1",
+    "electron": "^41.0.2",
     "fs-extra": "^11.3.4",
     "typescript": "^5.9.3",
-    "vite": "^7.3.1"
+    "vite": "^8.0.0"
   },
   "repository": {
     "type": "git",
