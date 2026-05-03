@@ -20,7 +20,7 @@
     "electron-updater": "^6.8.3",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
-    "react-router-dom": "^7.14.1",
+    "react-router-dom": "^7.14.2",
     "react-select": "^5.10.2",
     "serialport": "^13.0.0",
     "usb": "^2.17.0",
@@ -52,10 +52,10 @@
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.0.2",
     "@vitejs/plugin-react": "^6.0.1",
-    "electron": "^41.2.1",
+    "electron": "^41.5.0",
     "fs-extra": "^11.3.4",
     "typescript": "^6.0.3",
-    "vite": "^8.0.9"
+    "vite": "^8.0.10"
   },
   "repository": {
     "type": "git",
