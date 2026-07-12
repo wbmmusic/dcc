@@ -14,7 +14,7 @@
     "@mui/icons-material": "^9.2.0",
     "@serialport/parser-byte-length": "^13.0.0",
     "@serialport/parser-inter-byte-timeout": "^13.0.0",
-    "adm-zip": "^0.5.18",
+    "adm-zip": "^0.6.0",
     "archiver": "^8.0.0",
     "electron-squirrel-startup": "^1.0.1",
     "electron-updater": "^6.8.9",
