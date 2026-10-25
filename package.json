@@ -17,7 +17,7 @@
     "adm-zip": "^0.6.1",
     "archiver": "^8.0.0",
     "electron-squirrel-startup": "^1.0.1",
-    "electron-updater": "^6.8.9",
+    "electron-updater": "^6.8.11",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-router-dom": "^7.18.4",
